@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bagus Tech - SEO Agent Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
+    .prose-rendered h2 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 0.35rem; }
+    .prose-rendered h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1.2rem; margin-bottom: 0.5rem; color: #f1f5f9; }
+    .prose-rendered p { margin-bottom: 0.85rem; line-height: 1.7; color: #cbd5e1; font-size: 0.95rem; }
+    .prose-rendered ul { list-style-type: disc; margin-left: 1.4rem; margin-bottom: 0.85rem; color: #cbd5e1; }
+    .prose-rendered table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.875rem; }
+    .prose-rendered th, .prose-rendered td { border: 1px solid #334155; padding: 0.6rem 0.8rem; text-align: left; }
+    .prose-rendered th { background: #1e293b; color: #f8fafc; font-weight: 600; }
+    .prose-rendered pre { background: #090d16; border: 1px solid #1e293b; border-radius: 0.5rem; padding: 0.85rem; overflow-x: auto; margin: 1rem 0; color: #a5f3fc; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .prose-rendered code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+  <!-- Header Navigation -->
+  <header class="border-b border-slate-800/80 bg-[#0b1120]/80 backdrop-blur-xl sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between shadow-sm">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 font-bold text-white text-xl tracking-wider">B</div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="font-bold text-base md:text-lg text-white leading-tight tracking-tight">Bagus Tech SEO Agent</h1>
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Live Connected
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 mt-0.5 font-mono">Blog ID: <span class="text-slate-300 font-semibold">2940095957137948013</span> &bull; <a href="https://bagustechnologia.blogspot.com/" target="_blank" class="text-brand-400 hover:text-brand-300 transition hover:underline">bagustechnologia.blogspot.com &nearr;</a></p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="openNewArticleModal()" class="px-4 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs md:text-sm font-semibold transition duration-200 shadow-md shadow-brand-500/20 flex items-center gap-2 active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>Tulis / Draf Baru</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Grid -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Left 7 Cols: Articles Queue -->
+    <div class="lg:col-span-7 space-y-6 flex flex-col">
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800/80">
+          <div>
+            <h2 class="font-bold text-base text-white flex items-center gap-2">
+              <span>Antrean Artikel & Approval</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Tinjau draf hasil racikan SEO Specialist sebelum dipublikasikan ke Blogger</p>
+          </div>
+          <span id="article-count-badge" class="text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1 rounded-full text-slate-300 font-mono font-medium">Memuat...</span>
+        </div>
+
+        <div id="articles-list" class="space-y-3.5 flex-1 overflow-y-auto max-h-[750px] pr-1">
+          <div class="text-center py-12 text-slate-400 text-xs">Memuat draf artikel...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right 5 Cols: Knowledge Base & Keywords -->
+    <div class="lg:col-span-5 space-y-6 flex flex-col">
+      <!-- SEO Knowledge & Master Prompt Tabs Card -->
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800/60">
+            <button id="tab-kb-btn" onclick="switchRightTab('kb')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-500 text-white shadow-sm transition">Knowledge Base</button>
+            <button id="tab-prompt-btn" onclick="switchRightTab('prompt')" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">Master Prompt</button>
+          </div>
+          
+          <div id="kb-actions" class="flex items-center gap-2">
+            <label for="pdf-upload-input" class="cursor-pointer text-xs bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 px-3 py-1.5 rounded-lg border border-amber-500/30 font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <span>Upload PDF</span>
+            </label>
+            <input type="file" id="pdf-upload-input" accept=".pdf" multiple class="hidden" onchange="uploadPdf(this)">
+            <button onclick="saveKb()" id="btn-save-kb" class="text-xs bg-brand-500/15 text-brand-400 hover:bg-brand-500/25 px-3 py-1.5 rounded-lg border border-brand-500/30 font-semibold transition active:scale-95">Simpan</button>
+          </div>
+          
+          <div id="prompt-actions" class="hidden flex items-center gap-2">
+            <button onclick="savePrompt()" id="btn-save-prompt" class="text-xs bg-brand-500/15 text-brand-400 hover:bg-brand-500/25 px-3 py-1.5 rounded-lg border border-brand-500/30 font-semibold transition active:scale-95">Simpan Prompt</button>
+          </div>
+        </div>
+
+        <!-- KB Tab Content -->
+        <div id="tab-kb-content" class="flex flex-col">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span>Pedoman materi SEO khusus:</span>
+            <span class="text-[11px] text-amber-400 font-medium">Auto-sync dari PDF</span>
+          </div>
+          <textarea id="kb-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed" placeholder="Memuat knowledge base..."></textarea>
+        </div>
+
+        <!-- Master Prompt Tab Content -->
+        <div id="tab-prompt-content" class="hidden flex flex-col">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span>Master System Prompt (Anti-AI Clichés, E-E-A-T, Schema):</span>
+          </div>
+          <textarea id="prompt-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed" placeholder="Memuat master prompt..."></textarea>
+        </div>
+      </div>
+
+      <!-- Target Keywords Bank Card -->
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div>
+            <h2 class="font-bold text-base text-white">🎯 Bank Target Keyword</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Daftar keyword yang direncanakan untuk diriset</p>
+          </div>
+          <button onclick="openNewKeywordModal()" class="text-xs bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 font-semibold transition active:scale-95">+ Tambah</button>
+        </div>
+        <div id="keywords-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <div class="text-center py-6 text-slate-400 text-xs">Memuat keyword...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Preview & Edit Modal -->
+  <div id="article-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800/90 bg-[#0f172a] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h3 id="modal-title-header" class="font-bold text-white text-base leading-tight">Preview & Edit Draf Artikel</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Pemeriksaan kualitas On-Page SEO sebelum publikasi resmi</p>
+          </div>
+        </div>
+        <button onclick="closeArticleModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-[#0b1120]">
+        <input type="hidden" id="modal-article-id">
+        
+        <!-- Row 1: Title -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Judul Artikel (H1)</label>
+            <span id="title-char-count" class="text-[11px] font-mono text-slate-400">0 karakter (Ideal: 50-60)</span>
+          </div>
+          <input type="text" id="modal-article-title" oninput="updateCharCount()" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <!-- Row 2: Target Keyword & Labels -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Target Primary Keyword</label>
+            <input type="text" id="modal-article-keyword" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Labels / Tags</label>
+            <input type="text" id="modal-article-labels" placeholder="Tech, Tutorial, SEO" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          </div>
+        </div>
+
+        <!-- Row 3: Meta Description -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Meta Description</label>
+            <span id="meta-char-count" class="text-[11px] font-mono text-slate-400">0 karakter (Ideal: 140-155)</span>
+          </div>
+          <textarea id="modal-article-meta" rows="2" oninput="updateCharCount()" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
+        </div>
+
+        <!-- Row 4: Content Tabs (Visual Render vs Raw HTML) -->
+        <div class="flex flex-col space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800/60">
+              <button id="btn-tab-preview" onclick="switchModalView('preview')" class="px-3 py-1 text-xs font-semibold rounded bg-brand-500 text-white shadow-sm transition">Visual Preview</button>
+              <button id="btn-tab-code" onclick="switchModalView('code')" class="px-3 py-1 text-xs font-semibold rounded text-slate-400 hover:text-slate-200 transition">Raw HTML</button>
+            </div>
+            <span class="text-[11px] text-slate-400">Format HTML siap terbit ke Blogger</span>
+          </div>
+
+          <!-- Visual Rendered Container -->
+          <div id="modal-render-container" class="bg-[#070b14] border border-slate-800 rounded-xl p-5 min-h-[300px] max-h-[420px] overflow-y-auto prose-rendered">
+          </div>
+
+          <!-- Raw Code Container -->
+          <div id="modal-code-container" class="hidden">
+            <textarea id="modal-article-content" rows="14" oninput="syncModalContent()" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-800/90 bg-[#0f172a] flex items-center justify-between shrink-0">
+        <button onclick="saveArticleDraft()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
+          <span>Simpan Perubahan</span>
+        </button>
+        <div class="flex items-center gap-3">
+          <button onclick="closeArticleModal()" class="px-4 py-2 text-slate-400 hover:text-slate-200 text-xs font-medium">Tutup</button>
+          <button id="btn-publish-action" onclick="publishArticle()" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 flex items-center gap-2 transition active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>Setujui & Publish ke Blogger</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let articles = [];
+    let keywords = [];
+
+    async function loadData() {
+      try {
+        const [resArt, resKw, resKb, resPrompt] = await Promise.all([
+          fetch('/api/articles'),
+          fetch('/api/keywords'),
+          fetch('/api/kb'),
+          fetch('/api/prompt')
+        ]);
+        
+        articles = await resArt.json();
+        keywords = await resKw.json();
+        
+        const kbData = await resKb.json();
+        const promptData = await resPrompt.json();
+        
+        document.getElementById('kb-editor').value = kbData.content || '';
+        document.getElementById('prompt-editor').value = promptData.content || '';
+        
+        const countBadge = document.getElementById('article-count-badge');
+        if (countBadge) countBadge.innerText = articles.length + ' Draf';
+        
+        renderArticles();
+        renderKeywords();
+      } catch (err) {
+        console.error('Error loading data:', err);
+      }
+    }
+
+    function renderArticles() {
+      const list = document.getElementById('articles-list');
+      if (!articles || !articles.length) {
+        list.innerHTML = `
+          <div class="text-center py-16 border border-dashed border-slate-800 rounded-2xl p-6">
+            <div class="w-12 h-12 rounded-full bg-slate-800/50 text-slate-400 flex items-center justify-center mx-auto mb-3 font-bold text-lg">✍️</div>
+            <p class="text-slate-300 font-semibold text-sm">Belum ada antrean draf artikel</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Klik <b>Tulis / Draf Baru</b> di pojok kanan atas atau perintahkan agent untuk menulis artikel baru.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      list.innerHTML = articles.map(a => {
+        const isPublished = a.status === 'published';
+        const badge = isPublished
+          ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Published</span>`
+          : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Need Approval</span>`;
+        
+        return `
+          <div class="p-4 rounded-xl border border-slate-800/90 bg-[#070b14]/70 hover:border-slate-700/80 transition duration-150 flex flex-col justify-between gap-3 shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                ${badge}
+                <span class="text-[11px] text-slate-400 font-mono bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">KW: ${escapeHtml(a.target_keyword || '-')}</span>
+              </div>
+              <h3 class="font-bold text-slate-100 text-sm md:text-base leading-snug hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${escapeHtml(a.title)}</h3>
+              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${escapeHtml(a.meta_description || 'Belum ada meta deskripsi')}</p>
+              ${a.blogger_url ? `<a href="${a.blogger_url}" target="_blank" class="text-xs text-brand-400 hover:text-brand-300 font-medium inline-flex items-center gap-1 hover:underline pt-1">Buka Post Live di Blogger &rarr;</a>` : ''}
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800/50">
+              <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
+              ${!isPublished ? `<button onclick="quickPublish(${a.id})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Publish</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderKeywords() {
+      const list = document.getElementById('keywords-list');
+      if (!keywords || !keywords.length) {
+        list.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada target keyword.</div>`;
+        return;
+      }
+      list.innerHTML = keywords.map(k => `
+        <div class="p-3 rounded-xl border border-slate-800/80 bg-[#070b14]/50 flex items-center justify-between text-xs">
+          <div>
+            <span class="font-semibold text-slate-200 block">${escapeHtml(k.keyword)}</span>
+            <span class="text-[10px] text-slate-400 mt-0.5 block font-mono">Intent: ${escapeHtml(k.search_intent || 'Informational')}</span>
+          </div>
+          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 font-mono font-medium border border-slate-700/50">${escapeHtml(k.status)}</span>
+        </div>
+      `).join('');
+    }
+
+    function viewArticle(id) {
+      const a = articles.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('modal-article-id').value = a.id;
+      document.getElementById('modal-article-title').value = a.title;
+      document.getElementById('modal-article-keyword').value = a.target_keyword || '';
+      document.getElementById('modal-article-labels').value = a.labels || '';
+      document.getElementById('modal-article-meta').value = a.meta_description || '';
+      document.getElementById('modal-article-content').value = a.content_html;
+      
+      syncModalContent();
+      updateCharCount();
+      
+      const publishBtn = document.getElementById('btn-publish-action');
+      if (a.status === 'published') {
+        publishBtn.classList.add('hidden');
+      } else {
+        publishBtn.classList.remove('hidden');
+      }
+      
+      switchModalView('preview');
+      document.getElementById('article-modal').classList.remove('hidden');
+    }
+
+    function syncModalContent() {
+      const raw = document.getElementById('modal-article-content').value;
+      document.getElementById('modal-render-container').innerHTML = raw;
+    }
+
+    function updateCharCount() {
+      const title = document.getElementById('modal-article-title').value;
+      const meta = document.getElementById('modal-article-meta').value;
+      document.getElementById('title-char-count').innerText = title.length + ' karakter (Ideal: 50-60)';
+      document.getElementById('meta-char-count').innerText = meta.length + ' karakter (Ideal: 140-155)';
+    }
+
+    function switchModalView(view) {
+      const renderContainer = document.getElementById('modal-render-container');
+      const codeContainer = document.getElementById('modal-code-container');
+      const btnPreview = document.getElementById('btn-tab-preview');
+      const btnCode = document.getElementById('btn-tab-code');
+      
+      if (view === 'preview') {
+        renderContainer.classList.remove('hidden');
+        codeContainer.classList.add('hidden');
+        btnPreview.className = 'px-3 py-1 text-xs font-semibold rounded bg-brand-500 text-white shadow-sm transition';
+        btnCode.className = 'px-3 py-1 text-xs font-semibold rounded text-slate-400 hover:text-slate-200 transition';
+        syncModalContent();
+      } else {
+        renderContainer.classList.add('hidden');
+        codeContainer.classList.remove('hidden');
+        btnCode.className = 'px-3 py-1 text-xs font-semibold rounded bg-brand-500 text-white shadow-sm transition';
+        btnPreview.className = 'px-3 py-1 text-xs font-semibold rounded text-slate-400 hover:text-slate-200 transition';
+      }
+    }
+
+    function openNewArticleModal() {
+      document.getElementById('modal-article-id').value = '';
+      document.getElementById('modal-article-title').value = '';
+      document.getElementById('modal-article-keyword').value = '';
+      document.getElementById('modal-article-labels').value = 'Tech, Tutorial';
+      document.getElementById('modal-article-meta').value = '';
+      document.getElementById('modal-article-content').value = '<p>Tulis konten atau masukkan kode HTML draf di sini...</p>';
+      document.getElementById('btn-publish-action').classList.remove('hidden');
+      syncModalContent();
+      updateCharCount();
+      switchModalView('preview');
+      document.getElementById('article-modal').classList.remove('hidden');
+    }
+
+    function closeArticleModal() {
+      document.getElementById('article-modal').classList.add('hidden');
+    }
+
+    async function saveArticleDraft() {
+      const id = document.getElementById('modal-article-id').value;
+      const data = {
+        id: id ? parseInt(id) : null,
+        title: document.getElementById('modal-article-title').value,
+        target_keyword: document.getElementById('modal-article-keyword').value,
+        labels: document.getElementById('modal-article-labels').value,
+        meta_description: document.getElementById('modal-article-meta').value,
+        content_html: document.getElementById('modal-article-content').value
+      };
+      const res = await fetch('/api/articles/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) window.location.reload();
+    }
+
+    async function publishArticle() {
+      const id = document.getElementById('modal-article-id').value;
+      if (!confirm('Publikasikan artikel ini langsung ke Blogger Bagus Tech sekarang?')) return;
+      const res = await fetch(`/api/articles/${id}/publish`, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) {
+        alert('Sukses! Artikel berhasil live di Blogger.');
+        window.location.reload();
+      } else {
+        alert('Gagal publish: ' + (result.error || 'Unknown error'));
+      }
+    }
+
+    async function quickPublish(id) {
+      if (!confirm('Publikasikan artikel ini ke Blogger sekarang?')) return;
+      const res = await fetch(`/api/articles/${id}/publish`, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) {
+        alert('Artikel berhasil dipublish ke Blogger!');
+        window.location.reload();
+      } else {
+        alert('Gagal: ' + (result.error || 'Terjadi kesalahan'));
+      }
+    }
+
+    function switchRightTab(tab) {
+      const kbContent = document.getElementById('tab-kb-content');
+      const promptContent = document.getElementById('tab-prompt-content');
+      const kbActions = document.getElementById('kb-actions');
+      const promptActions = document.getElementById('prompt-actions');
+      const tabKbBtn = document.getElementById('tab-kb-btn');
+      const tabPromptBtn = document.getElementById('tab-prompt-btn');
+      
+      if (tab === 'kb') {
+        kbContent.classList.remove('hidden');
+        promptContent.classList.add('hidden');
+        kbActions.classList.remove('hidden');
+        promptActions.classList.add('hidden');
+        tabKbBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-500 text-white shadow-sm transition';
+        tabPromptBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition';
+      } else {
+        kbContent.classList.add('hidden');
+        promptContent.classList.remove('hidden');
+        kbActions.classList.add('hidden');
+        promptActions.classList.remove('hidden');
+        tabPromptBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-500 text-white shadow-sm transition';
+        tabKbBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition';
+      }
+    }
+
+    async function savePrompt() {
+      const content = document.getElementById('prompt-editor').value;
+      const btn = document.getElementById('btn-save-prompt');
+      btn.innerText = 'Menyimpan...';
+      const res = await fetch('/api/prompt/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      if (res.ok) {
+        btn.innerText = 'Tersimpan ✓';
+        setTimeout(() => { btn.innerText = 'Simpan Prompt'; }, 2000);
+      }
+    }
+
+    async function saveKb() {
+      const content = document.getElementById('kb-editor').value;
+      const btn = document.getElementById('btn-save-kb');
+      btn.innerText = 'Menyimpan...';
+      const res = await fetch('/api/kb/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      if (res.ok) {
+        btn.innerText = 'Tersimpan ✓';
+        setTimeout(() => { btn.innerText = 'Simpan'; }, 2000);
+      }
+    }
+
+    async function uploadPdf(input) {
+      if (!input.files || input.files.length === 0) return;
+      const formData = new FormData();
+      for (let i = 0; i < input.files.length; i++) {
+        formData.append('files', input.files[i]);
+      }
+      
+      const count = input.files.length;
+      const btn = document.getElementById('btn-save-kb');
+      btn.innerText = 'Memproses ' + count + ' PDF...';
+      try {
+        const res = await fetch('/api/kb/upload-pdf', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('kb-editor').value = data.content;
+          alert('Berhasil mengekstrak ' + data.total_files + ' file PDF (' + data.total_pages + ' total halaman)! Materi sudah ditambahkan ke Knowledge Base.');
+        } else {
+          alert('Gagal memproses PDF: ' + (data.error || 'Error'));
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan saat upload PDF: ' + err.message);
+      } finally {
+        btn.innerText = 'Simpan';
+        input.value = '';
+      }
+    }
+
+    async function openNewKeywordModal() {
+      const kw = prompt('Masukkan target keyword baru:');
+      if (!kw) return;
+      const intent = prompt('Search intent (Informational / Commercial / Navigational):', 'Informational');
+      await fetch('/api/keywords/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword: kw, search_intent: intent || 'Informational' })
+      });
+      window.location.reload();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
