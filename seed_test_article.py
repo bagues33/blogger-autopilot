@@ -1,7 +1,6 @@
 import sqlite3
 import sys
-
-DB_PATH = '/opt/data/blogger-agent/data.db'
+from db import DB_PATH
 
 def seed_article():
     conn = sqlite3.connect(DB_PATH)

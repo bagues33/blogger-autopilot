@@ -2,6 +2,7 @@ import re
 import json
 import sqlite3
 from datetime import datetime
+from db import DB_PATH
 
 target_keyword = 'tips prompt engineering untuk software engineer'
 title = 'Tips Prompt Engineering untuk Software Engineer Praktis'
@@ -241,7 +242,7 @@ assert '<figure' in html_content, 'Figure missing'
 assert 'FAQPage' in html_content, 'FAQ Schema missing'
 
 # Simpan ke SQLite
-conn = sqlite3.connect('/opt/data/blogger-agent/data.db')
+conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
 # Update keyword status

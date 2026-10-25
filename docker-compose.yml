@@ -1,0 +1,38 @@
+services:
+  web:
+    build: .
+    container_name: blogger-autopilot-web
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./data.db:/app/data.db
+      - ./data_saas.db:/app/data_saas.db
+      - ./uploads:/app/uploads
+      - ./tokens:/app/tokens
+      - ./settings:/app/settings
+      - ./.env:/app/.env
+    environment:
+      - PORT=8090
+      - HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  scheduler:
+    build: .
+    container_name: blogger-autopilot-scheduler
+    restart: unless-stopped
+    command: ["python", "autopilot_scheduler.py", "3600"]
+    volumes:
+      - ./data.db:/app/data.db
+      - ./data_saas.db:/app/data_saas.db
+      - ./uploads:/app/uploads
+      - ./tokens:/app/tokens
+      - ./settings:/app/settings
+      - ./.env:/app/.env
+    depends_on:
+      - web

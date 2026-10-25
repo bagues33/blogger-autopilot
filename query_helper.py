@@ -1,6 +1,7 @@
 import sqlite3
+from db import DB_PATH
 
-conn = sqlite3.connect('/opt/data/blogger-agent/data.db')
+conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
 print('=== ARTICLES COLUMNS ===')

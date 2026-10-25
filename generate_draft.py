@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from datetime import datetime
+from db import DB_PATH
 
 target_keyword = 'cara integrasi api gemini di web modern'
 title = 'Cara Integrasi API Gemini di Web Modern: Panduan Praktis'
@@ -287,7 +288,7 @@ word_count = len(words)
 print(f"Calculated word count: {word_count}")
 
 # Connect to database
-conn = sqlite3.connect('/opt/data/blogger-agent/data.db')
+conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
 # 1. Update keyword status to in_progress

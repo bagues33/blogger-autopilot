@@ -1,5 +1,5 @@
 {
   "blog_id": "2940095957137948013",
-  "client_secret_file": "/opt/data/blogger-agent/client_secret.json",
-  "token_file": "/opt/data/blogger-agent/token.json"
+  "client_secret_file": "client_secret.json",
+  "token_file": "token.json"
 }

@@ -1,0 +1,57 @@
+name: Blogger Auto-Pilot SaaS CI/CD Test Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-suite:
+    name: Run Multi-Tenant SaaS End-to-End Test Suites
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential curl libpq-dev
+
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Initialize SaaS Database Schema
+      run: |
+        python db_saas.py
+
+    - name: Execute Full Multi-Tenant & Midtrans Billing Tests
+      run: |
+        # Launch Uvicorn server in background for HTTP tests
+        uvicorn app:app --host 127.0.0.1 --port 8090 &
+        sleep 3
+        curl -f http://127.0.0.1:8090/health
+
+    - name: Run End-to-End Automated Test Suites
+      run: |
+        python test_saas_full_flow.py
+        python test_tenant_isolation.py
+        python test_multitenant_crud.py
+        python test_new_saas_features.py
+        python test_sync_and_notifications.py
+        python test_admin_console.py
+        python test_rate_limiter_and_health.py
+
+    - name: Run Production Readiness Diagnostics
+      run: |
+        python check_saas_readiness.py

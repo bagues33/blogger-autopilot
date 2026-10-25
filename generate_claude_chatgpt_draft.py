@@ -2,9 +2,10 @@ import sqlite3
 import re
 import json
 from datetime import datetime
+from db import DB_PATH
 
 # 1. Verify and select keyword
-conn = sqlite3.connect('/opt/data/blogger-agent/data.db')
+conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
 
 c.execute("SELECT id, keyword, search_intent FROM keywords WHERE status = 'planned' ORDER BY id ASC LIMIT 1")

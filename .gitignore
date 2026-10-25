@@ -20,5 +20,9 @@ auth_state.json
 uploads/*
 !uploads/.gitkeep
 
+# Autopilot test settings
+settings/autopilot_blog_test_*.json
+!settings/.gitkeep
+
 # Environment overrides
 .env

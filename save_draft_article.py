@@ -1,7 +1,6 @@
 import sqlite3
 import json
-
-DB_PATH = '/opt/data/blogger-agent/data.db'
+from db import DB_PATH
 
 title = 'Rekomendasi AI Coding Assistant Gratis untuk VS Code 2026'
 target_keyword = 'rekomendasi ai coding assistant gratis untuk vs code'

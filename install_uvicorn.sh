@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-uv pip install --python /opt/data/blogger-agent/.venv/bin/python "uvicorn[standard]"
+uv pip install "uvicorn[standard]"

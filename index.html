@@ -44,52 +44,192 @@
     .prose-rendered th { background: #1e293b; color: #f8fafc; font-weight: 600; }
     .prose-rendered pre { background: #090d16; border: 1px solid #1e293b; border-radius: 0.5rem; padding: 0.85rem; overflow-x: auto; margin: 1rem 0; color: #a5f3fc; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
     .prose-rendered code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+    .prose-rendered figure { margin: 1.5rem 0; text-align: center; }
+    .prose-rendered figure img { max-width: 100%; height: auto; border-radius: 0.75rem; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .prose-rendered figcaption { font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; font-style: italic; }
   </style>
 </head>
 <body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
   <!-- Header Navigation -->
-  <header class="border-b border-slate-800/80 bg-[#0b1120]/80 backdrop-blur-xl sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between shadow-sm">
+  <header class="border-b border-slate-800/80 bg-[#0b1120]/80 backdrop-blur-xl sticky top-0 z-40 px-4 md:px-6 py-3 flex items-center justify-between shadow-sm flex-wrap gap-3">
     <div class="flex items-center space-x-3.5">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 font-bold text-white text-xl tracking-wider">B</div>
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 font-bold text-white text-xl tracking-wider shrink-0">B</div>
       <div>
-        <div class="flex items-center gap-2.5">
-          <h1 class="font-bold text-base md:text-lg text-white leading-tight tracking-tight">Bagus Tech SEO Agent</h1>
-          <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Live Connected
-          </span>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="font-bold text-base md:text-lg text-white leading-tight tracking-tight">Blogger SEO Agent</h1>
+          
+          <!-- Multi-Blog Selector Dropdown -->
+          <div class="relative" id="blog-dropdown-container">
+            <button onclick="toggleBlogDropdown()" class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/70 transition text-xs font-semibold text-slate-200 active:scale-95 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="active-blog-display-name">Bagus Tech</span>
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="blog-dropdown-menu" class="hidden absolute left-0 mt-2 w-72 bg-[#0f172a] border border-slate-700/90 rounded-2xl shadow-2xl z-50 p-2 space-y-1 backdrop-blur-xl">
+              <div class="text-[10px] font-bold text-slate-400 px-2 py-1 uppercase tracking-wider flex items-center justify-between">
+                <span>Daftar Blog Terhubung</span>
+                <span id="blog-total-badge" class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded font-mono">1 Blog</span>
+              </div>
+              <div id="blog-items-list" class="space-y-1 max-h-56 overflow-y-auto pr-0.5">
+                <!-- Populated dynamically via JS -->
+              </div>
+              <div class="border-t border-slate-800 pt-1.5 mt-1">
+                <button onclick="openAddBlogModal()" class="w-full py-1.5 px-2.5 bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/30 text-brand-400 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  <span>+ Tambah Blog / Akun Baru</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <p class="text-xs text-slate-400 mt-0.5 font-mono">Blog ID: <span class="text-slate-300 font-semibold">2940095957137948013</span> &bull; <a href="https://bagustechnologia.blogspot.com/" target="_blank" class="text-brand-400 hover:text-brand-300 transition hover:underline">bagustechnologia.blogspot.com &nearr;</a></p>
+        <p class="text-xs text-slate-400 mt-0.5 font-mono" id="active-blog-meta-row">Blog ID: <span class="text-slate-300 font-semibold" id="active-blog-id">2940095957137948013</span> &bull; <a id="active-blog-url" href="https://bagustechnologia.blogspot.com/" target="_blank" class="text-brand-400 hover:text-brand-300 transition hover:underline">bagustechnologia.blogspot.com &nearr;</a> &bull; <button onclick="openAutopilotModal()" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold hover:bg-emerald-500/25 transition active:scale-95"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span id="active-blog-autopilot-label">Autopilot: Aktif</span> ⚙️</button></p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <button onclick="openNewArticleModal()" class="px-4 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs md:text-sm font-semibold transition duration-200 shadow-md shadow-brand-500/20 flex items-center gap-2 active:scale-95">
+    <div class="flex items-center gap-2.5 flex-wrap">
+      <!-- Plan & Quota Pill -->
+      <div id="saas-plan-pill" onclick="openUpgradeModal()" class="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 transition shadow-sm group">
+        <span id="plan-badge-icon" class="text-amber-400 font-bold text-xs">⚡</span>
+        <div class="flex flex-col text-left">
+          <div class="flex items-center gap-1.5">
+            <span id="plan-name-display" class="text-xs font-bold text-white uppercase tracking-wider">Free</span>
+            <span id="plan-credits-ratio" class="text-[10px] font-mono text-brand-400 font-semibold">(0/3 Kredit)</span>
+          </div>
+          <div class="w-16 bg-slate-800 h-1 rounded-full overflow-hidden mt-0.5">
+            <div id="plan-progress-bar" class="bg-gradient-to-r from-brand-500 to-indigo-500 h-full w-[0%]"></div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded-lg group-hover:bg-amber-500/25 transition">Upgrade</span>
+      </div>
+
+      <!-- Superadmin Console Button (Admin only) -->
+      <button id="btn-admin-console" onclick="openAdminModal()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/50 text-xs font-bold text-purple-300 transition shadow-sm active:scale-95">
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+        <span>👑 Admin Console</span>
+      </button>
+
+      <!-- User Account Menu / Login Button -->
+      <div class="relative" id="user-menu-container">
+        <button id="btn-user-auth" onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/70 text-xs font-semibold text-white transition active:scale-95">
+          <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0" id="user-avatar-initial">U</div>
+          <span id="user-display-email" class="max-w-[110px] truncate">Akun</span>
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <!-- User Dropdown Menu -->
+        <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 bg-[#0f172a] border border-slate-700/90 rounded-2xl shadow-2xl z-50 p-2 space-y-1 backdrop-blur-xl">
+          <div class="px-3 py-2 border-b border-slate-800">
+            <p class="text-xs font-bold text-white truncate" id="dropdown-user-name">Pengguna</p>
+            <p class="text-[10px] text-slate-400 truncate" id="dropdown-user-email">user@email.com</p>
+          </div>
+          <button onclick="openUpgradeModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 text-xs text-amber-300 font-semibold flex items-center gap-2">
+            <span>💎 Paket & Kuota SaaS</span>
+          </button>
+          <button onclick="openNotificationModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 text-xs text-sky-300 font-semibold flex items-center gap-2">
+            <span>🔔 Notifikasi Telegram / Webhook</span>
+          </button>
+          <a href="/api/tenant/export" onclick="toggleUserDropdown(false);" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 text-xs text-emerald-300 font-semibold flex items-center gap-2 transition">
+            <span>📥 Ekspor / Backup Data (JSON)</span>
+          </a>
+          <button onclick="toggleLandingPreview(true); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 text-xs text-purple-300 font-semibold flex items-center gap-2">
+            <span>🌐 Pratinjau Landing Page SaaS</span>
+          </button>
+          <button id="menu-btn-auth-action" onclick="handleAuthAction()" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/15 text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-2 transition border-t border-slate-800 pt-2">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span id="menu-text-auth-action">Keluar (Logout)</span>
+          </button>
+        </div>
+      </div>
+
+      <button id="btn-auto-generate" onclick="triggerAutoGenerate()" class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl text-xs md:text-sm font-semibold transition duration-200 shadow-md shadow-amber-500/20 flex items-center gap-1.5 active:scale-95">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span id="btn-auto-generate-text">⚡ Riset & Draf Otomatis</span>
+      </button>
+      <button onclick="openNewArticleModal()" class="px-3.5 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs md:text-sm font-semibold transition duration-200 shadow-md shadow-brand-500/20 flex items-center gap-1.5 active:scale-95">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span>Tulis / Draf Baru</span>
+        <span>Tulis Manual</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Content Grid -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Left 7 Cols: Articles Queue -->
-    <div class="lg:col-span-7 space-y-6 flex flex-col">
-      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800/80">
-          <div>
-            <h2 class="font-bold text-base text-white flex items-center gap-2">
-              <span>Antrean Artikel & Approval</span>
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Tinjau draf hasil racikan SEO Specialist sebelum dipublikasikan ke Blogger</p>
-          </div>
-          <span id="article-count-badge" class="text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1 rounded-full text-slate-300 font-mono font-medium">Memuat...</span>
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+    <!-- SaaS Real-Time Analytics Metric Strip -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Draf Lokal</p>
+          <h4 id="stat-draft-count" class="text-xl font-extrabold text-amber-400 mt-1">0</h4>
+          <span class="text-[10px] text-slate-500">Siap direview</span>
         </div>
-
-        <div id="articles-list" class="space-y-3.5 flex-1 overflow-y-auto max-h-[750px] pr-1">
-          <div class="text-center py-12 text-slate-400 text-xs">Memuat draf artikel...</div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-lg">📝</div>
+      </div>
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Draf Blogger</p>
+          <h4 id="stat-blogger-draft-count" class="text-xl font-extrabold text-sky-400 mt-1">0</h4>
+          <span class="text-[10px] text-slate-500">Tersinkron di Blogger</span>
         </div>
+        <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-lg">⏳</div>
+      </div>
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Live Terbit</p>
+          <h4 id="stat-published-count" class="text-xl font-extrabold text-emerald-400 mt-1">0</h4>
+          <span class="text-[10px] text-slate-500">Diindeks mesin pencari</span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-lg">🚀</div>
+      </div>
+      <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:border-brand-500/50 transition group" onclick="openUpgradeModal()">
+        <div>
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sisa Kuota AI</p>
+          <h4 id="stat-credits-remaining" class="text-xl font-extrabold text-brand-400 mt-1">3 / 3</h4>
+          <span class="text-[10px] text-brand-300 font-semibold group-hover:underline">Klik untuk Upgrade &rarr;</span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 group-hover:bg-brand-500/20 transition flex items-center justify-center font-bold text-lg">💎</div>
       </div>
     </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left 7 Cols: Articles Queue -->
+      <div class="lg:col-span-7 space-y-6 flex flex-col">
+        <div class="bg-[#0f172a]/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 flex-wrap gap-2">
+            <div>
+              <h2 class="font-bold text-base text-white flex items-center gap-2">
+                <span>Antrean Artikel & Approval</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Tinjau draf hasil racikan SEO Specialist sebelum dipublikasikan ke Blogger</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="syncBloggerPosts()" id="btn-sync-blogger" title="Sinkronisasi status artikel dan postingan langsung dari Blogger" class="text-xs bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-slate-300 hover:text-white px-2.5 py-1 rounded-xl font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                <svg id="sync-icon" class="w-3.5 h-3.5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span id="sync-btn-text">Sinkron Blogger</span>
+              </button>
+              <span id="article-count-badge" class="text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1 rounded-full text-slate-300 font-mono font-medium">Memuat...</span>
+            </div>
+          </div>
+
+          <!-- Status Filter Pills & Search Input -->
+          <div class="flex items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800/60 flex-wrap">
+            <div class="flex items-center gap-1 bg-slate-950/70 p-1 rounded-xl border border-slate-800/60 text-xs flex-wrap">
+              <button id="filter-art-all" onclick="setArticleFilter('all')" class="px-2.5 py-1 rounded-lg font-semibold bg-brand-500 text-white shadow-sm transition">Semua (<span id="count-all">0</span>)</button>
+              <button id="filter-art-draft" onclick="setArticleFilter('draft')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Draf (<span id="count-draft">0</span>)</button>
+              <button id="filter-art-blogger" onclick="setArticleFilter('blogger_draft')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Blogger (<span id="count-blogger">0</span>)</button>
+              <button id="filter-art-published" onclick="setArticleFilter('published')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Live (<span id="count-published">0</span>)</button>
+            </div>
+            <div class="relative flex-1 min-w-[180px] max-w-xs">
+              <input type="text" id="search-article-input" oninput="handleArticleSearch(this.value)" placeholder="Cari artikel / keyword..." class="w-full bg-[#070b14] border border-slate-800 rounded-xl pl-8 pr-3 py-1 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+          </div>
+
+          <div id="articles-list" class="space-y-3.5 flex-1 overflow-y-auto max-h-[700px] pr-1">
+            <div class="text-center py-12 text-slate-400 text-xs">Memuat draf artikel...</div>
+          </div>
+        </div>
+      </div>
 
     <!-- Right 5 Cols: Knowledge Base & Keywords -->
     <div class="lg:col-span-5 space-y-6 flex flex-col">
@@ -118,10 +258,10 @@
         <!-- KB Tab Content -->
         <div id="tab-kb-content" class="flex flex-col">
           <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-            <span>Pedoman materi SEO khusus:</span>
+            <span>Pedoman materi SEO khusus & preferensi:</span>
             <span class="text-[11px] text-amber-400 font-medium">Auto-sync dari PDF</span>
           </div>
-          <textarea id="kb-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed" placeholder="Memuat knowledge base..."></textarea>
+          <textarea id="kb-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed">{{ kb_content }}</textarea>
         </div>
 
         <!-- Master Prompt Tab Content -->
@@ -129,7 +269,7 @@
           <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
             <span>Master System Prompt (Anti-AI Clichés, E-E-A-T, Schema):</span>
           </div>
-          <textarea id="prompt-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed" placeholder="Memuat master prompt..."></textarea>
+          <textarea id="prompt-editor" rows="11" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-brand-500/80 transition resize-none leading-relaxed">{{ prompt_content }}</textarea>
         </div>
       </div>
 
@@ -140,7 +280,11 @@
             <h2 class="font-bold text-base text-white">🎯 Bank Target Keyword</h2>
             <p class="text-xs text-slate-400 mt-0.5">Daftar keyword yang direncanakan untuk diriset</p>
           </div>
-          <button onclick="openNewKeywordModal()" class="text-xs bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 font-semibold transition active:scale-95">+ Tambah</button>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button onclick="openBulkKeywordModal()" class="text-xs bg-brand-500/15 text-brand-300 hover:bg-brand-500/25 px-2 py-1 rounded-lg border border-brand-500/30 font-semibold transition active:scale-95">📑 Import Massal</button>
+            <button onclick="openAiSuggestModal()" class="text-xs bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/25 px-2 py-1 rounded-lg border border-indigo-500/30 font-semibold transition active:scale-95">🤖 Ide Niche</button>
+            <button onclick="openNewKeywordModal()" class="text-xs bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded-lg border border-slate-700 font-semibold transition active:scale-95">+ Tambah</button>
+          </div>
         </div>
         <div id="keywords-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
           <div class="text-center py-6 text-slate-400 text-xs">Memuat keyword...</div>
@@ -163,13 +307,37 @@
             <p class="text-xs text-slate-400 mt-0.5">Pemeriksaan kualitas On-Page SEO sebelum publikasi resmi</p>
           </div>
         </div>
-        <button onclick="closeArticleModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+        <div class="flex items-center gap-2.5">
+          <span id="modal-word-badge" class="text-xs font-mono font-semibold px-3 py-1 rounded-full bg-brand-500/15 text-brand-400 border border-brand-500/30">0 kata</span>
+          <button onclick="closeArticleModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+        </div>
       </div>
 
       <!-- Modal Body -->
       <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-[#0b1120]">
         <input type="hidden" id="modal-article-id">
         
+        <!-- SEO Health Audit Banner -->
+        <div class="p-3.5 bg-slate-900/90 border border-slate-800 rounded-2xl flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-mono font-extrabold text-white text-base shadow-md shadow-emerald-500/20 shrink-0" id="seo-score-badge">95</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-white">Skor Kualitas SEO & Standar E-E-A-T</span>
+                <span id="seo-score-status" class="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">Sangat Optimal</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5" id="seo-score-summary">Panjang judul, meta deskripsi, dan struktur konten sesuai panduan Google Search.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
+            <span id="seo-check-title" class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">✓ Judul SERP</span>
+            <span id="seo-check-meta" class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">✓ Meta Deskripsi</span>
+            <span id="seo-check-words" class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">✓ Panjang Kata</span>
+            <span id="seo-check-schema" class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">✓ FAQPage Schema</span>
+            <span id="seo-check-img" class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">✓ Gambar WebP</span>
+          </div>
+        </div>
+
         <!-- Row 1: Title -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
@@ -200,18 +368,52 @@
           <textarea id="modal-article-meta" rows="2" oninput="updateCharCount()" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
         </div>
 
-        <!-- Row 4: Content Tabs (Visual Render vs Raw HTML) -->
+        <!-- Row 4: Image Helper Tools (Upload / Insert Image) -->
+        <div class="bg-[#070b14] border border-slate-800/80 rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Kelola & Sisipkan Gambar (Image SEO)</span>
+            </span>
+            <span class="text-[11px] text-slate-400 font-mono">Format: &lt;figure&gt; + &lt;img alt&gt; + &lt;figcaption&gt;</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 text-xs">
+            <div class="md:col-span-4">
+              <input type="text" id="img-url-input" placeholder="URL Gambar (Unsplash/CDN/Hosting)" class="w-full bg-[#0b1120] border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-3">
+              <input type="text" id="img-alt-input" placeholder="Alt Text (Sertakan Keyword)" class="w-full bg-[#0b1120] border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-3">
+              <input type="text" id="img-caption-input" placeholder="Caption / Keterangan Gambar" class="w-full bg-[#0b1120] border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-2 flex items-center gap-1.5">
+              <label for="modal-img-upload" class="cursor-pointer flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-center font-medium transition active:scale-95">
+                <span>Upload</span>
+              </label>
+              <input type="file" id="modal-img-upload" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+              <button type="button" onclick="insertImageSnippet()" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-400 text-white rounded-lg font-semibold transition active:scale-95 shadow-sm">+ Sisipkan</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Content Tabs (Visual Render vs Raw HTML) -->
         <div class="flex flex-col space-y-2">
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
             <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800/60">
               <button id="btn-tab-preview" onclick="switchModalView('preview')" class="px-3 py-1 text-xs font-semibold rounded bg-brand-500 text-white shadow-sm transition">Visual Preview</button>
               <button id="btn-tab-code" onclick="switchModalView('code')" class="px-3 py-1 text-xs font-semibold rounded text-slate-400 hover:text-slate-200 transition">Raw HTML</button>
             </div>
-            <span class="text-[11px] text-slate-400">Format HTML siap terbit ke Blogger</span>
+            <div class="flex items-center gap-3">
+              <span id="content-word-count" class="text-[11px] font-mono text-brand-400 font-semibold">0 kata (~0 mnt baca)</span>
+              <span class="text-[11px] text-slate-500 hidden sm:inline">&bull;</span>
+              <span class="text-[11px] text-slate-400 hidden sm:inline">Format HTML siap terbit ke Blogger</span>
+            </div>
           </div>
 
           <!-- Visual Rendered Container -->
           <div id="modal-render-container" class="bg-[#070b14] border border-slate-800 rounded-xl p-5 min-h-[300px] max-h-[420px] overflow-y-auto prose-rendered">
+            <!-- Content rendered via innerHTML -->
           </div>
 
           <!-- Raw Code Container -->
@@ -223,41 +425,1045 @@
 
       <!-- Modal Footer -->
       <div class="px-6 py-4 border-t border-slate-800/90 bg-[#0f172a] flex items-center justify-between shrink-0">
-        <button onclick="saveArticleDraft()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <span>Simpan Perubahan</span>
-        </button>
-        <div class="flex items-center gap-3">
-          <button onclick="closeArticleModal()" class="px-4 py-2 text-slate-400 hover:text-slate-200 text-xs font-medium">Tutup</button>
-          <button id="btn-publish-action" onclick="publishArticle()" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 flex items-center gap-2 transition active:scale-95">
+        <div class="flex items-center gap-2">
+          <button onclick="saveArticleDraft()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
+            <span>Simpan Perubahan</span>
+          </button>
+          <button id="btn-delete-article" onclick="deleteCurrentArticle()" class="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-semibold transition active:scale-95">
+            <span>Hapus Draf</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeArticleModal()" class="px-3 py-2 text-slate-400 hover:text-slate-200 text-xs font-medium">Tutup</button>
+          <button id="btn-draft-action" onclick="publishArticle(true)" class="px-3.5 py-2 bg-amber-600/90 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 flex items-center gap-1.5 transition active:scale-95" title="Kirim ke Blogger dan simpan sebagai status Draft (tidak langsung tayang publik)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span>Kirim Draft ke Blogger</span>
+          </button>
+          <button id="btn-publish-action" onclick="publishArticle(false)" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 flex items-center gap-1.5 transition active:scale-95" title="Publikasikan langsung (Live) ke pembaca blog">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <span>Setujui & Publish ke Blogger</span>
+            <span>Publish Live</span>
           </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Modal: Tambah Blog / Akun Google Baru -->
+  <div id="add-blog-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base leading-tight">Hubungkan Blog Baru</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Daftarkan blog lain (satu akun atau akun Google berbeda)</p>
+          </div>
+        </div>
+        <button onclick="closeAddBlogModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">ID Blog Blogger *</label>
+          <input type="text" id="new-blog-id" placeholder="Contoh: 8492019482019482019" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          <p class="text-[10px] text-slate-500 mt-1">Dapat dilihat di URL dashboard Blogger (blogger.com/blog/posts/<b>[BLOG_ID]</b>)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Nama Blog *</label>
+          <input type="text" id="new-blog-name" placeholder="Contoh: Info Finansial ID" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">URL Blog</label>
+          <input type="text" id="new-blog-url" placeholder="https://namablog.blogspot.com/" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Nama Label Akun Google</label>
+          <input type="text" id="new-blog-account" placeholder="Contoh: Akun Kantor, Akun Pribadi" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Niche / Topik Pembahasan</label>
+          <input type="text" id="new-blog-niche" placeholder="Contoh: Bisnis, Investasi, Tutorial, Kuliner" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Kredensial Akun Google</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700">
+              <input type="radio" name="token-choice" value="existing" checked onchange="toggleTokenUpload(false)" class="text-brand-500 focus:ring-0">
+              <div class="text-xs">
+                <span class="font-semibold text-white block">Satu Akun Google dengan Blog Aktif</span>
+                <span class="text-slate-400 text-[11px]">Memakai token OAuth yang sama tanpa perlu login ulang</span>
+              </div>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer hover:border-slate-700">
+              <input type="radio" name="token-choice" value="new" onchange="toggleTokenUpload(true)" class="text-brand-500 focus:ring-0">
+              <div class="text-xs">
+                <span class="font-semibold text-white block">Akun Google Berbeda (Upload Token Baru)</span>
+                <span class="text-slate-400 text-[11px]">Unggah file token.json dari akun Google kedua</span>
+              </div>
+            </label>
+          </div>
+
+          <div id="token-upload-area" class="hidden mt-3 p-3.5 bg-brand-500/10 border border-brand-500/30 rounded-xl space-y-3.5">
+            <div>
+              <span class="block text-[11px] font-bold text-brand-300 mb-1.5">Metode 1: Login Google Otomatis (SaaS 1-Klik Redirect):</span>
+              <a href="/api/auth/google/login" class="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V13.4h6.887C18.2 16.14 15.645 18 12.24 18c-3.315 0-6-2.685-6-6s2.685-6 6-6c1.47 0 2.805.54 3.84 1.425l2.4-2.4C16.89 3.51 14.715 2.7 12.24 2.7 7.08 2.7 2.91 6.87 2.91 12.03s4.17 9.33 9.33 9.33c5.385 0 8.94-3.78 8.94-9.09 0-.615-.06-1.215-.165-1.785H12.24z"/></svg>
+                <span>Login dengan Google & Impor Otomatis</span>
+              </a>
+              <p class="text-[10px] text-slate-400 mt-1">Mengimpor seluruh blog di akun tersebut tanpa perlu salin kode apapun.</p>
+            </div>
+            
+            <div class="pt-2 border-t border-brand-500/20">
+              <span class="block text-[11px] font-bold text-slate-300 mb-1">Metode 2: Buka di Tab Baru & Tempel Kode (Desktop App):</span>
+              <button type="button" onclick="openOAuthLoginPopup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <span>Dapatkan Link Otorisasi</span>
+              </button>
+              <div id="oauth-code-input-group" class="hidden mt-2 space-y-1.5">
+                <label class="block text-[10px] text-slate-300">Tempel URL atau Kode Hasil Login:</label>
+                <div class="flex gap-2">
+                  <input type="text" id="oauth-code-input" placeholder="http://localhost/?code=... atau kode otorisasi" class="flex-1 bg-[#070b14] border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white">
+                  <button type="button" onclick="submitOAuthCode()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition">Verifikasi</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-brand-500/20">
+              <span class="block text-[11px] font-bold text-slate-300 mb-1">Metode 3: Upload File token.json yang sudah ada:</span>
+              <input type="file" id="new-blog-token-file" accept=".json" class="text-xs text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-500 file:text-white hover:file:bg-brand-400 cursor-pointer">
+            </div>
+            <p id="token-upload-status" class="text-[11px] font-medium"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeAddBlogModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button id="btn-save-new-blog" onclick="saveNewBlog()" class="px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 flex items-center gap-1.5">
+          <span>Simpan & Daftarkan</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SaaS Authentication Modal (Login / Register) -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">B</div>
+          <div>
+            <h3 class="font-bold text-white text-base leading-tight" id="auth-modal-title">Masuk ke Akun SaaS</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola kuota, multi-blog, dan autopilot SEO</p>
+          </div>
+        </div>
+        <button onclick="closeAuthModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="flex border-b border-slate-800 bg-[#090d16]">
+        <button id="tab-auth-login" onclick="switchAuthTab('login')" class="flex-1 py-3 text-xs font-bold text-brand-400 border-b-2 border-brand-500 transition">Masuk (Login)</button>
+        <button id="tab-auth-register" onclick="switchAuthTab('register')" class="flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition">Daftar Akun Baru</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div id="auth-error-alert" class="hidden p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+        <!-- Form Login -->
+        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Alamat Email</label>
+            <input type="email" id="login-email" required placeholder="nama@email.com" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Kata Sandi</label>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <button type="submit" id="btn-submit-login" class="w-full py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
+            <span>Masuk ke Dashboard</span>
+          </button>
+        </form>
+
+        <!-- Form Register -->
+        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Nama Lengkap</label>
+            <input type="text" id="register-name" placeholder="Budi Santoso" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Alamat Email</label>
+            <input type="email" id="register-email" required placeholder="nama@email.com" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Kata Sandi (Minimal 6 Karakter)</label>
+            <input type="password" id="register-password" minlength="6" required placeholder="••••••••" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <p class="text-[11px] text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+            🎁 <b>Bonus Gratis Langsung:</b> 3 kredit artikel AI SEO otomatis diberikan saat pendaftaran selesai!
+          </p>
+          <button type="submit" id="btn-submit-register" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-500/20 active:scale-95">
+            <span>Buat Akun & Mulai Gratis</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indonesian Pricing & Upgrade Modal (Midtrans Snap) -->
+  <div id="upgrade-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-3xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden max-h-[92vh]">
+      <!-- Modal Header -->
+      <div class="px-6 py-5 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🚀</span>
+            <h3 class="font-bold text-white text-lg">Pilih Paket Langganan Blogger AutoPilot</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Solusi SEO Publisher Otomatis. Pembayaran instan via QRIS (GoPay, ShopeePay, OVO, Dana) & Virtual Account Bank Indonesia.</p>
+        </div>
+        <button onclick="closeUpgradeModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+
+      <!-- Plans Grid -->
+      <div class="p-6 overflow-y-auto space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Free Plan Card -->
+          <div class="bg-[#070b14] border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Free Community</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">Gratis</span>
+              </div>
+              <div class="mb-4">
+                <span class="text-2xl font-extrabold text-white">Rp 0</span>
+                <span class="text-xs text-slate-500">/ bulan</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-4">Cocok untuk mencoba integrasi otomatis ke Blogger.</p>
+              <ul class="text-xs space-y-2 text-slate-300 border-t border-slate-800/80 pt-4">
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <b>3 Artikel AI</b> / bulan</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 1 Blog Blogger Terhubung</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Format WebP Otomatis</li>
+                <li class="flex items-center gap-2"><span class="text-slate-500">✗</span> Cloudinary CDN Prioritas</li>
+                <li class="flex items-center gap-2"><span class="text-slate-500">✗</span> FAQPage Schema Generator</li>
+              </ul>
+            </div>
+            <div class="pt-6">
+              <button disabled class="w-full py-2 bg-slate-800 text-slate-500 rounded-xl text-xs font-semibold cursor-not-allowed">Paket Dasar</button>
+            </div>
+          </div>
+
+          <!-- Starter Plan Card (Recommended) -->
+          <div class="bg-gradient-to-b from-[#0f1d38] to-[#070b14] border-2 border-brand-500 rounded-2xl p-5 flex flex-col justify-between shadow-xl shadow-brand-500/10 relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-500 to-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md">
+              Paling Populer ⭐
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2 pt-1">
+                <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">Starter Creator</span>
+                <span class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded-full font-mono">Rp 3.300/art</span>
+              </div>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-white">Rp 99.000</span>
+                <span class="text-xs text-slate-400">/ bulan</span>
+              </div>
+              <p class="text-xs text-slate-300 mb-4">Untuk blogger aktif yang ingin meriset dan memposting 1 artikel per hari.</p>
+              <ul class="text-xs space-y-2 text-slate-200 border-t border-slate-800/80 pt-4">
+                <li class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> <b>30 Artikel AI SEO</b> / bulan</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> <b>3 Blog Blogger</b> Terhubung</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> Cloudinary CDN Image HD</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> E-E-A-T FAQ JSON-LD Schema</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> 1-Click Blogger Sync Live/Draft</li>
+              </ul>
+            </div>
+            <div class="pt-6 space-y-2">
+              <button onclick="payWithMidtrans('starter')" class="w-full py-2.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/25 flex items-center justify-center gap-1.5 active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Bayar via Midtrans (QRIS/VA)</span>
+              </button>
+              <button onclick="simulateDemoPayment('starter')" class="w-full py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-lg text-[11px] font-semibold transition">
+                ⚡ Coba Aktivasi Demo (Sandbox Instan)
+              </button>
+            </div>
+          </div>
+
+          <!-- Pro Plan Card -->
+          <div class="bg-[#070b14] border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Pro Autopilot</span>
+                <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono">Rp 2.075/art</span>
+              </div>
+              <div class="mb-4">
+                <span class="text-3xl font-extrabold text-white">Rp 249.000</span>
+                <span class="text-xs text-slate-500">/ bulan</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-4">Untuk media network & agensi content yang membutuhkan volume besar harian.</p>
+              <ul class="text-xs space-y-2 text-slate-300 border-t border-slate-800/80 pt-4">
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <b>120 Artikel AI SEO</b> / bulan</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <b>10 Blog Blogger</b> Terhubung</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Antrean Worker Prioritas Tinggi</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Full Automation Cron Schedule</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Cloudinary CDN Full Speed</li>
+              </ul>
+            </div>
+            <div class="pt-6 space-y-2">
+              <button onclick="payWithMidtrans('pro')" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Bayar via Midtrans (QRIS/VA)</span>
+              </button>
+              <button onclick="simulateDemoPayment('pro')" class="w-full py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 rounded-lg text-[11px] font-semibold transition">
+                ⚡ Coba Aktivasi Demo (Sandbox Instan)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indonesia Payment Methods Trust Badge -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-semibold text-slate-300">Metode Pembayaran Resmi Indonesia:</span>
+            <span class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">QRIS (GoPay, OVO, ShopeePay, Dana, LinkAja)</span>
+            <span class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">BCA &bull; Mandiri &bull; BRI &bull; BNI VA</span>
+          </div>
+          <div class="text-[11px] text-emerald-400 flex items-center gap-1 font-semibold">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <span>Verifikasi Otomatis Real-Time Midtrans</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Keyword Import Modal -->
+  <div id="bulk-keyword-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">📑</div>
+          <div>
+            <h3 class="font-bold text-white text-base leading-tight">Import Keyword Massal</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Tempel banyak keyword sekaligus (1 baris per keyword)</p>
+          </div>
+        </div>
+        <button onclick="closeBulkKeywordModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Search Intent Default</label>
+          <select id="bulk-kw-intent" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+            <option value="Informational">Informational (Tutorial, Panduan, Cara)</option>
+            <option value="Commercial">Commercial (Rekomendasi, Review, Perbandingan)</option>
+            <option value="Transactional">Transactional (Beli, Biaya, Harga)</option>
+          </select>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Daftar Keyword (1 per baris)</label>
+            <span id="bulk-kw-count-label" class="text-[11px] font-mono text-slate-400">0 baris</span>
+          </div>
+          <textarea id="bulk-kw-textarea" oninput="updateBulkCount()" rows="8" placeholder="cara optimasi seo blogspot&#10;panduan google adsense pemula&#10;rekomendasi template blogger cepat" class="w-full bg-[#070b14] border border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeBulkKeywordModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button id="btn-submit-bulk-kw" onclick="submitBulkKeywords()" class="px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
+          Simpan Semua Keyword
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Niche Topic & Keyword Generator Modal -->
+  <div id="ai-suggest-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-md flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">🤖</div>
+          <div>
+            <h3 class="font-bold text-white text-base leading-tight">Ide Keyword Otomatis</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Hasilkan keyword SEO berpotensi tinggi dari topik blog Anda</p>
+          </div>
+        </div>
+        <button onclick="closeAiSuggestModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Topik Utama / Niche Blog *</label>
+          <input type="text" id="ai-suggest-niche" placeholder="Contoh: Belajar Python, Wisata Kuliner, Saham" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+          <p class="text-[11px] text-slate-500 mt-1">Sistem akan menyusun 8 variasi kata kunci intent informasional dan komersial siap riset.</p>
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeAiSuggestModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button id="btn-submit-ai-suggest" onclick="submitAiSuggest()" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-brand-500 hover:from-indigo-400 hover:to-brand-400 text-white rounded-xl text-xs font-bold transition shadow-md shadow-indigo-500/20 active:scale-95">
+          ⚡ Hasilkan 8 Keyword
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Autopilot Settings Modal -->
+  <div id="autopilot-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">⚙️</div>
+          <div>
+            <h3 class="font-bold text-white text-base leading-tight">Pengaturan Autopilot Blog</h3>
+            <p class="text-xs text-slate-400 mt-0.5" id="autopilot-modal-subtitle">Konfigurasi otomatisasi jadwal posting untuk blog aktif</p>
+          </div>
+        </div>
+        <button onclick="closeAutopilotModal()" class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">&times;</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-white block">Status Autopilot Latar Belakang</span>
+            <span class="text-[11px] text-slate-400">Jalankan riset & draf artikel secara terjadwal otomatis</span>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="autopilot-enabled-toggle" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Tujuan Simpan / Publikasi</label>
+          <select id="autopilot-publish-mode" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+            <option value="blogger_draft">Kirim sebagai Draf di Blogger (Direkomendasikan - siap tinjau)</option>
+            <option value="draft">Simpan Draf di Dashboard Saja (Review manual sebelum kirim)</option>
+            <option value="published">Langsung Publikasikan Live ke Blogger (Full Hands-Free)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Frekuensi Jadwal Posting</label>
+          <select id="autopilot-schedule-freq" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
+            <option value="daily">1 Artikel per Hari (Setiap Pukul 08:00 WIB)</option>
+            <option value="twice_daily">2 Artikel per Hari (Pukul 08:00 & 17:00 WIB)</option>
+            <option value="manual">Manual Saja (Hanya saat tombol ditekan)</option>
+          </select>
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeAutopilotModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button id="btn-save-autopilot" onclick="saveAutopilotSettings()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-600/20 active:scale-95">
+          Simpan Pengaturan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Settings Modal (Telegram & Webhook) -->
+  <div id="notification-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0f172a] border border-slate-700/80 rounded-3xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+      <div class="px-6 py-4 bg-gradient-to-r from-sky-950/70 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-sm font-bold">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Pengaturan Notifikasi Real-Time</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Dapatkan kabar instan saat artikel selesai diracik atau dipublikasikan</p>
+          </div>
+        </div>
+        <button onclick="closeNotificationModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto">
+        <!-- Telegram Configuration -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+              <span>✈️ Bot Telegram</span>
+            </span>
+            <span class="text-[10px] text-slate-500">Gratis & Instan</span>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Telegram Bot Token</label>
+            <input type="text" id="notify-tg-token" placeholder="Contoh: 123456789:ABCdefGHIjkl..." class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition font-mono">
+            <p class="text-[10px] text-slate-500 mt-1">Dapatkan token dengan membuat bot baru di Telegram melalui <span class="text-sky-400 font-mono">@BotFather</span>.</p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Telegram Chat ID / Channel ID</label>
+            <input type="text" id="notify-tg-chat-id" placeholder="Contoh: 123456789 atau -100123456789" class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition font-mono">
+            <p class="text-[10px] text-slate-500 mt-1">Kirim pesan ke bot Anda, lalu cek Chat ID Anda via <span class="text-sky-400 font-mono">@userinfobot</span>.</p>
+          </div>
+        </div>
+
+        <!-- Custom Webhook Configuration -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+              <span>🔗 Webhook URL (Zapier / Make / Discord / Slack)</span>
+            </span>
+          </div>
+          <input type="url" id="notify-webhook-url" placeholder="https://webhook.site/... atau https://discord.com/api/webhooks/..." class="w-full bg-[#070b14] border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition font-mono">
+          <p class="text-[10px] text-slate-500">Menerima payload JSON event secara otomatis setiap ada siklus konten.</p>
+        </div>
+
+        <!-- Notification Toggles -->
+        <div class="space-y-2.5 pt-1">
+          <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
+            <span class="text-xs text-slate-300 font-medium">Kirim notifikasi saat Draf Baru selesai dibuat</span>
+            <input type="checkbox" id="notify-toggle-draft" checked class="rounded border-slate-700 text-sky-500 focus:ring-sky-500/20 w-4 h-4 bg-slate-900">
+          </label>
+          <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
+            <span class="text-xs text-slate-300 font-medium">Kirim notifikasi saat Artikel Terbit ke Blogger</span>
+            <input type="checkbox" id="notify-toggle-publish" checked class="rounded border-slate-700 text-sky-500 focus:ring-sky-500/20 w-4 h-4 bg-slate-900">
+          </label>
+          <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 cursor-pointer hover:border-slate-700 transition">
+            <span class="text-xs text-slate-300 font-medium">Kirim peringatan saat Kuota Kredit menipis (&le; 1)</span>
+            <input type="checkbox" id="notify-toggle-credit" checked class="rounded border-slate-700 text-sky-500 focus:ring-sky-500/20 w-4 h-4 bg-slate-900">
+          </label>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-between">
+        <button id="btn-test-notification" onclick="testNotificationChannel()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-1.5">
+          <span>🚀 Kirim Pesan Uji Coba</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeNotificationModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Tutup</button>
+          <button id="btn-save-notifications" onclick="saveNotificationSettings()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-sky-600/20 active:scale-95">
+            Simpan Pengaturan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SaaS Public Marketing Landing Page Modal -->
+  <div id="landing-preview-modal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 hidden overflow-y-auto">
+    <div class="max-w-6xl mx-auto px-4 py-6 md:py-10 space-y-12">
+      <!-- Landing Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <span class="text-lg font-black tracking-tight text-white">Blogger Auto-Pilot</span>
+            <span class="ml-2 text-[10px] uppercase font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">SaaS Indonesia</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="toggleLandingPreview(false); openAuthModal('login');" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition">
+            Masuk ke Akun
+          </button>
+          <button onclick="toggleLandingPreview(false)" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="text-center max-w-3xl mx-auto space-y-5 pt-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold">
+          <span>🇮🇩 Solusi Otomasi Konten Blogger Berbasis AI #1 di Indonesia</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+          Tulis & Terbitkan Puluhan Artikel SEO Berkualitas Tinggi Secara <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-indigo-400 to-pink-400">Otomatis 24/7</span>
+        </h1>
+        <p class="text-slate-400 text-sm md:text-base leading-relaxed">
+          Kombinasi AI cerdas berstandar Google E-E-A-T, riset kata kunci otomatis, gambar relevan, dan sinkronisasi 2 arah langsung ke Blogspot Anda tanpa sentuhan manual.
+        </p>
+        <div class="flex items-center justify-center gap-3.5 pt-2 flex-wrap">
+          <button onclick="toggleLandingPreview(false); openAuthModal('register');" class="px-6 py-3.5 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-brand-500/25 transition active:scale-95 flex items-center gap-2">
+            <span>🚀 Coba Gratis Sekarang (3 Kredit Artikel)</span>
+          </button>
+          <button onclick="document.getElementById('landing-pricing-section').scrollIntoView({behavior:'smooth'})" class="px-5 py-3.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 rounded-2xl font-semibold text-sm transition">
+            Lihat Paket Harga
+          </button>
+        </div>
+      </div>
+
+      <!-- Value Proposition Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-6">
+        <div class="bg-[#0f172a]/80 border border-slate-800 rounded-3xl p-6 space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xl font-bold">🛡️</div>
+          <h3 class="font-bold text-base text-white">Google E-E-A-T & HCU Guard</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Dilengkapi SEO Quality Gauge real-time (0-100) yang memvalidasi heading, FAQ schema, external authority link, dan pengalaman nyata agar artikel Anda kebal terhadap penalti algoritma Google.
+          </p>
+        </div>
+        <div class="bg-[#0f172a]/80 border border-slate-800 rounded-3xl p-6 space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xl font-bold">⏰</div>
+          <h3 class="font-bold text-base text-white">Autopilot Daemon 24/7</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Daemon pintar bekerja di background setiap jam. Memilih kata kunci dari antrean Anda, menulis draf komprehensif, dan menjadwalkan ke Blogger saat Anda sedang tidur nyenyak.
+          </p>
+        </div>
+        <div class="bg-[#0f172a]/80 border border-slate-800 rounded-3xl p-6 space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-xl font-bold">🇮🇩</div>
+          <h3 class="font-bold text-base text-white">Bayar Mudah via Midtrans</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Dukung metode pembayaran lokal Indonesia: QRIS, GoPay, ShopeePay, OVO, dan Virtual Account BCA, Mandiri, BRI, BNI. Transaksi otomatis aktif dalam hitungan detik.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pricing Comparison Section -->
+      <div id="landing-pricing-section" class="pt-8 space-y-6">
+        <div class="text-center space-y-2">
+          <h2 class="text-2xl md:text-3xl font-black text-white">Paket Langganan Transparan</h2>
+          <p class="text-xs md:text-sm text-slate-400">Pilih paket yang paling sesuai dengan target pertumbuhan website Anda</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Free -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Free Tier</span>
+              <div class="text-2xl font-black text-white mt-2">Rp 0</div>
+              <p class="text-[11px] text-slate-400 mt-1">Untuk mencoba kualitas AI</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> 3 Kredit Artikel Gratis</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> 1 Blog Blogger</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> SEO Score Audit (0-100)</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openAuthModal('register');" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition">Daftar Akun Gratis</button>
+          </div>
+
+          <!-- Starter -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">Starter Solo</span>
+              <div class="text-2xl font-black text-white mt-2">Rp 99.000<span class="text-xs font-normal text-slate-400">/bln</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">Cocok untuk solo blogger pemula</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> 30 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Kelola Hingga 3 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Riset Keyword Otomatis</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Notifikasi Telegram</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand-600/25">Pilih Starter</button>
+          </div>
+
+          <!-- Pro (Popular) -->
+          <div class="bg-gradient-to-b from-brand-950/40 to-slate-900 border-2 border-brand-500/80 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative shadow-2xl">
+            <span class="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">Paling Populer</span>
+            <div>
+              <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Pro Publisher</span>
+              <div class="text-2xl font-black text-white mt-2">Rp 249.000<span class="text-xs font-normal text-slate-400">/bln</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">Untuk publisher & affiliate serius</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> 120 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Kelola Hingga 10 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Autopilot Scheduler Harian</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Telegram & Webhook Instant</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black rounded-xl text-xs font-black transition shadow-lg shadow-orange-500/25">Pilih Pro</button>
+          </div>
+
+          <!-- Agency -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Agency / Network</span>
+              <div class="text-2xl font-black text-white mt-2">Rp 699.000<span class="text-xs font-normal text-slate-400">/bln</span></div>
+              <p class="text-[11px] text-slate-400 mt-1">PBN, agensi SEO & media jaringan</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> 500 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Kelola Hingga 50 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Ekspor Backup Data 1-Klik</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400">✓</span> Priority Support 24/7</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-600/25">Pilih Agency</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="text-center pt-8 border-t border-slate-800 pb-6">
+        <p class="text-xs text-slate-500">&copy; 2026 Blogger Auto-Pilot SaaS. Seluruh Hak Cipta Dilindungi.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Superadmin Management Cockpit Modal -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-[#0f172a] border border-purple-500/50 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
+      <!-- Admin Header -->
+      <div class="px-6 py-4 bg-gradient-to-r from-purple-950/80 to-slate-900 border-b border-purple-500/30 flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-base font-bold shadow-sm">
+            👑
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-sm text-white">SaaS Superadmin Command Center</h3>
+              <span class="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-bold">Live Production</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola pengguna, metrik pendapatan MRR, kuota paket, dan siklus autopilot global</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="triggerGlobalScheduler()" id="btn-admin-run-scheduler" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1.5">
+            <span>⚡ Run Scheduler Global</span>
+          </button>
+          <button onclick="loadAdminData()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Refresh Data">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+          <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Strip -->
+      <div class="p-6 overflow-y-auto space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[11px] text-slate-400 font-medium">Total Pengguna (Tenants)</p>
+            <h4 class="text-2xl font-black text-white mt-1" id="admin-total-tenants">0</h4>
+            <div class="text-[10px] text-emerald-400 font-semibold mt-1" id="admin-paying-tenants">0 Berbayar</div>
+          </div>
+          <div class="bg-slate-950/80 border border-purple-500/20 rounded-2xl p-4 bg-gradient-to-br from-purple-950/20 to-slate-950/80">
+            <p class="text-[11px] text-purple-300 font-medium">Estimasi MRR (IDR)</p>
+            <h4 class="text-2xl font-black text-purple-200 mt-1" id="admin-mrr-display">Rp 0</h4>
+            <div class="text-[10px] text-purple-400 font-semibold mt-1">Pendapatan Bulanan</div>
+          </div>
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[11px] text-slate-400 font-medium">Total Artikel</p>
+            <h4 class="text-2xl font-black text-white mt-1" id="admin-total-articles">0</h4>
+            <div class="text-[10px] text-slate-400 font-mono mt-1" id="admin-articles-breakdown">0 Live / 0 Draf</div>
+          </div>
+          <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[11px] text-slate-400 font-medium">Blog & Kata Kunci</p>
+            <h4 class="text-2xl font-black text-white mt-1" id="admin-total-blogs">0 Blog</h4>
+            <div class="text-[10px] text-brand-400 font-mono mt-1" id="admin-total-keywords">0 Keywords</div>
+          </div>
+        </div>
+
+        <!-- Tenant Management Table -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
+              <h5 class="text-xs font-bold text-white uppercase tracking-wider">Daftar Pelanggan & Penyewa</h5>
+              <span id="admin-tenant-count" class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <div class="relative w-64 max-w-full">
+              <input type="text" id="admin-search-input" oninput="filterAdminTenants(this.value)" placeholder="Cari email / nama..." class="w-full bg-[#070b14] border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition">
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto max-h-80 overflow-y-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-900/90 text-[10px] uppercase font-bold text-slate-400 tracking-wider sticky top-0 border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-4">Pengguna</th>
+                  <th class="py-2.5 px-3">Role</th>
+                  <th class="py-2.5 px-3">Paket</th>
+                  <th class="py-2.5 px-3">Kredit</th>
+                  <th class="py-2.5 px-3">Blog</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-4 text-right">Tindakan Admin</th>
+                </tr>
+              </thead>
+              <tbody id="admin-tenants-tbody" class="divide-y divide-slate-800/60 font-medium text-slate-300">
+                <tr>
+                  <td colspan="7" class="text-center py-8 text-slate-500 text-xs">Memuat data penyewa...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-[#0f172a] border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+        <span>Blogger Auto-Pilot Multi-Tenant Control Layer</span>
+        <button onclick="closeAdminModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+
   <script>
+    let blogs = [];
+
+    let activeBlog = null;
     let articles = [];
     let keywords = [];
 
+    async function loadBlogs() {
+      try {
+        const res = await fetch('/api/blogs');
+        blogs = await res.json();
+        activeBlog = blogs.find(b => b.is_active === 1) || blogs[0] || null;
+        renderBlogSelector();
+      } catch (e) {
+        console.error('Error loading blogs:', e);
+      }
+    }
+
+    function renderBlogSelector() {
+      if (!activeBlog) return;
+      document.getElementById('active-blog-display-name').innerText = activeBlog.name;
+      document.getElementById('active-blog-id').innerText = activeBlog.id;
+      const urlEl = document.getElementById('active-blog-url');
+      if (urlEl) {
+        urlEl.href = activeBlog.url || '#';
+        urlEl.innerText = (activeBlog.url ? activeBlog.url.replace(/^https?:\/\//, '').replace(/\/$/, '') : activeBlog.name) + ' ↗';
+      }
+      const totalBadge = document.getElementById('blog-total-badge');
+      if (totalBadge) totalBadge.innerText = blogs.length + ' Blog';
+
+      const itemsList = document.getElementById('blog-items-list');
+      if (itemsList) {
+        itemsList.innerHTML = blogs.map(b => {
+          const isActive = b.id === activeBlog.id;
+          return `
+            <div class="flex items-center justify-between p-2 rounded-xl transition ${isActive ? 'bg-brand-500/15 border border-brand-500/30' : 'hover:bg-slate-800/80'}">
+              <button onclick="selectBlog('${b.id}')" class="flex-1 text-left min-w-0 pr-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
+                  <span class="font-bold text-xs text-white truncate">${b.name}</span>
+                  ${isActive ? '<span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 rounded">Aktif</span>' : ''}
+                </div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
+                  ${b.account_name || 'Akun'} &bull; ID: ${b.id}
+                </div>
+              </button>
+              ${blogs.length > 1 && !isActive ? `
+                <button onclick="deleteBlog('${b.id}', '${b.name}')" title="Hapus blog ini" class="w-6 h-6 rounded flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition text-xs font-bold shrink-0">&times;</button>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function toggleBlogDropdown() {
+      const menu = document.getElementById('blog-dropdown-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('blog-dropdown-container');
+      const menu = document.getElementById('blog-dropdown-menu');
+      if (container && menu && !container.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    async function selectBlog(id) {
+      try {
+        const res = await fetch('/api/blogs/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ blog_id: id })
+        });
+        if (res.ok) {
+          activeBlog = blogs.find(b => b.id === id);
+          blogs.forEach(b => b.is_active = (b.id === id ? 1 : 0));
+          renderBlogSelector();
+          const menu = document.getElementById('blog-dropdown-menu');
+          if (menu) menu.classList.add('hidden');
+          await loadData();
+        }
+      } catch (e) {
+        alert('Gagal berganti blog: ' + e.message);
+      }
+    }
+
+    function openAddBlogModal() {
+      const menu = document.getElementById('blog-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+      document.getElementById('new-blog-id').value = '';
+      document.getElementById('new-blog-name').value = '';
+      document.getElementById('new-blog-url').value = '';
+      document.getElementById('new-blog-account').value = '';
+      document.getElementById('new-blog-niche').value = '';
+      document.getElementById('token-upload-status').innerText = '';
+      toggleTokenUpload(false);
+      document.getElementById('add-blog-modal').classList.remove('hidden');
+    }
+
+    function closeAddBlogModal() {
+      document.getElementById('add-blog-modal').classList.add('hidden');
+    }
+
+    function toggleTokenUpload(show) {
+      const area = document.getElementById('token-upload-area');
+      if (area) {
+        if (show) area.classList.remove('hidden');
+        else area.classList.add('hidden');
+      }
+    }
+
+    let generatedTokenPath = null;
+
+    async function openOAuthLoginPopup() {
+      try {
+        const res = await fetch('/api/auth/url');
+        const data = await res.json();
+        if (data.success && data.auth_url) {
+          window.open(data.auth_url, '_blank');
+          document.getElementById('oauth-code-input-group').classList.remove('hidden');
+        } else {
+          alert('Gagal mendapatkan Auth URL: ' + (data.error || 'Pastikan file client_secret.json sudah diletakkan di direktori proyek.'));
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function submitOAuthCode() {
+      const codeVal = document.getElementById('oauth-code-input').value.trim();
+      if (!codeVal) {
+        alert('Silakan tempel URL redirect atau kode otorisasi dari Google terlebih dahulu!');
+        return;
+      }
+      const statusEl = document.getElementById('token-upload-status');
+      statusEl.className = 'text-[11px] text-amber-400 font-semibold';
+      statusEl.innerText = '⏳ Memverifikasi kode dengan Google...';
+      try {
+        const tokenName = 'token_' + Math.random().toString(36).substring(2, 10) + '.json';
+        const res = await fetch('/api/auth/exchange', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: codeVal, token_filename: tokenName })
+        });
+        const data = await res.json();
+        if (data.success) {
+          generatedTokenPath = data.token_file;
+          statusEl.className = 'text-[11px] text-emerald-400 font-semibold';
+          statusEl.innerText = '✓ Token berhasil dibuat dan terverifikasi!';
+          document.getElementById('oauth-code-input-group').classList.add('hidden');
+        } else {
+          statusEl.className = 'text-[11px] text-red-400 font-semibold';
+          statusEl.innerText = '✗ Gagal: ' + (data.error || 'Kode tidak valid');
+        }
+      } catch (e) {
+        statusEl.className = 'text-[11px] text-red-400 font-semibold';
+        statusEl.innerText = 'Error: ' + e.message;
+      }
+    }
+
+    async function saveNewBlog() {
+      const id = document.getElementById('new-blog-id').value.trim();
+      const name = document.getElementById('new-blog-name').value.trim();
+      const url = document.getElementById('new-blog-url').value.trim();
+      const account = document.getElementById('new-blog-account').value.trim();
+      const niche = document.getElementById('new-blog-niche').value.trim();
+      const tokenChoice = document.querySelector('input[name="token-choice"]:checked').value;
+
+      if (!id || !name) {
+        alert('ID Blog dan Nama Blog wajib diisi!');
+        return;
+      }
+
+      const btn = document.getElementById('btn-save-new-blog');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      let tokenFile = null;
+      if (tokenChoice === 'new') {
+        if (generatedTokenPath) {
+          tokenFile = generatedTokenPath;
+        } else {
+          const fileInput = document.getElementById('new-blog-token-file');
+          if (!fileInput.files || fileInput.files.length === 0) {
+            alert('Silakan login Google via tombol di atas atau pilih file token.json terlebih dahulu!');
+            btn.disabled = false;
+            btn.innerText = 'Simpan & Daftarkan';
+            return;
+          }
+          const formData = new FormData();
+          formData.append('file', fileInput.files[0]);
+          try {
+            const upRes = await fetch('/api/blogs/upload-token', {
+              method: 'POST',
+              body: formData
+            });
+            const upData = await upRes.json();
+            if (!upData.success) {
+              throw new Error(upData.error || 'Gagal upload token');
+            }
+            tokenFile = upData.token_file;
+          } catch (e) {
+            alert('Gagal mengunggah token: ' + e.message);
+            btn.disabled = false;
+            btn.innerText = 'Simpan & Daftarkan';
+            return;
+          }
+        }
+      } else {
+        tokenFile = activeBlog ? activeBlog.token_file : 'token.json';
+      }
+
+      try {
+        const res = await fetch('/api/blogs/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: id,
+            name: name,
+            url: url,
+            account_name: account || 'Akun Google',
+            token_file: tokenFile,
+            niche_description: niche
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeAddBlogModal();
+          await loadBlogs();
+          await selectBlog(id);
+          alert('🎉 Blog baru berhasil didaftarkan dan diaktifkan!');
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (e) {
+        alert('Terjadi kesalahan: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Simpan & Daftarkan';
+      }
+    }
+
+    async function deleteBlog(id, name) {
+      if (!confirm(`Hapus blog "${name}" (ID: ${id}) dari daftar?`)) return;
+      try {
+        const res = await fetch(`/api/blogs/${id}/delete`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          await loadBlogs();
+          if (activeBlog) await loadData();
+        } else {
+          alert(data.error || 'Gagal menghapus blog.');
+        }
+      } catch (e) {
+        alert('Terjadi kesalahan: ' + e.message);
+      }
+    }
+
     async function loadData() {
       try {
-        const [resArt, resKw, resKb, resPrompt] = await Promise.all([
-          fetch('/api/articles'),
-          fetch('/api/keywords'),
-          fetch('/api/kb'),
-          fetch('/api/prompt')
+        const blogParam = activeBlog ? `?blog_id=${activeBlog.id}` : '';
+        const [resArt, resKw] = await Promise.all([
+          fetch('/api/articles' + blogParam),
+          fetch('/api/keywords' + blogParam)
         ]);
-        
         articles = await resArt.json();
         keywords = await resKw.json();
-        
-        const kbData = await resKb.json();
-        const promptData = await resPrompt.json();
-        
-        document.getElementById('kb-editor').value = kbData.content || '';
-        document.getElementById('prompt-editor').value = promptData.content || '';
         
         const countBadge = document.getElementById('article-count-badge');
         if (countBadge) countBadge.innerText = articles.length + ' Draf';
@@ -269,63 +1475,154 @@
       }
     }
 
+    let currentArticleFilter = 'all';
+    let currentSearchQuery = '';
+
+    function setArticleFilter(filter) {
+      currentArticleFilter = filter;
+      const btnAll = document.getElementById('filter-art-all');
+      const btnDraft = document.getElementById('filter-art-draft');
+      const btnBlogger = document.getElementById('filter-art-blogger');
+      const btnPub = document.getElementById('filter-art-published');
+
+      [btnAll, btnDraft, btnBlogger, btnPub].forEach(b => {
+        if (b) b.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+      });
+
+      if (filter === 'all' && btnAll) btnAll.className = "px-2.5 py-1 rounded-lg font-semibold bg-brand-500 text-white shadow-sm transition";
+      if (filter === 'draft' && btnDraft) btnDraft.className = "px-2.5 py-1 rounded-lg font-semibold bg-amber-500 text-white shadow-sm transition";
+      if (filter === 'blogger_draft' && btnBlogger) btnBlogger.className = "px-2.5 py-1 rounded-lg font-semibold bg-sky-500 text-white shadow-sm transition";
+      if (filter === 'published' && btnPub) btnPub.className = "px-2.5 py-1 rounded-lg font-semibold bg-emerald-500 text-white shadow-sm transition";
+
+      renderArticles();
+    }
+
+    function handleArticleSearch(query) {
+      currentSearchQuery = (query || '').toLowerCase().trim();
+      renderArticles();
+    }
+
     function renderArticles() {
       const list = document.getElementById('articles-list');
+      
+      const draftCount = (articles || []).filter(a => a.status === 'draft').length;
+      const bloggerCount = (articles || []).filter(a => a.status === 'blogger_draft').length;
+      const pubCount = (articles || []).filter(a => a.status === 'published').length;
+      const totalCount = (articles || []).length;
+
+      // Update Metric Strip
+      const elStatDraft = document.getElementById('stat-draft-count');
+      const elStatBlogger = document.getElementById('stat-blogger-draft-count');
+      const elStatPub = document.getElementById('stat-published-count');
+      const elCountAll = document.getElementById('count-all');
+      const elCountDraft = document.getElementById('count-draft');
+      const elCountBlogger = document.getElementById('count-blogger');
+      const elCountPub = document.getElementById('count-published');
+      const elBadge = document.getElementById('article-count-badge');
+
+      if (elStatDraft) elStatDraft.innerText = draftCount;
+      if (elStatBlogger) elStatBlogger.innerText = bloggerCount;
+      if (elStatPub) elStatPub.innerText = pubCount;
+      if (elCountAll) elCountAll.innerText = totalCount;
+      if (elCountDraft) elCountDraft.innerText = draftCount;
+      if (elCountBlogger) elCountBlogger.innerText = bloggerCount;
+      if (elCountPub) elCountPub.innerText = pubCount;
+      if (elBadge) elBadge.innerText = `${totalCount} Artikel`;
+
       if (!articles || !articles.length) {
         list.innerHTML = `
           <div class="text-center py-16 border border-dashed border-slate-800 rounded-2xl p-6">
             <div class="w-12 h-12 rounded-full bg-slate-800/50 text-slate-400 flex items-center justify-center mx-auto mb-3 font-bold text-lg">✍️</div>
             <p class="text-slate-300 font-semibold text-sm">Belum ada antrean draf artikel</p>
-            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Klik <b>Tulis / Draf Baru</b> di pojok kanan atas atau perintahkan agent untuk menulis artikel baru.</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Klik <b>⚡ Riset & Draf Otomatis</b> atau <b>Tulis Manual</b> untuk memulai publikasi konten baru.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Filter articles
+      let filtered = articles.slice();
+      if (currentArticleFilter !== 'all') {
+        filtered = filtered.filter(a => a.status === currentArticleFilter);
+      }
+      if (currentSearchQuery) {
+        filtered = filtered.filter(a => 
+          (a.title || '').toLowerCase().includes(currentSearchQuery) ||
+          (a.target_keyword || '').toLowerCase().includes(currentSearchQuery) ||
+          (a.meta_description || '').toLowerCase().includes(currentSearchQuery)
+        );
+      }
+
+      if (!filtered.length) {
+        list.innerHTML = `
+          <div class="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
+            <p class="text-slate-400 text-xs">Tidak ditemukan artikel yang cocok dengan filter atau kata kunci pencarian.</p>
           </div>
         `;
         return;
       }
       
-      list.innerHTML = articles.map(a => {
+      list.innerHTML = filtered.map(a => {
         const isPublished = a.status === 'published';
-        const badge = isPublished
-          ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Published</span>`
-          : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Need Approval</span>`;
+        const isBloggerDraft = a.status === 'blogger_draft';
+        let badge = '';
+        if (isPublished) {
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Live di Blogger</span>`;
+        } else if (isBloggerDraft) {
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Draft di Blogger</span>`;
+        } else {
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Draft Lokal</span>`;
+        }
         
         return `
           <div class="p-4 rounded-xl border border-slate-800/90 bg-[#070b14]/70 hover:border-slate-700/80 transition duration-150 flex flex-col justify-between gap-3 shadow-sm">
             <div class="space-y-2">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 ${badge}
-                <span class="text-[11px] text-slate-400 font-mono bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">KW: ${escapeHtml(a.target_keyword || '-')}</span>
+                <span class="text-[11px] text-slate-400 font-mono bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">KW: ${a.target_keyword || '-'}</span>
               </div>
-              <h3 class="font-bold text-slate-100 text-sm md:text-base leading-snug hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${escapeHtml(a.title)}</h3>
-              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${escapeHtml(a.meta_description || 'Belum ada meta deskripsi')}</p>
+              <h3 class="font-bold text-slate-100 text-sm md:text-base leading-snug hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${a.title}</h3>
+              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${a.meta_description || 'Belum ada meta deskripsi'}</p>
               ${a.blogger_url ? `<a href="${a.blogger_url}" target="_blank" class="text-xs text-brand-400 hover:text-brand-300 font-medium inline-flex items-center gap-1 hover:underline pt-1">Buka Post Live di Blogger &rarr;</a>` : ''}
             </div>
-            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800/50">
-              <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
-              ${!isPublished ? `<button onclick="quickPublish(${a.id})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Publish</button>` : ''}
+            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/50 flex-wrap">
+              <button onclick="deleteArticle(${a.id}, '${(a.title || '').replace(/'/g, "\\'")}')" title="Hapus artikel dari database" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition text-sm font-bold shrink-0">&times;</button>
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
+                <button onclick="quickPublish(${a.id}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                  <span>Draft</span>
+                </button>
+                <button onclick="quickPublish(${a.id}, false, this)" title="${isPublished ? 'Perbarui Postingan yang sudah tayang di Blogger' : 'Publikasikan Live ke Blogger'}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span>${isPublished ? 'Update Live' : 'Publish Live'}</span>
+                </button>
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
     function renderKeywords() {
       const list = document.getElementById('keywords-list');
       if (!keywords || !keywords.length) {
-        list.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada target keyword.</div>`;
+        list.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada target keyword. Klik <b>⚡ Isi Ide SEO</b> atau <b>+ Tambah</b>.</div>`;
         return;
       }
       list.innerHTML = keywords.map(k => `
-        <div class="p-3 rounded-xl border border-slate-800/80 bg-[#070b14]/50 flex items-center justify-between text-xs">
-          <div>
-            <span class="font-semibold text-slate-200 block">${escapeHtml(k.keyword)}</span>
-            <span class="text-[10px] text-slate-400 mt-0.5 block font-mono">Intent: ${escapeHtml(k.search_intent || 'Informational')}</span>
+        <div class="p-3 rounded-xl border border-slate-800/80 bg-[#070b14]/50 flex items-center justify-between text-xs gap-2 hover:border-slate-700 transition">
+          <div class="flex-1 min-w-0">
+            <span class="font-semibold text-slate-200 block truncate" title="${k.keyword}">${k.keyword}</span>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-[10px] text-slate-400 font-mono">Intent: ${k.search_intent || 'Informational'}</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium border border-slate-700/60">${k.priority || 'Medium'}</span>
+            </div>
           </div>
-          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 font-mono font-medium border border-slate-700/50">${escapeHtml(k.status)}</span>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800/90 text-slate-300 font-mono font-medium border border-slate-700/50">${k.status}</span>
+            <button onclick="deleteKeyword(${k.id})" title="Hapus Keyword" class="w-6 h-6 rounded flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition text-sm font-bold">&times;</button>
+          </div>
         </div>
       `).join('');
     }
@@ -343,11 +1640,19 @@
       syncModalContent();
       updateCharCount();
       
+      const isPublished = a.status === 'published';
+      const hasBloggerId = Boolean(a.blogger_post_id);
+
+      const draftBtn = document.getElementById('btn-draft-action');
+      if (draftBtn) {
+        draftBtn.classList.remove('hidden');
+        draftBtn.querySelector('span').innerText = hasBloggerId ? 'Update Draft Blogger' : 'Kirim Draft ke Blogger';
+      }
+
       const publishBtn = document.getElementById('btn-publish-action');
-      if (a.status === 'published') {
-        publishBtn.classList.add('hidden');
-      } else {
+      if (publishBtn) {
         publishBtn.classList.remove('hidden');
+        publishBtn.querySelector('span').innerText = isPublished ? 'Perbarui Post Live' : 'Publish Live ke Blogger';
       }
       
       switchModalView('preview');
@@ -357,13 +1662,204 @@
     function syncModalContent() {
       const raw = document.getElementById('modal-article-content').value;
       document.getElementById('modal-render-container').innerHTML = raw;
+      updateWordCount();
+    }
+
+    function updateWordCount() {
+      const raw = (document.getElementById('modal-article-content') ? document.getElementById('modal-article-content').value : '') || '';
+      // Hilangkan tag script, style, dan seluruh tag HTML menggunakan regex agar aman di semua browser
+      const clean = raw
+        .replace(/<script[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+        .replace(/<style[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&[a-z]+;/gi, ' ')
+        .trim();
+      
+      const words = clean ? clean.split(/\s+/).filter(w => w.length > 0) : [];
+      const wordCount = words.length;
+      const readMins = Math.max(1, Math.ceil(wordCount / 200));
+      const timeStr = wordCount > 0 ? ` (~${readMins} mnt baca)` : ' (~0 mnt baca)';
+      
+      const el = document.getElementById('content-word-count');
+      if (el) {
+        let badgeClass = 'text-amber-400';
+        if (wordCount >= 1000) {
+          badgeClass = 'text-emerald-400';
+        } else if (wordCount >= 500) {
+          badgeClass = 'text-brand-400';
+        }
+        el.className = `text-[11px] font-mono font-semibold ${badgeClass}`;
+        el.innerText = `${wordCount.toLocaleString('id-ID')} kata${timeStr}` + (wordCount < 600 && wordCount > 0 ? ' (Ideal: 800-1500+)' : '');
+      }
+
+      const headerBadge = document.getElementById('modal-word-badge');
+      if (headerBadge) {
+        let hBadgeClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+        if (wordCount >= 1000) {
+          hBadgeClass = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+        } else if (wordCount >= 500) {
+          hBadgeClass = 'bg-brand-500/15 text-brand-400 border-brand-500/30';
+        }
+        headerBadge.className = `text-xs font-mono font-semibold px-3 py-1 rounded-full border ${hBadgeClass}`;
+        headerBadge.innerText = `${wordCount.toLocaleString('id-ID')} kata`;
+      }
+    }
+
+    function auditArticleSEO(title, meta, content) {
+      let score = 0;
+      const tLen = (title || '').trim().length;
+      const mLen = (meta || '').trim().length;
+      const raw = content || '';
+
+      // 1. Title Audit (Max 25 pts)
+      const elTitle = document.getElementById('seo-check-title');
+      if (tLen >= 50 && tLen <= 60) {
+        score += 25;
+        if (elTitle) elTitle.className = "px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium";
+      } else if (tLen >= 40 && tLen <= 70) {
+        score += 15;
+        if (elTitle) elTitle.className = "px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium";
+      } else {
+        score += 5;
+        if (elTitle) elTitle.className = "px-2 py-0.5 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium";
+      }
+
+      // 2. Meta Desc Audit (Max 20 pts)
+      const elMeta = document.getElementById('seo-check-meta');
+      if (mLen >= 130 && mLen <= 155) {
+        score += 20;
+        if (elMeta) elMeta.className = "px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium";
+      } else if (mLen >= 100 && mLen <= 165) {
+        score += 12;
+        if (elMeta) elMeta.className = "px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium";
+      } else {
+        score += 3;
+        if (elMeta) elMeta.className = "px-2 py-0.5 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium";
+      }
+
+      // 3. Word Count Audit (Max 25 pts)
+      const clean = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const words = clean ? clean.split(' ').filter(w => w.length > 0) : [];
+      const wCount = words.length;
+      const elWords = document.getElementById('seo-check-words');
+      if (wCount >= 1000) {
+        score += 25;
+        if (elWords) elWords.className = "px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium";
+      } else if (wCount >= 600) {
+        score += 15;
+        if (elWords) elWords.className = "px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium";
+      } else {
+        score += 5;
+        if (elWords) elWords.className = "px-2 py-0.5 rounded-lg bg-rose-500/15 text-rose-300 border border-rose-500/30 font-medium";
+      }
+
+      // 4. Schema FAQPage Detection (Max 15 pts)
+      const hasSchema = raw.includes('application/ld+json') && raw.includes('FAQPage');
+      const elSchema = document.getElementById('seo-check-schema');
+      if (hasSchema) {
+        score += 15;
+        if (elSchema) elSchema.className = "px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium";
+      } else {
+        if (elSchema) elSchema.className = "px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 border border-slate-700 font-medium";
+      }
+
+      // 5. Image & Alt Detection (Max 15 pts)
+      const hasImg = raw.includes('<figure') || (raw.includes('<img') && raw.includes('alt='));
+      const elImg = document.getElementById('seo-check-img');
+      if (hasImg) {
+        score += 15;
+        if (elImg) elImg.className = "px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium";
+      } else {
+        if (elImg) elImg.className = "px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 border border-slate-700 font-medium";
+      }
+
+      // Update Gauge
+      const badge = document.getElementById('seo-score-badge');
+      const status = document.getElementById('seo-score-status');
+      const summary = document.getElementById('seo-score-summary');
+      if (badge) badge.innerText = score;
+      if (status) {
+        if (score >= 85) {
+          status.innerText = "Sangat Optimal (E-E-A-T)";
+          status.className = "text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30";
+        } else if (score >= 60) {
+          status.innerText = "Cukup Baik";
+          status.className = "text-[10px] font-bold text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30";
+        } else {
+          status.innerText = "Perlu Optimasi";
+          status.className = "text-[10px] font-bold text-rose-400 bg-rose-500/15 px-2 py-0.5 rounded-full border border-rose-500/30";
+        }
+      }
+      if (summary) {
+        summary.innerText = `Skor ${score}/100: ${wCount} kata, Judul: ${tLen} char, Meta: ${mLen} char, FAQ Schema: ${hasSchema ? 'Aktif' : 'Tidak'}.`;
+      }
     }
 
     function updateCharCount() {
       const title = document.getElementById('modal-article-title').value;
       const meta = document.getElementById('modal-article-meta').value;
+      const content = document.getElementById('modal-article-content').value;
       document.getElementById('title-char-count').innerText = title.length + ' karakter (Ideal: 50-60)';
       document.getElementById('meta-char-count').innerText = meta.length + ' karakter (Ideal: 140-155)';
+      auditArticleSEO(title, meta, content);
+    }
+
+    async function handleImageUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/images/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          const finalUrl = data.url.startsWith('http') ? data.url : (window.location.origin + data.url);
+          document.getElementById('img-url-input').value = finalUrl;
+          if (!document.getElementById('img-alt-input').value) {
+            const kw = document.getElementById('modal-article-keyword').value;
+            document.getElementById('img-alt-input').value = kw ? ('Ilustrasi panduan ' + kw) : file.name;
+          }
+          if (data.is_cdn) {
+            alert(`Gambar berhasil dikonversi ke WebP dan diunggah ke Cloud CDN (${data.cdn_provider})! Klik "+ Sisipkan" untuk memasukkannya ke artikel.`);
+          } else {
+            alert('Gambar berhasil dioptimasi ke WebP (Lokal). Catatan: Agar gambar muncul di blog publik, atur CLOUDINARY_URL di file .env.');
+          }
+        } else {
+          alert('Gagal upload gambar: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error upload: ' + err.message);
+      } finally {
+        input.value = '';
+      }
+    }
+
+    function insertImageSnippet() {
+      const url = document.getElementById('img-url-input').value.trim();
+      const alt = document.getElementById('img-alt-input').value.trim() || document.getElementById('modal-article-keyword').value.trim() || 'Ilustrasi Artikel';
+      const caption = document.getElementById('img-caption-input').value.trim();
+      
+      if (!url) {
+        alert('Silakan masukkan URL gambar atau unggah file gambar terlebih dahulu.');
+        return;
+      }
+      
+      const captionHtml = caption ? `<figcaption style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem; text-align: center;">${caption}</figcaption>` : '';
+      const figureHtml = `
+<figure style="text-align: center; margin: 1.75rem 0;">
+  <img src="${url}" alt="${alt}" style="border-radius: 12px; max-width: 100%; height: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" loading="lazy">
+  ${captionHtml}
+</figure>
+`;
+      
+      const contentArea = document.getElementById('modal-article-content');
+      contentArea.value = figureHtml + contentArea.value;
+      syncModalContent();
+      alert('Gambar berhasil disisipkan ke dalam draf!');
     }
 
     function switchModalView(view) {
@@ -393,7 +1889,16 @@
       document.getElementById('modal-article-labels').value = 'Tech, Tutorial';
       document.getElementById('modal-article-meta').value = '';
       document.getElementById('modal-article-content').value = '<p>Tulis konten atau masukkan kode HTML draf di sini...</p>';
-      document.getElementById('btn-publish-action').classList.remove('hidden');
+      const draftBtn = document.getElementById('btn-draft-action');
+      if (draftBtn) {
+        draftBtn.classList.remove('hidden');
+        draftBtn.querySelector('span').innerText = 'Kirim Draft ke Blogger';
+      }
+      const publishBtn = document.getElementById('btn-publish-action');
+      if (publishBtn) {
+        publishBtn.classList.remove('hidden');
+        publishBtn.querySelector('span').innerText = 'Publish Live ke Blogger';
+      }
       syncModalContent();
       updateCharCount();
       switchModalView('preview');
@@ -412,38 +1917,123 @@
         target_keyword: document.getElementById('modal-article-keyword').value,
         labels: document.getElementById('modal-article-labels').value,
         meta_description: document.getElementById('modal-article-meta').value,
-        content_html: document.getElementById('modal-article-content').value
+        content_html: document.getElementById('modal-article-content').value,
+        blog_id: activeBlog ? activeBlog.id : null
       };
       const res = await fetch('/api/articles/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      if (res.ok) window.location.reload();
-    }
-
-    async function publishArticle() {
-      const id = document.getElementById('modal-article-id').value;
-      if (!confirm('Publikasikan artikel ini langsung ke Blogger Bagus Tech sekarang?')) return;
-      const res = await fetch(`/api/articles/${id}/publish`, { method: 'POST' });
-      const result = await res.json();
-      if (result.success) {
-        alert('Sukses! Artikel berhasil live di Blogger.');
-        window.location.reload();
-      } else {
-        alert('Gagal publish: ' + (result.error || 'Unknown error'));
+      if (res.ok) {
+        closeArticleModal();
+        await loadData();
       }
     }
 
-    async function quickPublish(id) {
-      if (!confirm('Publikasikan artikel ini ke Blogger sekarang?')) return;
-      const res = await fetch(`/api/articles/${id}/publish`, { method: 'POST' });
-      const result = await res.json();
-      if (result.success) {
-        alert('Artikel berhasil dipublish ke Blogger!');
-        window.location.reload();
-      } else {
-        alert('Gagal: ' + (result.error || 'Terjadi kesalahan'));
+    async function publishArticle(isDraft = false) {
+      const id = document.getElementById('modal-article-id').value;
+      if (!id) {
+        alert('Simpan draf artikel terlebih dahulu.');
+        return;
+      }
+      const actionPrompt = isDraft
+        ? 'Kirim/perbarui artikel ini sebagai DRAFT online di Blogger?'
+        : 'Publikasikan/perbarui artikel ini LANGSUNG (LIVE) di Blogger?';
+      if (!confirm(actionPrompt)) return;
+      
+      const btn = isDraft ? document.getElementById('btn-draft-action') : document.getElementById('btn-publish-action');
+      const originalHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+        btn.innerHTML = `
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+          <span>Menghubungi Blogger...</span>
+        `;
+      }
+      
+      try {
+        const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_draft: isDraft })
+        });
+        const result = await res.json();
+        if (result.success) {
+          const actionText = result.action === 'updated' ? 'berhasil diperbarui' : 'berhasil dibuat';
+          const modeText = isDraft ? 'Draft di Blogger' : 'Live Publik di Blogger';
+          if (btn) {
+            btn.innerHTML = `
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span>Tersimpan!</span>
+            `;
+          }
+          setTimeout(() => {
+            alert(`Sukses! Artikel ${actionText} sebagai ${modeText}.`);
+            closeArticleModal();
+            loadData();
+          }, 250);
+        } else {
+          alert('Gagal ke Blogger: ' + (result.error || 'Unknown error'));
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            btn.innerHTML = originalHtml;
+          }
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan koneksi: ' + err.message);
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-75', 'cursor-not-allowed');
+          btn.innerHTML = originalHtml;
+        }
+      }
+    }
+
+    async function quickPublish(id, isDraft = false, btnEl = null) {
+      const modeText = isDraft ? 'Kirim/Update sebagai DRAFT di Blogger' : 'PUBLIKASIKAN LANGSUNG (LIVE) ke Blogger';
+      if (!confirm(`Konfirmasi: ${modeText} sekarang?`)) return;
+      let originalHtml = '';
+      if (btnEl) {
+        originalHtml = btnEl.innerHTML;
+        btnEl.disabled = true;
+        btnEl.classList.add('opacity-75', 'cursor-not-allowed');
+        btnEl.innerHTML = `
+          <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+          <span>Syncing...</span>
+        `;
+      }
+      
+      try {
+        const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_draft: isDraft })
+        });
+        const result = await res.json();
+        if (result.success) {
+          if (btnEl) btnEl.innerText = 'Selesai!';
+          setTimeout(async () => {
+            alert(`Artikel berhasil ${result.action === 'updated' ? 'diperbarui' : 'disimpan'} di Blogger!`);
+            await loadData();
+          }, 200);
+        } else {
+          alert('Gagal: ' + (result.error || 'Terjadi kesalahan'));
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
+            btnEl.innerHTML = originalHtml;
+          }
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
+          btnEl.innerHTML = originalHtml;
+        }
       }
     }
 
@@ -539,12 +2129,939 @@
       await fetch('/api/keywords/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword: kw, search_intent: intent || 'Informational' })
+        body: JSON.stringify({
+          keyword: kw,
+          search_intent: intent || 'Informational',
+          blog_id: activeBlog ? activeBlog.id : null
+        })
       });
-      window.location.reload();
+      await loadData();
     }
 
-    loadData();
+    async function deleteKeyword(id) {
+      if (!confirm('Hapus keyword ini dari daftar?')) return;
+      const res = await fetch(`/api/keywords/${id}/delete`, { method: 'POST' });
+      if (res.ok) await loadData();
+    }
+
+    async function autoGenerateKeywords() {
+      const btn = document.getElementById('btn-auto-kw');
+      if (btn) btn.innerText = 'Menyusun...';
+      try {
+        const blogParam = activeBlog ? `?blog_id=${activeBlog.id}` : '';
+        const res = await fetch('/api/keywords/auto-generate' + blogParam, { method: 'POST' });
+        if (res.ok) {
+          await loadData();
+          const bName = activeBlog ? activeBlog.name : 'Blog';
+          alert(`Berhasil mengisi bank keyword dengan topik-topik SEO berkualitas untuk ${bName}!`);
+        }
+      } finally {
+        if (btn) btn.innerText = '⚡ Isi Ide SEO';
+      }
+    }
+
+    function openBulkKeywordModal() {
+      document.getElementById('bulk-keyword-modal').classList.remove('hidden');
+      document.getElementById('bulk-kw-textarea').focus();
+    }
+
+    function closeBulkKeywordModal() {
+      document.getElementById('bulk-keyword-modal').classList.add('hidden');
+    }
+
+    function updateBulkCount() {
+      const text = document.getElementById('bulk-kw-textarea').value || '';
+      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      document.getElementById('bulk-kw-count-label').innerText = `${lines.length} baris`;
+    }
+
+    async function submitBulkKeywords() {
+      const text = document.getElementById('bulk-kw-textarea').value;
+      const intent = document.getElementById('bulk-kw-intent').value;
+      if (!text.trim()) {
+        alert('Silakan masukkan minimal 1 keyword.');
+        return;
+      }
+      const btn = document.getElementById('btn-submit-bulk-kw');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+      try {
+        const res = await fetch('/api/keywords/bulk-add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            keywords_text: text,
+            search_intent: intent,
+            blog_id: activeBlog ? activeBlog.id : null
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`🎉 Berhasil menambahkan ${data.added_count} keyword baru ke antrean!`);
+          closeBulkKeywordModal();
+          document.getElementById('bulk-kw-textarea').value = '';
+          await loadData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Semua Keyword';
+      }
+    }
+
+    function openAiSuggestModal() {
+      document.getElementById('ai-suggest-modal').classList.remove('hidden');
+      document.getElementById('ai-suggest-niche').focus();
+    }
+
+    function closeAiSuggestModal() {
+      document.getElementById('ai-suggest-modal').classList.add('hidden');
+    }
+
+    async function submitAiSuggest() {
+      const niche = document.getElementById('ai-suggest-niche').value;
+      if (!niche.trim()) {
+        alert('Masukkan topik/niche terlebih dahulu.');
+        return;
+      }
+      const btn = document.getElementById('btn-submit-ai-suggest');
+      btn.disabled = true;
+      btn.innerText = 'Menyusun Ide...';
+      try {
+        const res = await fetch('/api/keywords/ai-suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            niche_seed: niche,
+            blog_id: activeBlog ? activeBlog.id : null
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✨ Berhasil menambahkan ${data.added_count} keyword potensial untuk topik "${niche}"!`);
+          closeAiSuggestModal();
+          document.getElementById('ai-suggest-niche').value = '';
+          await loadData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '⚡ Hasilkan 8 Keyword';
+      }
+    }
+
+    async function openAutopilotModal() {
+      if (!activeBlog) {
+        alert('Pilih blog terlebih dahulu.');
+        return;
+      }
+      document.getElementById('autopilot-modal').classList.remove('hidden');
+      document.getElementById('autopilot-modal-subtitle').innerText = `Blog Aktif: ${activeBlog.name} (${activeBlog.id})`;
+      try {
+        const res = await fetch(`/api/blogs/${activeBlog.id}/autopilot-settings`);
+        const data = await res.json();
+        document.getElementById('autopilot-enabled-toggle').checked = Boolean(data.autopilot_enabled);
+        document.getElementById('autopilot-publish-mode').value = data.publish_mode || 'blogger_draft';
+        document.getElementById('autopilot-schedule-freq').value = data.schedule || 'daily';
+      } catch (e) {
+        console.error('Error fetching autopilot settings:', e);
+      }
+    }
+
+    function closeAutopilotModal() {
+      document.getElementById('autopilot-modal').classList.add('hidden');
+    }
+
+    async function saveAutopilotSettings() {
+      if (!activeBlog) return;
+      const enabled = document.getElementById('autopilot-enabled-toggle').checked;
+      const mode = document.getElementById('autopilot-publish-mode').value;
+      const schedule = document.getElementById('autopilot-schedule-freq').value;
+
+      const btn = document.getElementById('btn-save-autopilot');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+      try {
+        const res = await fetch('/api/blogs/autopilot-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            blog_id: activeBlog.id,
+            autopilot_enabled: enabled,
+            publish_mode: mode,
+            schedule: schedule
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          closeAutopilotModal();
+          const label = document.getElementById('active-blog-autopilot-label');
+          if (label) label.innerText = enabled ? 'Autopilot: Aktif' : 'Autopilot: Nonaktif';
+        } else {
+          alert('Gagal: ' + (data.error || 'Error'));
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Pengaturan';
+      }
+    }
+
+    async function triggerAutoGenerate() {
+      const btn = document.getElementById('btn-auto-generate');
+      const txt = document.getElementById('btn-auto-generate-text');
+      const bName = activeBlog ? activeBlog.name : 'Blogger';
+      if (!confirm(`Minta Agent SEO Specialist meriset topik baru dari blog ${bName} dan menyusun draf sekarang?`)) return;
+      
+      btn.disabled = true;
+      btn.classList.add('opacity-70');
+      txt.innerText = '⏳ Agent sedang meriset...';
+      
+      try {
+        const res = await fetch('/api/agent/generate-now', { method: 'POST' });
+        const data = await res.json();
+        alert('🚀 Permintaan diterima! Agent SEO Specialist sedang menganalisis blog dan menyusun artikel baru di background. Draf akan otomatis muncul di antrean.');
+        
+        const checkInterval = setInterval(async () => {
+          await loadData();
+        }, 12000);
+        
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.classList.remove('opacity-70');
+          txt.innerText = '⚡ Riset & Draf Otomatis';
+          clearInterval(checkInterval);
+        }, 180000);
+      } catch (e) {
+        alert('Terjadi kesalahan: ' + e.message);
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+        txt.innerText = '⚡ Riset & Draf Otomatis';
+      }
+    }
+
+    async function deleteArticle(id, title) {
+      if (!confirm(`Hapus artikel "${title || 'ini'}" dari database?`)) return;
+      try {
+        const res = await fetch(`/api/articles/${id}/delete`, { method: 'POST' });
+        const result = await res.json();
+        if (result.success) {
+          const modalId = document.getElementById('modal-article-id').value;
+          if (modalId == id) {
+            closeArticleModal();
+          }
+          await loadData();
+        } else {
+          alert('Gagal menghapus: ' + (result.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteCurrentArticle() {
+      const id = document.getElementById('modal-article-id').value;
+      const title = document.getElementById('modal-article-title').value;
+      if (!id) {
+        closeArticleModal();
+        return;
+      }
+      await deleteArticle(id, title);
+    }
+
+    // --- SaaS Multi-Tenant & Billing Client Suite ---
+    let currentUser = null;
+    let currentSubscription = null;
+
+    async function loadCurrentUser() {
+      try {
+        const res = await fetch('/api/saas/auth/me');
+        const data = await res.json();
+        
+        const pillRatio = document.getElementById('plan-credits-ratio');
+        const pillName = document.getElementById('plan-name-display');
+        const pillBar = document.getElementById('plan-progress-bar');
+        const userDisplay = document.getElementById('user-display-email');
+        const userAvatar = document.getElementById('user-avatar-initial');
+        const dropName = document.getElementById('dropdown-user-name');
+        const dropEmail = document.getElementById('dropdown-user-email');
+        const menuAuthText = document.getElementById('menu-text-auth-action');
+
+        if (data.authenticated && data.user) {
+          currentUser = data.user;
+          currentSubscription = data.subscription;
+
+          const name = currentUser.full_name || currentUser.email.split('@')[0];
+          userDisplay.innerText = name;
+          userAvatar.innerText = name.charAt(0).toUpperCase();
+          dropName.innerText = currentUser.full_name || 'Pengguna SaaS';
+          dropEmail.innerText = currentUser.email;
+          menuAuthText.innerText = 'Keluar (Logout)';
+
+          const tier = (data.subscription?.plan_tier || 'free').toUpperCase();
+          const used = data.subscription?.article_credits_used || 0;
+          const limit = data.subscription?.article_credits_limit || 3;
+          const remaining = Math.max(0, limit - used);
+          const pct = Math.min(100, Math.round((used / limit) * 100));
+
+          pillName.innerText = tier;
+          pillRatio.innerText = `(${used}/${limit} Kredit)`;
+          pillBar.style.width = `${pct}%`;
+
+          const elStatCredits = document.getElementById('stat-credits-remaining');
+          if (elStatCredits) elStatCredits.innerText = `${remaining} / ${limit}`;
+          
+          if (pct >= 100) {
+            pillBar.className = "bg-rose-500 h-full transition-all duration-300";
+          } else {
+            pillBar.className = "bg-gradient-to-r from-brand-500 to-indigo-500 h-full transition-all duration-300";
+          }
+        } else {
+          currentUser = null;
+          currentSubscription = data.subscription;
+          userDisplay.innerText = 'Masuk / Daftar';
+          userAvatar.innerText = '?';
+          dropName.innerText = 'Tamu (Mode Lokal)';
+          dropEmail.innerText = 'Belum terautentikasi';
+          menuAuthText.innerText = 'Masuk ke Akun SaaS';
+          
+          const used = data.subscription?.article_credits_used || 0;
+          const limit = data.subscription?.article_credits_limit || 3;
+          const remaining = Math.max(0, limit - used);
+          pillName.innerText = 'LOKAL';
+          pillRatio.innerText = `(${used}/${limit} Kredit)`;
+          pillBar.style.width = '30%';
+
+          const elStatCredits = document.getElementById('stat-credits-remaining');
+          if (elStatCredits) elStatCredits.innerText = `${remaining} / ${limit}`;
+        }
+
+        // Show Admin Console button if user has admin privileges
+        const adminBtn = document.getElementById('btn-admin-console');
+        if (adminBtn) {
+          if (data.user && (data.user.role === 'admin' || data.user.email === 'admin@bagustech.id')) {
+            adminBtn.classList.remove('hidden');
+          } else {
+            adminBtn.classList.add('hidden');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading current user:', err);
+      }
+    }
+
+    function toggleUserDropdown(forceState) {
+      const menu = document.getElementById('user-dropdown-menu');
+      if (typeof forceState === 'boolean') {
+        if (forceState) menu.classList.remove('hidden');
+        else menu.classList.add('hidden');
+      } else {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    // Close user dropdown on outside click
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('user-menu-container');
+      if (container && !container.contains(e.target)) {
+        toggleUserDropdown(false);
+      }
+    });
+
+    function handleAuthAction() {
+      toggleUserDropdown(false);
+      if (currentUser) {
+        logoutSaas();
+      } else {
+        openAuthModal('login');
+      }
+    }
+
+    function openAuthModal(tab = 'login') {
+      document.getElementById('auth-modal').classList.remove('hidden');
+      document.getElementById('auth-error-alert').classList.add('hidden');
+      switchAuthTab(tab);
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+    }
+
+    function switchAuthTab(tab) {
+      const tabLogin = document.getElementById('tab-auth-login');
+      const tabReg = document.getElementById('tab-auth-register');
+      const formLogin = document.getElementById('form-login');
+      const formReg = document.getElementById('form-register');
+      const title = document.getElementById('auth-modal-title');
+      const alertBox = document.getElementById('auth-error-alert');
+      alertBox.classList.add('hidden');
+
+      if (tab === 'login') {
+        tabLogin.className = "flex-1 py-3 text-xs font-bold text-brand-400 border-b-2 border-brand-500 transition";
+        tabReg.className = "flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition";
+        formLogin.classList.remove('hidden');
+        formReg.classList.add('hidden');
+        title.innerText = "Masuk ke Akun SaaS";
+      } else {
+        tabReg.className = "flex-1 py-3 text-xs font-bold text-emerald-400 border-b-2 border-emerald-500 transition";
+        tabLogin.className = "flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 border-b-2 border-transparent transition";
+        formReg.classList.remove('hidden');
+        formLogin.classList.add('hidden');
+        title.innerText = "Daftar Akun Baru";
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const alertBox = document.getElementById('auth-error-alert');
+      const btn = document.getElementById('btn-submit-login');
+
+      btn.disabled = true;
+      btn.innerText = "Memverifikasi...";
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/saas/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.detail || data.error || 'Login gagal.');
+        }
+
+        closeAuthModal();
+        await loadCurrentUser();
+        await loadBlogs();
+        await loadData();
+        alert(`Selamat datang kembali, ${data.user.full_name || data.user.email}!`);
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Masuk ke Dashboard";
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const alertBox = document.getElementById('auth-error-alert');
+      const btn = document.getElementById('btn-submit-register');
+
+      btn.disabled = true;
+      btn.innerText = "Membuat Akun...";
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/saas/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name: name })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.detail || data.error || 'Pendaftaran gagal.');
+        }
+
+        closeAuthModal();
+        await loadCurrentUser();
+        await loadBlogs();
+        await loadData();
+        alert(`🎉 Pendaftaran berhasil! Akun Anda aktif dengan 3 kredit artikel gratis.`);
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Buat Akun & Mulai Gratis";
+      }
+    }
+
+    async function logoutSaas() {
+      if (!confirm('Apakah Anda yakin ingin keluar dari akun?')) return;
+      try {
+        await fetch('/api/saas/auth/logout', { method: 'POST' });
+        window.location.reload();
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    function openUpgradeModal() {
+      document.getElementById('upgrade-modal').classList.remove('hidden');
+      loadMidtransScript();
+    }
+
+    function closeUpgradeModal() {
+      document.getElementById('upgrade-modal').classList.add('hidden');
+    }
+
+    async function loadMidtransScript() {
+      try {
+        const res = await fetch('/api/billing/plans');
+        const data = await res.json();
+        if (data.snap_js_url && !document.getElementById('midtrans-snap-script')) {
+          const script = document.createElement('script');
+          script.id = 'midtrans-snap-script';
+          script.src = data.snap_js_url;
+          script.setAttribute('data-client-key', data.midtrans_client_key || '');
+          document.head.appendChild(script);
+        }
+      } catch (e) {
+        console.log('Notice: Midtrans script load deferred', e);
+      }
+    }
+
+    async function payWithMidtrans(planTier) {
+      if (!currentUser) {
+        alert('Silakan masuk atau buat akun terlebih dahulu sebelum melakukan pembayaran.');
+        closeUpgradeModal();
+        openAuthModal('register');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/billing/create-snap-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan_tier: planTier })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.detail || data.error || 'Gagal memulai transaksi Midtrans.');
+        }
+
+        if (window.snap && data.token && !data.is_mock) {
+          window.snap.pay(data.token, {
+            onSuccess: async function(result) {
+              alert('🎉 Pembayaran berhasil dikonfirmasi! Kuota paket langganan Anda telah diperbarui.');
+              closeUpgradeModal();
+              await loadCurrentUser();
+            },
+            onPending: function(result) {
+              alert('⏳ Menunggu pembayaran. Silakan transfer melalui Nomor VA / QRIS yang tertera di layar.');
+            },
+            onError: function(result) {
+              alert('❌ Pembayaran dibatalkan atau terjadi kesalahan.');
+            },
+            onClose: function() {
+              console.log('Customer closed popup');
+            }
+          });
+        } else {
+          // If demo mock key is used or direct simulation
+          if (confirm(`Simulasi Pembayaran Midtrans Snap:\nOrder ID: ${data.order_id}\nJumlah: Rp ${Number(data.amount).toLocaleString('id-ID')}\n\nKonfirmasi aktivasi paket ${data.plan_name}?`)) {
+            await simulateDemoPayment(planTier);
+          }
+        }
+      } catch (err) {
+        alert('Error Midtrans: ' + err.message);
+      }
+    }
+
+    async function simulateDemoPayment(planTier) {
+      try {
+        const res = await fetch('/api/billing/upgrade-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan_tier: planTier })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('🚀 ' + data.message);
+          closeUpgradeModal();
+          await loadCurrentUser();
+        } else {
+          alert('Gagal aktivasi demo: ' + (data.error || 'Error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // --- Two-Way Blogger Synchronization ---
+    async function syncBloggerPosts() {
+      if (!activeBlog) {
+        alert('Pilih blog terlebih dahulu untuk disinkronkan.');
+        return;
+      }
+      const btn = document.getElementById('btn-sync-blogger');
+      const icon = document.getElementById('sync-icon');
+      const txt = document.getElementById('sync-btn-text');
+      if (icon) icon.classList.add('animate-spin');
+      if (txt) txt.innerText = 'Menyinkronkan...';
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/blogs/${activeBlog.id}/sync-blogger-posts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✅ ${data.message}`);
+          await loadArticles();
+        } else {
+          alert(`Gagal sinkronisasi: ${data.error || 'Terjadi kesalahan'}`);
+        }
+      } catch (err) {
+        alert(`Error sinkronisasi: ${err.message}`);
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+        if (txt) txt.innerText = 'Sinkron Blogger';
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // --- Notification Settings Modal Logic ---
+    function openNotificationModal() {
+      document.getElementById('notification-modal').classList.remove('hidden');
+      loadNotificationSettings();
+    }
+
+    function closeNotificationModal() {
+      document.getElementById('notification-modal').classList.add('hidden');
+    }
+
+    async function loadNotificationSettings() {
+      try {
+        const res = await fetch('/api/notifications/settings');
+        const data = await res.json();
+        document.getElementById('notify-tg-token').value = data.telegram_bot_token || '';
+        document.getElementById('notify-tg-chat-id').value = data.telegram_chat_id || '';
+        document.getElementById('notify-webhook-url').value = data.webhook_url || '';
+        document.getElementById('notify-toggle-draft').checked = data.notify_on_draft !== false;
+        document.getElementById('notify-toggle-publish').checked = data.notify_on_publish !== false;
+        document.getElementById('notify-toggle-credit').checked = data.notify_on_credit_low !== false;
+      } catch (e) {
+        console.error('Error loading notification settings:', e);
+      }
+    }
+
+    async function saveNotificationSettings() {
+      const btn = document.getElementById('btn-save-notifications');
+      btn.innerText = 'Menyimpan...';
+      btn.disabled = true;
+
+      const payload = {
+        telegram_bot_token: document.getElementById('notify-tg-token').value.trim(),
+        telegram_chat_id: document.getElementById('notify-tg-chat-id').value.trim(),
+        webhook_url: document.getElementById('notify-webhook-url').value.trim(),
+        notify_on_draft: document.getElementById('notify-toggle-draft').checked,
+        notify_on_publish: document.getElementById('notify-toggle-publish').checked,
+        notify_on_credit_low: document.getElementById('notify-toggle-credit').checked
+      };
+
+      try {
+        const res = await fetch('/api/notifications/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          closeNotificationModal();
+        } else {
+          alert('Gagal menyimpan: ' + (data.error || 'Error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.innerText = 'Simpan Pengaturan';
+        btn.disabled = false;
+      }
+    }
+
+    async function testNotificationChannel() {
+      const token = document.getElementById('notify-tg-token').value.trim();
+      const chatId = document.getElementById('notify-tg-chat-id').value.trim();
+      const webhook = document.getElementById('notify-webhook-url').value.trim();
+
+      if (!token && !webhook) {
+        alert('Harap isi Telegram Bot Token & Chat ID atau Webhook URL terlebih dahulu sebelum menguji.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-test-notification');
+      btn.innerText = 'Menguji...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/notifications/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            telegram_bot_token: token,
+            telegram_chat_id: chatId,
+            webhook_url: webhook
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          let msg = '✅ Hasil Pengujian:\n';
+          if (data.results.telegram) {
+            msg += data.results.telegram.success ? '• Telegram: Sukses terkirim!\n' : `• Telegram: Gagal (${data.results.telegram.error})\n`;
+          }
+          if (data.results.webhook) {
+            msg += data.results.webhook.success ? '• Webhook: Sukses terkirim!\n' : `• Webhook: Gagal (${data.results.webhook.error})\n`;
+          }
+          alert(msg);
+        } else {
+          alert('Pengujian gagal: ' + (data.error || 'Error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.innerText = '🚀 Kirim Pesan Uji Coba';
+        btn.disabled = false;
+      }
+    }
+
+    // --- Superadmin Console Logic ---
+    let adminTenantsCache = [];
+
+    function openAdminModal() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      loadAdminData();
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    async function loadAdminData() {
+      try {
+        const mRes = await fetch('/api/admin/metrics');
+        if (mRes.ok) {
+          const m = await mRes.json();
+          document.getElementById('admin-total-tenants').innerText = m.total_tenants || 0;
+          document.getElementById('admin-paying-tenants').innerText = `${m.active_paying || 0} Pelanggan Berbayar`;
+          document.getElementById('admin-mrr-display').innerText = 'Rp ' + Number(m.mrr_idr || 0).toLocaleString('id-ID');
+          document.getElementById('admin-total-articles').innerText = m.total_articles || 0;
+          document.getElementById('admin-articles-breakdown').innerText = `${m.published_articles || 0} Live / ${m.draft_articles || 0} Draf`;
+          document.getElementById('admin-total-blogs').innerText = `${m.total_blogs || 0} Blog`;
+          document.getElementById('admin-total-keywords').innerText = `${m.total_keywords || 0} Keywords`;
+        }
+
+        const tRes = await fetch('/api/admin/tenants');
+        if (tRes.ok) {
+          const t = await tRes.json();
+          adminTenantsCache = t.tenants || [];
+          document.getElementById('admin-tenant-count').innerText = adminTenantsCache.length;
+          renderAdminTenants(adminTenantsCache);
+        }
+      } catch (err) {
+        console.error('Error loading admin data:', err);
+      }
+    }
+
+    function renderAdminTenants(tenants) {
+      const tbody = document.getElementById('admin-tenants-tbody');
+      if (!tbody) return;
+
+      if (!tenants || tenants.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-500 text-xs">Tidak ada data penyewa yang sesuai filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = tenants.map(t => {
+        const tierBadge = {
+          'free': 'bg-slate-800 text-slate-300 border-slate-700',
+          'starter': 'bg-brand-500/15 text-brand-400 border-brand-500/30',
+          'pro': 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+          'agency': 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+        }[t.plan_tier] || 'bg-slate-800 text-slate-300 border-slate-700';
+
+        const statusBadge = t.is_active
+          ? '<span class="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Aktif</span>'
+          : '<span class="inline-flex items-center gap-1 text-[10px] text-rose-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Suspend</span>';
+
+        return `
+          <tr class="hover:bg-slate-900/60 transition">
+            <td class="py-2.5 px-4">
+              <div class="font-bold text-white text-xs truncate max-w-[180px]">${t.full_name}</div>
+              <div class="text-[10px] text-slate-400 font-mono truncate max-w-[180px]">${t.email}</div>
+            </td>
+            <td class="py-2.5 px-3">
+              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded ${t.role === 'admin' ? 'bg-purple-900/40 text-purple-300 font-bold border border-purple-700/50' : 'text-slate-400'}">${t.role}</span>
+            </td>
+            <td class="py-2.5 px-3">
+              <span class="text-[10px] font-bold uppercase border px-2 py-0.5 rounded-full ${tierBadge}">${t.plan_tier}</span>
+            </td>
+            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-300">
+              ${t.credits_used} / ${t.credits_limit}
+            </td>
+            <td class="py-2.5 px-3 font-mono text-xs text-slate-400">${t.blogs_count}</td>
+            <td class="py-2.5 px-3">${statusBadge}</td>
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="adminChangePlan('${t.id}', '${t.email}', '${t.plan_tier}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-semibold rounded-lg border border-slate-700 transition" title="Ubah Paket">
+                  Paket
+                </button>
+                <button onclick="adminAddCredits('${t.id}', '${t.email}')" class="px-2 py-1 bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 text-[10px] font-semibold rounded-lg border border-brand-500/30 transition" title="Tambah Kredit">
+                  +Kredit
+                </button>
+                <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border-rose-500/30' : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border-emerald-500/30'} text-[10px] font-semibold rounded-lg border transition">
+                  ${t.is_active ? 'Suspend' : 'Aktifkan'}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminTenants(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderAdminTenants(adminTenantsCache);
+        return;
+      }
+      const filtered = adminTenantsCache.filter(t =>
+        t.email.toLowerCase().includes(q) || (t.full_name && t.full_name.toLowerCase().includes(q))
+      );
+      renderAdminTenants(filtered);
+    }
+
+    async function adminChangePlan(userId, email, currentTier) {
+      const newPlan = prompt(`Ubah paket untuk ${email}:\nPilihan: free, starter, pro, agency`, currentTier);
+      if (!newPlan) return;
+      const cleanPlan = newPlan.toLowerCase().trim();
+      if (!['free', 'starter', 'pro', 'agency'].includes(cleanPlan)) {
+        alert('Paket tidak valid! Pilih: free, starter, pro, atau agency.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/tenants/${userId}/plan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan_tier: cleanPlan })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          await loadAdminData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function adminAddCredits(userId, email) {
+      const amtStr = prompt(`Masukkan jumlah bonus kredit untuk ${email}:`, '20');
+      if (!amtStr) return;
+      const amount = parseInt(amtStr, 10);
+      if (isNaN(amount) || amount <= 0) {
+        alert('Jumlah kredit harus berupa angka positif.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/tenants/${userId}/credits`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amount })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          await loadAdminData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function adminToggleStatus(userId, email) {
+      if (!confirm(`Konfirmasi toggle status aktif/suspend untuk pengguna: ${email}?`)) return;
+
+      try {
+        const res = await fetch(`/api/admin/tenants/${userId}/toggle-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          await loadAdminData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerGlobalScheduler() {
+      const btn = document.getElementById('btn-admin-run-scheduler');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/saas/scheduler/run-cycle', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          alert(`⚡ Siklus Scheduler Selesai!\nArtikel diproses: ${data.processed_count}\nTimestamp: ${data.timestamp}`);
+          await loadAdminData();
+        } else {
+          alert('Gagal: ' + (data.error || 'Error scheduler'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // --- Landing Page Preview Toggle ---
+    function toggleLandingPreview(show = true) {
+      const modal = document.getElementById('landing-preview-modal');
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('landing') === '1') {
+        toggleLandingPreview(true);
+      }
+      if (params.get('auth_success')) {
+        const count = params.get('imported') || '0';
+        alert(`🎉 Berhasil menghubungkan akun Google! ${count} blog otomatis terdeteksi & terdaftar di dashboard.`);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (params.get('auth_error')) {
+        alert('Gagal otorisasi Google: ' + params.get('auth_error'));
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      await loadCurrentUser();
+      await loadBlogs();
+      await loadData();
+      loadMidtransScript();
+    }
+    init();
   </script>
 </body>
 </html>
