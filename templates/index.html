@@ -119,6 +119,51 @@
     .dark .prose-rendered figcaption { color: #94a3b8; }
     html:not(.dark) .prose-rendered figcaption { color: #64748b; }
   </style>
+
+  <!-- Schema.org SoftwareApplication Structured Data (AI-Readable SaaS Pricing) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Blogger AutoPilot",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web-based",
+    "description": "Platform SaaS Content & SEO Command Center otomatis untuk Google Blogger Blogspot dengan AI E-E-A-T.",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Community",
+        "price": "0",
+        "priceCurrency": "IDR",
+        "description": "3 artikel AI per bulan, 1 blog Blogger terhubung"
+      },
+      {
+        "@type": "Offer",
+        "name": "Starter Solo Creator",
+        "price": "99000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "30 artikel AI SEO per bulan, 3 blog Blogger terhubung, riset keyword otomatis, notifikasi Telegram"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro Publisher Autopilot",
+        "price": "249000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "120 artikel AI SEO per bulan, 10 blog Blogger terhubung, autopilot scheduler harian, Cloudinary CDN full speed"
+      },
+      {
+        "@type": "Offer",
+        "name": "Agency & Media Network",
+        "price": "699000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "500 artikel AI SEO per bulan, 50 blog Blogger terhubung, backup data 1-klik, dedicated worker queue, priority support"
+      }
+    ]
+  }
+  </script>
 </head>
 <body class="bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
   <!-- Toast Notification Container (Floating, accessible) -->
@@ -798,7 +843,7 @@
 
   <!-- Indonesian Pricing & Upgrade Modal (Midtrans Snap) -->
   <div id="upgrade-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
-    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden max-h-[92vh]">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-5xl flex flex-col shadow-2xl overflow-hidden max-h-[92vh]">
       <!-- Modal Header -->
       <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between">
         <div>
@@ -812,94 +857,125 @@
       </div>
 
       <!-- Plans Grid -->
-      <div class="p-6 overflow-y-auto space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="p-5 md:p-6 overflow-y-auto space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Free Plan Card -->
-          <div class="bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <div class="bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Free Community</span>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Free</span>
                 <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full font-mono">Gratis</span>
               </div>
-              <div class="mb-4">
+              <div class="mb-3">
                 <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 0</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">/ bulan</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">/ bln</span>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Cocok untuk mencoba integrasi otomatis ke Blogger.</p>
-              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-4">
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>3 Artikel AI</b> / bulan</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 1 Blog Blogger Terhubung</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Format WebP Otomatis</li>
-                <li class="flex items-center gap-2"><span class="text-slate-400">✗</span> Cloudinary CDN Prioritas</li>
-                <li class="flex items-center gap-2"><span class="text-slate-400">✗</span> FAQPage Schema Generator</li>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Mencoba integrasi otomatis ke Google Blogger.</p>
+              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-3">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>3 Artikel AI</b> / bln</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 1 Blog Terhubung</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Format WebP Otomatis</li>
+                <li class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500"><span>✗</span> Cloudinary CDN Prioritas</li>
+                <li class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500"><span>✗</span> FAQPage Schema Generator</li>
               </ul>
             </div>
-            <div class="pt-6">
+            <div class="pt-5">
               <button disabled class="w-full py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold cursor-not-allowed">Paket Dasar</button>
             </div>
           </div>
 
-          <!-- Starter Plan Card (Recommended) -->
-          <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-[#0f1d38] dark:to-[#070b14] border-2 border-brand-500 rounded-2xl p-5 flex flex-col justify-between shadow-xl shadow-brand-500/10 relative">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-600 to-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md">
-              Paling Populer ⭐
-            </div>
+          <!-- Starter Plan Card -->
+          <div class="bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-brand-400 dark:hover:border-brand-600 transition">
             <div>
-              <div class="flex items-center justify-between mb-2 pt-1">
-                <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Creator</span>
-                <span class="text-[10px] bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-500/30 px-2 py-0.5 rounded-full font-mono">Rp 3.300/art</span>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Solo</span>
+                <span class="text-[10px] bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-500/30 px-1.5 py-0.5 rounded font-mono">Rp 3.300/art</span>
               </div>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-slate-900 dark:text-white">Rp 99.000</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">/ bulan</span>
+              <div class="mb-3">
+                <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 99.000</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">/ bln</span>
               </div>
-              <p class="text-xs text-slate-700 dark:text-slate-300 mb-4">Untuk blogger aktif yang ingin meriset dan memposting 1 artikel per hari.</p>
-              <ul class="text-xs space-y-2 text-slate-800 dark:text-slate-200 border-t border-slate-200 dark:border-slate-800/80 pt-4">
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>30 Artikel AI SEO</b> / bulan</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>3 Blog Blogger</b> Terhubung</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Riset Keyword Otomatis & Niche</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> FAQPage Schema Otomatis</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Webhook & Telegram Alerts</li>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">Untuk solo creator yang ingin posting 1 artikel/hari.</p>
+              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-3">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>30 Artikel AI SEO</b> / bln</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>3 Blog</b> Terhubung</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Riset Keyword & Niche</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> FAQPage Schema Otomatis</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Notifikasi Telegram</li>
               </ul>
             </div>
-            <div class="pt-6 space-y-2">
-              <button onclick="payWithMidtrans('starter')" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-600/20 flex items-center justify-center gap-1.5 active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                <span>Bayar via Midtrans (QRIS/VA)</span>
+            <div class="pt-5 space-y-2">
+              <button onclick="payWithMidtrans('starter')" class="w-full py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-600/20 flex items-center justify-center gap-1 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Bayar Midtrans</span>
               </button>
-              <button onclick="simulateDemoPayment('starter')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-semibold transition">
-                ⚡ Coba Aktivasi Demo (Sandbox Instan)
+              <button onclick="simulateDemoPayment('starter')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+                ⚡ Coba Demo Instan
               </button>
             </div>
           </div>
 
-          <!-- Pro Plan Card -->
-          <div class="bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition">
+          <!-- Pro Plan Card (Anchor / Paling Populer) -->
+          <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-[#0f1d38] dark:to-[#070b14] border-2 border-brand-500 rounded-2xl p-4 flex flex-col justify-between shadow-xl shadow-brand-500/15 relative">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap">
+              Paling Populer ⭐
+            </div>
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro Autopilot</span>
-                <span class="text-[10px] bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full font-mono">Rp 2.075/art</span>
+              <div class="flex items-center justify-between mb-2 pt-1">
+                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro Publisher</span>
+                <span class="text-[10px] bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-1.5 py-0.5 rounded font-mono">Rp 2.075/art</span>
               </div>
-              <div class="mb-4">
-                <span class="text-3xl font-extrabold text-slate-900 dark:text-white">Rp 249.000</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400">/ bulan</span>
+              <div class="mb-3">
+                <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 249.000</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">/ bln</span>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Untuk media network & agensi content yang membutuhkan volume besar harian.</p>
-              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-4">
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>120 Artikel AI SEO</b> / bulan</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>10 Blog Blogger</b> Terhubung</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Antrean Worker Prioritas Tinggi</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Full Automation Cron Schedule</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Cloudinary CDN Full Speed</li>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">Untuk publisher & affiliate yang butuh volume harian konsisten.</p>
+              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-3">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>120 Artikel AI SEO</b> / bln</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>10 Blog</b> Terhubung</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Autopilot Scheduler Harian</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Cloudinary CDN Full Speed</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Antrean Worker Prioritas</li>
               </ul>
             </div>
-            <div class="pt-6 space-y-2">
-              <button onclick="payWithMidtrans('pro')" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 active:scale-95">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                <span>Bayar via Midtrans (QRIS/VA)</span>
+            <div class="pt-5 space-y-2">
+              <button onclick="payWithMidtrans('pro')" class="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-500/20 flex items-center justify-center gap-1 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Bayar Midtrans</span>
               </button>
-              <button onclick="simulateDemoPayment('pro')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-semibold transition">
-                ⚡ Coba Aktivasi Demo (Sandbox Instan)
+              <button onclick="simulateDemoPayment('pro')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+                ⚡ Coba Demo Instan
+              </button>
+            </div>
+          </div>
+
+          <!-- Agency Plan Card -->
+          <div class="bg-slate-50 dark:bg-[#070b14] border border-purple-200 dark:border-purple-900/60 rounded-2xl p-4 flex flex-col justify-between hover:border-purple-400 dark:hover:border-purple-600 transition">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Agency Network</span>
+                <span class="text-[10px] bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-1.5 py-0.5 rounded font-mono">Rp 1.398/art</span>
+              </div>
+              <div class="mb-3">
+                <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 699.000</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">/ bln</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">Untuk PBN, media jaringan, dan agensi SEO multi-klien.</p>
+              <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/80 pt-3">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>500 Artikel AI SEO</b> / bln</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> <b>50 Blog</b> Terhubung</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Ekspor Backup Data 1-Klik</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Dedicated Worker Queue</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Priority Support 24/7</li>
+              </ul>
+            </div>
+            <div class="pt-5 space-y-2">
+              <button onclick="payWithMidtrans('agency')" class="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/20 flex items-center justify-center gap-1 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Bayar Midtrans</span>
+              </button>
+              <button onclick="simulateDemoPayment('agency')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+                ⚡ Coba Demo Instan
               </button>
             </div>
           </div>
