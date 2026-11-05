@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from db_saas import SessionLocal
 from models_saas import User, Subscription, Blog, Article, Keyword
-from agent_worker import run_agent
+from content_generator import generate_article
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,18 +80,33 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
 
             logger.info(f"Executing Autopilot for User: {user.email} (Plan: {sub.plan_tier}) | Blog: {blog.name} | Keyword: '{kw.keyword}'")
             try:
-                # Trigger autonomous agent for this specific tenant user
-                run_agent(user_id=user.id)
-                processed_count += 1
-                results.append({
-                    'user_id': user.id,
-                    'email': user.email,
-                    'blog_id': blog.id,
-                    'keyword': kw.keyword,
-                    'status': 'success'
-                })
+                # Trigger autonomous generation for this specific tenant user, blog, and keyword
+                res = generate_article(
+                    tenant_id=user.id,
+                    blog_id=blog.id,
+                    keyword_id=kw.id,
+                    db=db
+                )
+                if res.success:
+                    processed_count += 1
+                    results.append({
+                        'user_id': user.id,
+                        'email': user.email,
+                        'blog_id': blog.id,
+                        'keyword': kw.keyword,
+                        'status': 'success',
+                        'article_id': res.article_id
+                    })
+                else:
+                    logger.error(f"Error running content generator for {user.email}: {res.error}")
+                    results.append({
+                        'user_id': user.id,
+                        'email': user.email,
+                        'error': res.error,
+                        'status': 'failed'
+                    })
             except Exception as e:
-                logger.error(f"Error running agent for {user.email}: {e}")
+                logger.error(f"Unexpected error running content generator for {user.email}: {e}")
                 results.append({
                     'user_id': user.id,
                     'email': user.email,

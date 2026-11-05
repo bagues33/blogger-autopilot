@@ -18,71 +18,136 @@ DEFAULT_TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 DEFAULT_TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 DEFAULT_WEBHOOK_URL = os.environ.get("GLOBAL_WEBHOOK_URL", "").strip()
 
+# =====================================================================
+# Notification Seam & Adapters (Two adapters justify the seam)
+# =====================================================================
+
+class BaseNotificationAdapter:
+    """
+    Interface for notification channels (Telegram Bot & Custom Webhooks).
+    """
+    def send_telegram(self, bot_token: str, chat_id: str, message_text: str, parse_mode: str = "HTML") -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def send_webhook(self, webhook_url: str, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+class LiveNetworkNotificationAdapter(BaseNotificationAdapter):
+    """
+    Production adapter: Dispatches real HTTP requests to Telegram API and Webhooks.
+    """
+    def send_telegram(self, bot_token: str, chat_id: str, message_text: str, parse_mode: str = "HTML") -> Dict[str, Any]:
+        if not bot_token or not chat_id:
+            return {"success": False, "error": "Bot token and Chat ID are required"}
+
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message_text,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": False
+        }
+
+        req_data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=req_data,
+            headers={"Content-Type": "application/json"}
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return {"success": data.get("ok", False), "result": data.get("result")}
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode("utf-8")
+            logger.error(f"Telegram HTTP Error {e.code}: {err_msg}")
+            return {"success": False, "error": f"HTTP {e.code}: {err_msg}"}
+        except Exception as e:
+            logger.error(f"Telegram Error: {e}")
+            return {"success": False, "error": str(e)}
+
+    def send_webhook(self, webhook_url: str, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        if not webhook_url:
+            return {"success": False, "error": "Webhook URL is missing"}
+
+        body = {
+            "event": event_type,
+            "source": "blogger_autopilot_saas",
+            "data": payload
+        }
+
+        req_data = json.dumps(body).encode("utf-8")
+        req = urllib.request.Request(
+            webhook_url,
+            data=req_data,
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "BloggerAutopilot/1.0"
+            }
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                status = resp.status
+                return {"success": 200 <= status < 300, "status_code": status}
+        except urllib.error.HTTPError as e:
+            return {"success": False, "error": f"HTTP {e.code}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+class InMemoryNotificationAdapter(BaseNotificationAdapter):
+    """
+    Test adapter: Captures dispatched notifications in-memory without making external network calls.
+    """
+    def __init__(self):
+        self.sent_telegrams: list = []
+        self.sent_webhooks: list = []
+
+    def send_telegram(self, bot_token: str, chat_id: str, message_text: str, parse_mode: str = "HTML") -> Dict[str, Any]:
+        entry = {
+            "bot_token": bot_token,
+            "chat_id": chat_id,
+            "message_text": message_text,
+            "parse_mode": parse_mode
+        }
+        self.sent_telegrams.append(entry)
+        return {"success": True, "result": {"message_id": len(self.sent_telegrams)}}
+
+    def send_webhook(self, webhook_url: str, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        entry = {
+            "webhook_url": webhook_url,
+            "event_type": event_type,
+            "payload": payload
+        }
+        self.sent_webhooks.append(entry)
+        return {"success": True, "status_code": 200}
+
+    def clear(self):
+        self.sent_telegrams.clear()
+        self.sent_webhooks.clear()
+
+# Active adapter holder
+_active_notification_adapter: BaseNotificationAdapter = LiveNetworkNotificationAdapter()
+
+def get_notification_adapter() -> BaseNotificationAdapter:
+    return _active_notification_adapter
+
+def set_notification_adapter(adapter: BaseNotificationAdapter):
+    global _active_notification_adapter
+    _active_notification_adapter = adapter
+
 def send_telegram_message(bot_token: str, chat_id: str, message_text: str, parse_mode: str = "HTML") -> Dict[str, Any]:
     """
-    Sends a message to a Telegram chat or channel via Bot API.
+    Sends a message to Telegram via the active notification adapter.
     """
-    if not bot_token or not chat_id:
-        return {"success": False, "error": "Bot token and Chat ID are required"}
-
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message_text,
-        "parse_mode": parse_mode,
-        "disable_web_page_preview": False
-    }
-
-    req_data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=req_data,
-        headers={"Content-Type": "application/json"}
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return {"success": data.get("ok", False), "result": data.get("result")}
-    except urllib.error.HTTPError as e:
-        err_msg = e.read().decode("utf-8")
-        logger.error(f"Telegram HTTP Error {e.code}: {err_msg}")
-        return {"success": False, "error": f"HTTP {e.code}: {err_msg}"}
-    except Exception as e:
-        logger.error(f"Telegram Error: {e}")
-        return {"success": False, "error": str(e)}
+    return get_notification_adapter().send_telegram(bot_token, chat_id, message_text, parse_mode)
 
 def send_webhook_event(webhook_url: str, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Sends a JSON payload to a custom webhook URL (Zapier, Make, Slack, Discord, etc.).
+    Sends a webhook event via the active notification adapter.
     """
-    if not webhook_url:
-        return {"success": False, "error": "Webhook URL is missing"}
-
-    body = {
-        "event": event_type,
-        "source": "blogger_autopilot_saas",
-        "data": payload
-    }
-
-    req_data = json.dumps(body).encode("utf-8")
-    req = urllib.request.Request(
-        webhook_url,
-        data=req_data,
-        headers={
-            "Content-Type": "application/json",
-            "User-Agent": "BloggerAutopilot/1.0"
-        }
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            status = resp.status
-            return {"success": 200 <= status < 300, "status_code": status}
-    except urllib.error.HTTPError as e:
-        return {"success": False, "error": f"HTTP {e.code}"}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+    return get_notification_adapter().send_webhook(webhook_url, event_type, payload)
 
 def dispatch_notification(
     user_id: str,

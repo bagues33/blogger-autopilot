@@ -26,3 +26,5 @@ settings/autopilot_blog_test_*.json
 
 # Environment overrides
 .env
+scratch/
+

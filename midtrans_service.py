@@ -65,14 +65,93 @@ def get_auth_header() -> str:
     encoded = base64.b64encode(f"{MIDTRANS_SERVER_KEY}:".encode('utf-8')).decode('utf-8')
     return f"Basic {encoded}"
 
+# =====================================================================
+# Payment Gateway Seam & Adapters (Two adapters justify the seam)
+# =====================================================================
+
+class BasePaymentGatewayAdapter:
+    """
+    Interface for billing and payment gateways.
+    """
+    def create_transaction(self, order_id: str, gross_amount: int, payload: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def verify_signature(self, order_id: str, status_code: str, gross_amount: str, signature_key: str) -> bool:
+        raise NotImplementedError
+
+class MidtransLiveAdapter(BasePaymentGatewayAdapter):
+    """
+    Production adapter: Communicates with Midtrans Snap API via HTTPS.
+    """
+    def create_transaction(self, order_id: str, gross_amount: int, payload: Dict[str, Any]) -> Dict[str, Any]:
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": get_auth_header()
+        }
+        response = requests.post(get_snap_url(), json=payload, headers=headers, timeout=15)
+        response.raise_for_status()
+        res_data = response.json()
+        return {
+            'success': True,
+            'token': res_data.get('token'),
+            'redirect_url': res_data.get('redirect_url'),
+            'order_id': order_id,
+            'amount': gross_amount
+        }
+
+    def verify_signature(self, order_id: str, status_code: str, gross_amount: str, signature_key: str) -> bool:
+        raw_str = f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}"
+        expected_hash = hashlib.sha512(raw_str.encode('utf-8')).hexdigest()
+        return expected_hash.lower() == signature_key.lower()
+
+class InMemoryPaymentAdapter(BasePaymentGatewayAdapter):
+    """
+    Test adapter: In-memory simulation of Midtrans Snap transactions for instant, reliable testing.
+    """
+    def __init__(self):
+        self.transactions: list = []
+
+    def create_transaction(self, order_id: str, gross_amount: int, payload: Dict[str, Any]) -> Dict[str, Any]:
+        mock_token = f"MOCK_SNAP_TOKEN_{int(time.time())}"
+        entry = {
+            'order_id': order_id,
+            'gross_amount': gross_amount,
+            'token': mock_token,
+            'payload': payload
+        }
+        self.transactions.append(entry)
+        return {
+            'success': True,
+            'token': mock_token,
+            'redirect_url': f"https://app.sandbox.midtrans.com/snap/v2/vtweb/mock-{order_id}",
+            'order_id': order_id,
+            'amount': gross_amount,
+            'is_mock': True
+        }
+
+    def verify_signature(self, order_id: str, status_code: str, gross_amount: str, signature_key: str) -> bool:
+        raw_str = f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}"
+        expected_hash = hashlib.sha512(raw_str.encode('utf-8')).hexdigest()
+        return expected_hash.lower() == signature_key.lower() or signature_key == "MOCK_SIGNATURE"
+
+# Select default adapter: use in-memory adapter when demo keys are detected
+_active_payment_adapter: BasePaymentGatewayAdapter = (
+    InMemoryPaymentAdapter() if 'DemoTestKeyOnly' in MIDTRANS_SERVER_KEY else MidtransLiveAdapter()
+)
+
+def get_payment_adapter() -> BasePaymentGatewayAdapter:
+    return _active_payment_adapter
+
+def set_payment_adapter(adapter: BasePaymentGatewayAdapter):
+    global _active_payment_adapter
+    _active_payment_adapter = adapter
+
 def verify_signature(order_id: str, status_code: str, gross_amount: str, signature_key: str) -> bool:
     """
-    Verifies the SHA512 signature from Midtrans webhook:
-    SHA512(order_id + status_code + gross_amount + ServerKey)
+    Verifies the SHA512 signature via the active payment gateway adapter.
     """
-    raw_str = f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}"
-    expected_hash = hashlib.sha512(raw_str.encode('utf-8')).hexdigest()
-    return expected_hash.lower() == signature_key.lower()
+    return get_payment_adapter().verify_signature(order_id, status_code, gross_amount, signature_key)
 
 def create_snap_transaction(
     user: User,
@@ -80,8 +159,7 @@ def create_snap_transaction(
     callback_url: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Creates a Midtrans Snap transaction for Indonesian payment methods (IDR).
-    Returns Snap token & redirect URL.
+    Creates a Snap transaction using the active payment gateway adapter.
     """
     plan = PLAN_TIERS.get(plan_tier)
     if not plan:
@@ -114,46 +192,19 @@ def create_snap_transaction(
         "custom_field2": plan_tier,
         "callbacks": {
             "finish": callback_url or "/"
-        }
-    }
-
-    # Enable all Indonesian popular payment methods
-    payload["enabled_payments"] = [
-        "gopay", "shopeepay", "other_qris",
-        "bca_va", "bni_va", "bri_va", "mandiri_clickpay", "echannel", "permata_va",
-        "credit_card"
-    ]
-
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": get_auth_header()
+        },
+        "enabled_payments": [
+            "gopay", "shopeepay", "other_qris",
+            "bca_va", "bni_va", "bri_va", "mandiri_clickpay", "echannel", "permata_va",
+            "credit_card"
+        ]
     }
 
     try:
-        response = requests.post(get_snap_url(), json=payload, headers=headers, timeout=15)
-        response.raise_for_status()
-        res_data = response.json()
-        return {
-            'success': True,
-            'token': res_data.get('token'),
-            'redirect_url': res_data.get('redirect_url'),
-            'order_id': order_id,
-            'amount': plan['price'],
-            'plan_name': plan['name']
-        }
-    except requests.exceptions.RequestException as e:
-        # If in sandbox or demo mode with mock keys, return simulated snap token for testing
-        if 'DemoTestKeyOnly' in MIDTRANS_SERVER_KEY:
-            return {
-                'success': True,
-                'token': f"MOCK_SNAP_TOKEN_{int(time.time())}",
-                'redirect_url': f"https://app.sandbox.midtrans.com/snap/v2/vtweb/mock-{order_id}",
-                'order_id': order_id,
-                'amount': plan['price'],
-                'plan_name': plan['name'],
-                'is_mock': True
-            }
+        res = get_payment_adapter().create_transaction(order_id, int(plan['price']), payload)
+        res['plan_name'] = plan['name']
+        return res
+    except Exception as e:
         return {'success': False, 'error': f"Gagal membuat transaksi Midtrans: {str(e)}"}
 
 def handle_midtrans_webhook(event_data: Dict[str, Any], db: Session) -> Dict[str, Any]:

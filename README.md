@@ -67,24 +67,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Langkah 3: Inisialisasi Database
+### Langkah 3: Diagnosa Kesiapan SaaS
+Periksa status konfigurasi database, kunci enkripsi AES, Midtrans payment gateway, dan Google OAuth:
 ```bash
-python db.py
-python migrate_multi_blog.py
+python check_saas_readiness.py
 ```
 
-### Langkah 4: Hubungkan Akun Google Blogger (OAuth Login)
-Jalankan helper otentikasi interaktif:
-```bash
-python auth.py --url
-```
-1. Buka tautan `AUTH_URL` di browser dan berikan izin akses ke akun Google Anda.
-2. Salin URL redirect atau parameter `code` (`http://localhost/?code=...`) dari browser.
-3. Masukkan ke terminal:
-```bash
-python auth.py --code "<KODE_ATAU_URL_LENGKAP>"
-```
-*Token autentikasi akan tersimpan aman di `token.json`.*
+### Langkah 4: Hubungkan Akun Google Blogger (1-Click OAuth)
+Database terinisialisasi secara otomatis saat server berjalan. Untuk menghubungkan akun Google Blogger:
+1. Buka dashboard di browser: `http://localhost:8090`
+2. Klik tombol **"Hubungkan Akun Google"**
+3. Berikan izin akses Google Blogger pada pop-up consent Google
+4. Token akan dienkripsi dengan standar AES-256 dan disimpan secara aman di database tenant
 
 ---
 
@@ -97,21 +91,32 @@ uvicorn app:app --host 0.0.0.0 --port 8090
 ```
 Buka di browser: **`http://localhost:8090`**
 
+### Menjalankan Autopilot Background Scheduler (Daemon)
+```bash
+python autopilot_scheduler.py
+```
+
 ---
 
 ## 📁 Struktur Direktori
 
 ```text
-blogger-agent/
-├── app.py                     # Server FastAPI & Web Dashboard
-├── db.py                      # Skema SQLite modular (articles, keywords, blogs)
-├── blogger_client.py          # Wrapper Google Blogger API v3
-├── auth.py                    # Alur autentikasi OAuth 2.0
-├── migrate_multi_blog.py      # Migrasi skema multi-blog
+blogger-autopilot/
+├── app.py                     # Entrypoint FastAPI & static mounts
+├── routers/                   # Domain API Routers (auth, billing, blogs, articles, keywords, settings, admin)
+├── content_generator.py       # Deep Module peracik artikel & BaseLLMAdapter seam
+├── blogger_client.py          # Seam Blogger API v3 (Live & InMemory adapters)
+├── midtrans_service.py        # Seam Midtrans Payment Gateway (Live & InMemory adapters)
+├── notification_service.py    # Seam Notifikasi Telegram & Webhook (Live & InMemory adapters)
+├── db_saas.py                 # Engine persistensi SQLAlchemy multi-tenant
+├── models_saas.py             # Model relational User, Subscription, Blog, Article, Keyword
+├── auth_saas.py               # Otentikasi tenant JWT, Bcrypt, & HttpOnly cookies
+├── crypto_service.py          # Enkripsi & dekripsi token OAuth AES-256
+├── autopilot_scheduler.py     # Background scheduler daemon siklus konten otonom
+├── templates/index.html       # Authoritative Single Page Application Dashboard
 ├── seo_knowledge.md           # Basis pengetahuan SEO E-E-A-T
 ├── seo_master_prompt.md       # Prompt standar penulisan artikel
-├── requirements.txt           # Daftar dependensi Python
+├── requirements.txt           # Dependensi Python
 ├── .env.example               # Template environment variables
-├── .gitignore                 # Filter kredensial, DB, & logs
 └── uploads/                   # Media gambar WebP
 ```

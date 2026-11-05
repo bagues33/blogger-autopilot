@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python db.py && python migrate_multi_blog.py && python db_saas.py
+RUN python -c "import db_saas; db_saas.init_saas_db()"
 
 EXPOSE 8090
 

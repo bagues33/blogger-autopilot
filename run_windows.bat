@@ -13,10 +13,9 @@ IF NOT EXIST ".venv" (
     call .venv\Scripts\pip install -r requirements.txt
 )
 
-IF NOT EXIST "data.db" (
+IF NOT EXIST "data_saas.db" (
     echo [INFO] Menginisialisasi basis data...
-    call .venv\Scripts\python db.py
-    call .venv\Scripts\python migrate_multi_blog.py
+    call .venv\Scripts\python -c "import db_saas; db_saas.init_saas_db()"
 )
 
 echo [INFO] Membuka browser ke http://localhost:8090 ...

@@ -21,10 +21,9 @@ if [ ! -d ".venv" ]; then
 fi
 
 # Auto initialize database if missing
-if [ ! -f "data.db" ]; then
+if [ ! -f "data_saas.db" ]; then
     echo "⚡ Menginisialisasi basis data..."
-    .venv/bin/python db.py
-    .venv/bin/python migrate_multi_blog.py
+    .venv/bin/python -c "import db_saas; db_saas.init_saas_db()"
 fi
 
 echo "🚀 Membuka Web Dashboard di browser Anda..."

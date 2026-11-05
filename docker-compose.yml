@@ -6,7 +6,6 @@ services:
     ports:
       - "8090:8090"
     volumes:
-      - ./data.db:/app/data.db
       - ./data_saas.db:/app/data_saas.db
       - ./uploads:/app/uploads
       - ./tokens:/app/tokens
@@ -28,7 +27,6 @@ services:
     restart: unless-stopped
     command: ["python", "autopilot_scheduler.py", "3600"]
     volumes:
-      - ./data.db:/app/data.db
       - ./data_saas.db:/app/data_saas.db
       - ./uploads:/app/uploads
       - ./tokens:/app/tokens
