@@ -100,7 +100,7 @@ def get_service(token_file=None, blog_id=None, encrypted_token=None, db_session=
     target_token_file = resolve_file_path(raw_token_file) or DEFAULT_TOKEN_FILE
     
     if not target_token_file or not os.path.exists(target_token_file):
-        raise FileNotFoundError(f"Token file '{raw_token_file}' tidak ditemukan. Silakan hubungkan blog Anda melalui dashboard.")
+        raise FileNotFoundError("Sesi Google Blogger belum terhubung atau perlu login ulang. Silakan klik 'Hubungkan Akun Google' di dashboard.")
         
     creds = Credentials.from_authorized_user_file(target_token_file)
     if creds.expired and creds.refresh_token:

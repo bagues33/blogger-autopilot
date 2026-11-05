@@ -124,6 +124,40 @@
   <!-- Toast Notification Container (Floating, accessible) -->
   <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
 
+  <!-- Accessible Custom Confirmation Dialog Modal -->
+  <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-[10000] hidden flex items-center justify-center p-4 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm flex flex-col shadow-2xl overflow-hidden p-6 text-center space-y-4">
+      <div id="confirm-modal-icon-bg" class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto text-xl font-bold">
+        <span id="confirm-modal-icon">⚠️</span>
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="confirm-modal-title" class="font-bold text-slate-900 dark:text-white text-base">Konfirmasi</h3>
+        <p id="confirm-modal-msg" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Apakah Anda yakin?</p>
+      </div>
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button id="confirm-modal-btn-cancel" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition active:scale-95">Batal</button>
+        <button id="confirm-modal-btn-action" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accessible Custom Prompt Dialog Modal -->
+  <div id="prompt-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-[10000] hidden flex items-center justify-center p-4 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="prompt-modal-title">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm flex flex-col shadow-2xl overflow-hidden p-6 space-y-4">
+      <div class="space-y-1.5 text-left">
+        <h3 id="prompt-modal-title" class="font-bold text-slate-900 dark:text-white text-base">Input Diperlukan</h3>
+        <p id="prompt-modal-msg" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Silakan masukkan data.</p>
+      </div>
+      <div>
+        <input type="text" id="prompt-modal-input" class="w-full bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+      </div>
+      <div class="flex items-center justify-center gap-3 pt-1">
+        <button id="prompt-modal-btn-cancel" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition active:scale-95">Batal</button>
+        <button id="prompt-modal-btn-action" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95">Simpan</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Header Navigation -->
   <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b1120]/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-6 py-3 flex items-center justify-between shadow-sm flex-wrap gap-3">
@@ -303,8 +337,8 @@
       <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:border-brand-500 transition group" onclick="openUpgradeModal()" role="button" aria-label="Upgrade Kuota AI">
         <div>
           <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sisa Kuota AI</p>
-          <h4 id="stat-credits-remaining" class="text-2xl font-black text-brand-600 dark:text-brand-400 mt-1">3 / 3</h4>
-          <span class="text-[10px] text-brand-600 dark:text-brand-400 font-semibold group-hover:underline">Klik untuk Upgrade &rarr;</span>
+          <h4 id="stat-credits-remaining" class="text-2xl font-black text-brand-600 dark:text-brand-400 mt-1">3 Kredit</h4>
+          <span id="stat-credits-sub" class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">0 terpakai dari 3 limit</span>
         </div>
         <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/20 transition flex items-center justify-center font-bold text-lg" aria-hidden="true">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -1373,6 +1407,8 @@
       const container = document.getElementById('toast-container');
       if (!container) return;
       
+      const cleanMessage = (message || '').replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}]\s*/u, '').trim();
+      
       const toast = document.createElement('div');
       const typeStyles = {
         success: 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-600/20',
@@ -1383,7 +1419,7 @@
       const iconMap = {
         success: '✓',
         error: '✕',
-        warning: '⚠',
+        warning: '!',
         info: 'ℹ'
       };
       
@@ -1393,7 +1429,7 @@
       toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-lg text-xs font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${style}`;
       toast.innerHTML = `
         <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-[11px] shrink-0" aria-hidden="true">${icon}</span>
-        <div class="flex-1 min-w-0 pr-1 leading-snug break-words">${message}</div>
+        <div class="flex-1 min-w-0 pr-1 leading-snug break-words">${cleanMessage}</div>
         <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white transition font-bold text-sm shrink-0" aria-label="Tutup notifikasi">&times;</button>
       `;
       container.appendChild(toast);
@@ -1408,10 +1444,124 @@
       }, duration);
     }
 
-    // Override browser alert with smooth floating toast
+    // Accessible In-App Confirmation Modal System (Replacing blocking confirm dialogs)
+    function showConfirm({
+      title = 'Konfirmasi Tindakan',
+      message = 'Apakah Anda yakin ingin melanjutkan?',
+      confirmText = 'Lanjutkan',
+      cancelText = 'Batal',
+      isDestructive = false,
+      icon = '⚠️',
+      onConfirm = () => {}
+    }) {
+      const modal = document.getElementById('confirm-modal');
+      const titleEl = document.getElementById('confirm-modal-title');
+      const msgEl = document.getElementById('confirm-modal-msg');
+      const btnConfirm = document.getElementById('confirm-modal-btn-action');
+      const btnCancel = document.getElementById('confirm-modal-btn-cancel');
+      const iconEl = document.getElementById('confirm-modal-icon');
+      const iconBg = document.getElementById('confirm-modal-icon-bg');
+
+      if (!modal) {
+        if (confirm(message)) onConfirm();
+        return;
+      }
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+      btnConfirm.innerText = confirmText;
+      btnCancel.innerText = cancelText;
+      iconEl.innerText = icon;
+
+      if (isDestructive) {
+        iconBg.className = "w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto text-xl font-bold";
+        btnConfirm.className = "flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95";
+      } else {
+        iconBg.className = "w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto text-xl font-bold";
+        btnConfirm.className = "flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95";
+      }
+
+      btnConfirm.onclick = () => {
+        modal.classList.add('hidden');
+        onConfirm();
+      };
+
+      btnCancel.onclick = () => {
+        modal.classList.add('hidden');
+      };
+
+      modal.classList.remove('hidden');
+      btnConfirm.focus();
+    }
+
+    // Accessible In-App Prompt Modal System (Replacing blocking prompt dialogs)
+    function showPrompt({
+      title = 'Input Diperlukan',
+      message = 'Silakan masukkan data:',
+      defaultValue = '',
+      placeholder = '',
+      inputType = 'text',
+      confirmText = 'Simpan',
+      cancelText = 'Batal',
+      onConfirm = () => {}
+    }) {
+      const modal = document.getElementById('prompt-modal');
+      const titleEl = document.getElementById('prompt-modal-title');
+      const msgEl = document.getElementById('prompt-modal-msg');
+      const inputEl = document.getElementById('prompt-modal-input');
+      const btnConfirm = document.getElementById('prompt-modal-btn-action');
+      const btnCancel = document.getElementById('prompt-modal-btn-cancel');
+
+      if (!modal) {
+        const val = prompt(message, defaultValue);
+        if (val !== null) onConfirm(val);
+        return;
+      }
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+      inputEl.type = inputType;
+      inputEl.value = defaultValue;
+      inputEl.placeholder = placeholder;
+      btnConfirm.innerText = confirmText;
+      btnCancel.innerText = cancelText;
+
+      const cleanup = () => {
+        modal.classList.add('hidden');
+        btnConfirm.onclick = null;
+        btnCancel.onclick = null;
+        inputEl.onkeydown = null;
+      };
+
+      const handleConfirm = () => {
+        const val = inputEl.value;
+        cleanup();
+        onConfirm(val);
+      };
+
+      btnConfirm.onclick = handleConfirm;
+      btnCancel.onclick = cleanup;
+      inputEl.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleConfirm();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cleanup();
+        }
+      };
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        inputEl.focus();
+        inputEl.select();
+      }, 50);
+    }
+
+    // Global alert override to route any unexpected error to toast
     window.alert = function(msg) {
-      const isErr = /gagal|error|salah/i.test(msg);
-      const isSucc = /berhasil|sukses|selesai|optimal/i.test(msg);
+      const isErr = /gagal|error|salah|belum|wajib|invalid/i.test(msg);
+      const isSucc = /berhasil|sukses|selesai|optimal|selamat/i.test(msg);
       const type = isErr ? 'error' : (isSucc ? 'success' : 'info');
       showToast(msg, type);
     };
@@ -1533,7 +1683,7 @@
           await loadData();
         }
       } catch (e) {
-        alert('Gagal berganti blog: ' + e.message);
+        showToast('Gagal berganti blog: ' + e.message, 'error');
       }
     }
 
@@ -1572,17 +1722,17 @@
           window.open(data.auth_url, '_blank');
           document.getElementById('oauth-code-input-group').classList.remove('hidden');
         } else {
-          alert('Gagal mendapatkan Auth URL: ' + (data.error || 'Pastikan file client_secret.json sudah diletakkan di direktori proyek.'));
+          showToast('Gagal mendapatkan Auth URL: ' + (data.error || 'Pastikan file client_secret.json sudah diletakkan di direktori proyek.'), 'error');
         }
       } catch (e) {
-        alert('Error: ' + e.message);
+        showToast('Error: ' + e.message, 'error');
       }
     }
 
     async function submitOAuthCode() {
       const codeVal = document.getElementById('oauth-code-input').value.trim();
       if (!codeVal) {
-        alert('Silakan tempel URL redirect atau kode otorisasi dari Google terlebih dahulu!');
+        showToast('Silakan tempel URL redirect atau kode otorisasi dari Google terlebih dahulu.', 'warning');
         return;
       }
       const statusEl = document.getElementById('token-upload-status');
@@ -1620,7 +1770,7 @@
       const tokenChoice = document.querySelector('input[name="token-choice"]:checked').value;
 
       if (!id || !name) {
-        alert('ID Blog dan Nama Blog wajib diisi!');
+        showToast('ID Blog dan Nama Blog wajib diisi.', 'warning');
         return;
       }
 
@@ -1635,7 +1785,7 @@
         } else {
           const fileInput = document.getElementById('new-blog-token-file');
           if (!fileInput.files || fileInput.files.length === 0) {
-            alert('Silakan login Google via tombol di atas atau pilih file token.json terlebih dahulu!');
+            showToast('Silakan login Google via tombol di atas atau pilih file token.json terlebih dahulu.', 'warning');
             btn.disabled = false;
             btn.innerText = 'Simpan & Daftarkan';
             return;
@@ -1653,7 +1803,7 @@
             }
             tokenFile = upData.token_file;
           } catch (e) {
-            alert('Gagal mengunggah token: ' + e.message);
+            showToast('Gagal mengunggah token: ' + e.message, 'error');
             btn.disabled = false;
             btn.innerText = 'Simpan & Daftarkan';
             return;
@@ -1681,12 +1831,12 @@
           closeAddBlogModal();
           await loadBlogs();
           await selectBlog(id);
-          alert('🎉 Blog baru berhasil didaftarkan dan diaktifkan!');
+          showToast('Blog baru berhasil didaftarkan dan diaktifkan!', 'success');
         } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (e) {
-        alert('Terjadi kesalahan: ' + e.message);
+        showToast('Terjadi kesalahan: ' + e.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Simpan & Daftarkan';
@@ -1694,19 +1844,28 @@
     }
 
     async function deleteBlog(id, name) {
-      if (!confirm(`Hapus blog "${name}" (ID: ${id}) dari daftar?`)) return;
-      try {
-        const res = await fetch(`/api/blogs/${id}/delete`, { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          await loadBlogs();
-          if (activeBlog) await loadData();
-        } else {
-          alert(data.error || 'Gagal menghapus blog.');
+      showConfirm({
+        title: 'Hapus Blog Terhubung',
+        message: `Hapus blog "${name}" (ID: ${id}) dari daftar dashboard?`,
+        confirmText: 'Hapus Blog',
+        isDestructive: true,
+        icon: '🗑️',
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/api/blogs/${id}/delete`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+              showToast('Blog berhasil dihapus dari daftar.', 'success');
+              await loadBlogs();
+              if (activeBlog) await loadData();
+            } else {
+              showToast(data.error || 'Gagal menghapus blog.', 'error');
+            }
+          } catch (e) {
+            showToast('Terjadi kesalahan: ' + e.message, 'error');
+          }
         }
-      } catch (e) {
-        alert('Terjadi kesalahan: ' + e.message);
-      }
+      });
     }
 
     async function loadData() {
@@ -1788,7 +1947,7 @@
           <div class="text-center py-16 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-6">
             <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 flex items-center justify-center mx-auto mb-3 font-bold text-lg">✍️</div>
             <p class="text-slate-800 dark:text-slate-200 font-semibold text-sm">Belum ada antrean draf artikel</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Klik <b>⚡ Riset & Draf Otomatis</b> atau <b>Tulis Manual</b> untuk memulai publikasi konten baru.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Klik <b>Buat Draf AI</b> atau <b>Tulis Manual</b> untuk memulai publikasi konten baru.</p>
           </div>
         `;
         return;
@@ -2079,15 +2238,15 @@
             document.getElementById('img-alt-input').value = kw ? ('Ilustrasi panduan ' + kw) : file.name;
           }
           if (data.is_cdn) {
-            alert(`Gambar berhasil dikonversi ke WebP dan diunggah ke Cloud CDN (${data.cdn_provider})! Klik "+ Sisipkan" untuk memasukkannya ke artikel.`);
+            showToast(`Gambar berhasil dikonversi ke WebP dan diunggah ke Cloud CDN (${data.cdn_provider})! Klik "+ Sisipkan" untuk memasukkannya ke artikel.`, 'success');
           } else {
-            alert('Gambar berhasil dioptimasi ke WebP (Lokal). Catatan: Agar gambar muncul di blog publik, atur CLOUDINARY_URL di file .env.');
+            showToast('Gambar berhasil dioptimasi ke WebP (Lokal). Catatan: Agar gambar muncul di blog publik, atur CLOUDINARY_URL di file .env.', 'info');
           }
         } else {
-          alert('Gagal upload gambar: ' + (data.error || 'Terjadi kesalahan'));
+          showToast('Gagal upload gambar: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (err) {
-        alert('Error upload: ' + err.message);
+        showToast('Error upload: ' + err.message, 'error');
       } finally {
         input.value = '';
       }
@@ -2099,7 +2258,7 @@
       const caption = document.getElementById('img-caption-input').value.trim();
       
       if (!url) {
-        alert('Silakan masukkan URL gambar atau unggah file gambar terlebih dahulu.');
+        showToast('Silakan masukkan URL gambar atau unggah file gambar terlebih dahulu.', 'warning');
         return;
       }
       
@@ -2114,7 +2273,7 @@
       const contentArea = document.getElementById('modal-article-content');
       contentArea.value = figureHtml + contentArea.value;
       syncModalContent();
-      alert('Gambar berhasil disisipkan ke dalam draf!');
+      showToast('Gambar berhasil disisipkan ke dalam draf!', 'success');
     }
 
     function switchModalView(view) {
@@ -2190,107 +2349,132 @@
     async function publishArticle(isDraft = false) {
       const id = document.getElementById('modal-article-id').value;
       if (!id) {
-        alert('Simpan draf artikel terlebih dahulu.');
+        showToast('Simpan draf artikel terlebih dahulu.', 'warning');
         return;
       }
-      const actionPrompt = isDraft
-        ? 'Kirim/perbarui artikel ini sebagai DRAFT online di Blogger?'
-        : 'Publikasikan/perbarui artikel ini LANGSUNG (LIVE) di Blogger?';
-      if (!confirm(actionPrompt)) return;
-      
-      const btn = isDraft ? document.getElementById('btn-draft-action') : document.getElementById('btn-publish-action');
-      const originalHtml = btn ? btn.innerHTML : '';
-      if (btn) {
-        btn.disabled = true;
-        btn.classList.add('opacity-75', 'cursor-not-allowed');
-        btn.innerHTML = `
-          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
-          <span>Menghubungi Blogger...</span>
-        `;
-      }
-      
-      try {
-        const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ is_draft: isDraft })
-        });
-        const result = await res.json();
-        if (result.success) {
-          const actionText = result.action === 'updated' ? 'berhasil diperbarui' : 'berhasil dibuat';
-          const modeText = isDraft ? 'Draft di Blogger' : 'Live Publik di Blogger';
+      const title = isDraft ? 'Simpan Draf ke Blogger' : 'Publikasikan Artikel Live';
+      const message = isDraft
+        ? 'Artikel ini akan diunggah atau diperbarui sebagai DRAFT di Blogger Anda.'
+        : 'Artikel ini akan langsung DITERBITKAN secara publik ke Blogger Anda. Lanjutkan?';
+      const confirmText = isDraft ? 'Simpan Draf' : 'Publikasikan Sekarang';
+      const icon = isDraft ? '📝' : '🚀';
+
+      showConfirm({
+        title,
+        message,
+        confirmText,
+        cancelText: 'Batal',
+        icon,
+        isDestructive: false,
+        onConfirm: async () => {
+          const btn = isDraft ? document.getElementById('btn-draft-action') : document.getElementById('btn-publish-action');
+          const originalHtml = btn ? btn.innerHTML : '';
           if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
             btn.innerHTML = `
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-              <span>Tersimpan!</span>
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+              <span>Menghubungi Blogger...</span>
             `;
           }
-          setTimeout(() => {
-            alert(`Sukses! Artikel ${actionText} sebagai ${modeText}.`);
-            closeArticleModal();
-            loadData();
-          }, 250);
-        } else {
-          alert('Gagal ke Blogger: ' + (result.error || 'Unknown error'));
-          if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('opacity-75', 'cursor-not-allowed');
-            btn.innerHTML = originalHtml;
+          
+          try {
+            const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ is_draft: isDraft })
+            });
+            const result = await res.json();
+            if (result.success) {
+              const actionText = result.action === 'updated' ? 'berhasil diperbarui' : 'berhasil dibuat';
+              const modeText = isDraft ? 'Draft di Blogger' : 'Live Publik di Blogger';
+              if (btn) {
+                btn.innerHTML = `
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span>Tersimpan!</span>
+                `;
+              }
+              setTimeout(() => {
+                showToast(`Artikel ${actionText} sebagai ${modeText}.`, 'success');
+                closeArticleModal();
+                loadData();
+              }, 250);
+            } else {
+              showToast('Gagal ke Blogger: ' + (result.error || 'Terjadi kesalahan sistem'), 'error');
+              if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btn.innerHTML = originalHtml;
+              }
+            }
+          } catch (err) {
+            showToast('Terjadi kesalahan koneksi: ' + err.message, 'error');
+            if (btn) {
+              btn.disabled = false;
+              btn.classList.remove('opacity-75', 'cursor-not-allowed');
+              btn.innerHTML = originalHtml;
+            }
           }
         }
-      } catch (err) {
-        alert('Terjadi kesalahan koneksi: ' + err.message);
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove('opacity-75', 'cursor-not-allowed');
-          btn.innerHTML = originalHtml;
-        }
-      }
+      });
     }
 
     async function quickPublish(id, isDraft = false, btnEl = null) {
-      const modeText = isDraft ? 'Kirim/Update sebagai DRAFT di Blogger' : 'PUBLIKASIKAN LANGSUNG (LIVE) ke Blogger';
-      if (!confirm(`Konfirmasi: ${modeText} sekarang?`)) return;
-      let originalHtml = '';
-      if (btnEl) {
-        originalHtml = btnEl.innerHTML;
-        btnEl.disabled = true;
-        btnEl.classList.add('opacity-75', 'cursor-not-allowed');
-        btnEl.innerHTML = `
-          <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
-          <span>Syncing...</span>
-        `;
-      }
-      
-      try {
-        const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ is_draft: isDraft })
-        });
-        const result = await res.json();
-        if (result.success) {
-          if (btnEl) btnEl.innerText = 'Selesai!';
-          setTimeout(async () => {
-            alert(`Artikel berhasil ${result.action === 'updated' ? 'diperbarui' : 'disimpan'} di Blogger!`);
-            await loadData();
-          }, 200);
-        } else {
-          alert('Gagal: ' + (result.error || 'Terjadi kesalahan'));
+      const title = isDraft ? 'Simpan Draf ke Blogger' : 'Publikasi Langsung (Live)';
+      const message = isDraft
+        ? 'Kirim atau perbarui artikel ini sebagai draf di akun Blogger Anda?'
+        : 'Publikasikan artikel ini langsung (live) agar dapat dibaca publik di Blogger?';
+      const confirmText = isDraft ? 'Simpan Draf' : 'Publikasikan';
+      const icon = isDraft ? '📝' : '🚀';
+
+      showConfirm({
+        title,
+        message,
+        confirmText,
+        cancelText: 'Batal',
+        icon,
+        isDestructive: false,
+        onConfirm: async () => {
+          let originalHtml = '';
           if (btnEl) {
-            btnEl.disabled = false;
-            btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
-            btnEl.innerHTML = originalHtml;
+            originalHtml = btnEl.innerHTML;
+            btnEl.disabled = true;
+            btnEl.classList.add('opacity-75', 'cursor-not-allowed');
+            btnEl.innerHTML = `
+              <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+              <span>Syncing...</span>
+            `;
+          }
+          
+          try {
+            const res = await fetch(`/api/articles/${id}/publish?is_draft=${isDraft ? 'true' : 'false'}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ is_draft: isDraft })
+            });
+            const result = await res.json();
+            if (result.success) {
+              if (btnEl) btnEl.innerText = 'Selesai!';
+              showToast(`Artikel berhasil ${result.action === 'updated' ? 'diperbarui' : 'disimpan'} di Blogger.`, 'success');
+              await loadData();
+            } else {
+              showToast('Gagal: ' + (result.error || 'Terjadi kesalahan sistem'), 'error');
+              if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
+                btnEl.innerHTML = originalHtml;
+              }
+            }
+          } catch (err) {
+            showToast('Terjadi kesalahan koneksi: ' + err.message, 'error');
+            if (btnEl) {
+              btnEl.disabled = false;
+              btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
+              btnEl.innerHTML = originalHtml;
+            }
           }
         }
-      } catch (err) {
-        alert('Error: ' + err.message);
-        if (btnEl) {
-          btnEl.disabled = false;
-          btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
-          btnEl.innerHTML = originalHtml;
-        }
-      }
+      });
     }
 
     function switchRightTab(tab) {
@@ -2366,38 +2550,39 @@
         const data = await res.json();
         if (data.success) {
           document.getElementById('kb-editor').value = data.content;
-          alert('Berhasil mengekstrak ' + data.total_files + ' file PDF (' + data.total_pages + ' total halaman)! Materi sudah ditambahkan ke Knowledge Base.');
+          showToast('Berhasil mengekstrak ' + data.total_files + ' file PDF (' + data.total_pages + ' total halaman). Materi sudah ditambahkan ke Knowledge Base.', 'success');
         } else {
-          alert('Gagal memproses PDF: ' + (data.error || 'Error'));
+          showToast('Gagal memproses PDF: ' + (data.error || 'Terjadi kesalahan'), 'error');
         }
       } catch (err) {
-        alert('Terjadi kesalahan saat upload PDF: ' + err.message);
+        showToast('Terjadi kesalahan saat upload PDF: ' + err.message, 'error');
       } finally {
         btn.innerText = 'Simpan';
         input.value = '';
       }
     }
 
-    async function openNewKeywordModal() {
-      const kw = prompt('Masukkan target keyword baru:');
-      if (!kw) return;
-      const intent = prompt('Search intent (Informational / Commercial / Navigational):', 'Informational');
-      await fetch('/api/keywords/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          keyword: kw,
-          search_intent: intent || 'Informational',
-          blog_id: activeBlog ? activeBlog.id : null
-        })
-      });
-      await loadData();
+    function openNewKeywordModal() {
+      openBulkKeywordModal();
     }
 
     async function deleteKeyword(id) {
-      if (!confirm('Hapus keyword ini dari daftar?')) return;
-      const res = await fetch(`/api/keywords/${id}/delete`, { method: 'POST' });
-      if (res.ok) await loadData();
+      showConfirm({
+        title: 'Hapus Target Keyword',
+        message: 'Hapus kata kunci ini dari antrean riset konten?',
+        confirmText: 'Hapus Keyword',
+        isDestructive: true,
+        icon: '🗑️',
+        onConfirm: async () => {
+          const res = await fetch(`/api/keywords/${id}/delete`, { method: 'POST' });
+          if (res.ok) {
+            showToast('Kata kunci berhasil dihapus.', 'success');
+            await loadData();
+          } else {
+            showToast('Gagal menghapus keyword.', 'error');
+          }
+        }
+      });
     }
 
     async function autoGenerateKeywords() {
@@ -2409,7 +2594,7 @@
         if (res.ok) {
           await loadData();
           const bName = activeBlog ? activeBlog.name : 'Blog';
-          alert(`Berhasil mengisi bank keyword dengan topik-topik SEO berkualitas untuk ${bName}!`);
+          showToast(`Berhasil mengisi bank keyword dengan topik SEO berkualitas untuk ${bName}.`, 'success');
         }
       } finally {
         if (btn) btn.innerText = '⚡ Isi Ide SEO';
@@ -2435,7 +2620,7 @@
       const text = document.getElementById('bulk-kw-textarea').value;
       const intent = document.getElementById('bulk-kw-intent').value;
       if (!text.trim()) {
-        alert('Silakan masukkan minimal 1 keyword.');
+        showToast('Silakan masukkan minimal 1 keyword.', 'warning');
         return;
       }
       const btn = document.getElementById('btn-submit-bulk-kw');
@@ -2453,15 +2638,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert(`🎉 Berhasil menambahkan ${data.added_count} keyword baru ke antrean!`);
+          showToast(`Berhasil menambahkan ${data.added_count} keyword baru ke antrean!`, 'success');
           closeBulkKeywordModal();
           document.getElementById('bulk-kw-textarea').value = '';
           await loadData();
         } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (e) {
-        alert('Error: ' + e.message);
+        showToast('Error: ' + e.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Simpan Semua Keyword';
@@ -2480,7 +2665,7 @@
     async function submitAiSuggest() {
       const niche = document.getElementById('ai-suggest-niche').value;
       if (!niche.trim()) {
-        alert('Masukkan topik/niche terlebih dahulu.');
+        showToast('Masukkan topik/niche terlebih dahulu.', 'warning');
         return;
       }
       const btn = document.getElementById('btn-submit-ai-suggest');
@@ -2497,15 +2682,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert(`✨ Berhasil menambahkan ${data.added_count} keyword potensial untuk topik "${niche}"!`);
+          showToast(`Berhasil menambahkan ${data.added_count} keyword potensial untuk topik "${niche}".`, 'success');
           closeAiSuggestModal();
           document.getElementById('ai-suggest-niche').value = '';
           await loadData();
         } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (e) {
-        alert('Error: ' + e.message);
+        showToast('Error: ' + e.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = '⚡ Hasilkan 8 Keyword';
@@ -2514,7 +2699,7 @@
 
     async function openAutopilotModal() {
       if (!activeBlog) {
-        alert('Pilih blog terlebih dahulu.');
+        showToast('Pilih blog terlebih dahulu.', 'warning');
         return;
       }
       document.getElementById('autopilot-modal').classList.remove('hidden');
@@ -2556,15 +2741,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ ' + data.message);
+          showToast(data.message, 'success');
           closeAutopilotModal();
           const label = document.getElementById('active-blog-autopilot-label');
           if (label) label.innerText = enabled ? 'Autopilot: Aktif' : 'Autopilot: Nonaktif';
         } else {
-          alert('Gagal: ' + (data.error || 'Error'));
+          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (e) {
-        alert('Error: ' + e.message);
+        showToast('Error: ' + e.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Simpan Pengaturan';
@@ -2575,52 +2760,65 @@
       const btn = document.getElementById('btn-auto-generate');
       const txt = document.getElementById('btn-auto-generate-text');
       const bName = activeBlog ? activeBlog.name : 'Blogger';
-      if (!confirm(`Minta Agent SEO Specialist meriset topik baru dari blog ${bName} dan menyusun draf sekarang?`)) return;
       
       btn.disabled = true;
       btn.classList.add('opacity-70');
-      txt.innerText = '⏳ Agent sedang meriset...';
+      txt.innerText = '⏳ Sedang meriset...';
+      showToast(`Agent AI sedang meriset topik baru untuk ${bName} di background...`, 'info', 4000);
       
       try {
         const res = await fetch('/api/agent/generate-now', { method: 'POST' });
         const data = await res.json();
-        alert('🚀 Permintaan diterima! Agent SEO Specialist sedang menganalisis blog dan menyusun artikel baru di background. Draf akan otomatis muncul di antrean.');
+        if (data.success) {
+          showToast('Permintaan diterima! Draf artikel akan otomatis muncul di antrean saat siap.', 'success', 5000);
+        } else {
+          showToast(data.error || 'Gagal memicu agent AI.', 'error', 5000);
+        }
         
         const checkInterval = setInterval(async () => {
           await loadData();
-        }, 12000);
+        }, 10000);
         
         setTimeout(() => {
           btn.disabled = false;
           btn.classList.remove('opacity-70');
-          txt.innerText = '⚡ Riset & Draf Otomatis';
+          txt.innerText = 'Buat Draf AI';
           clearInterval(checkInterval);
-        }, 180000);
+        }, 120000);
       } catch (e) {
-        alert('Terjadi kesalahan: ' + e.message);
+        showToast('Terjadi kesalahan: ' + e.message, 'error');
         btn.disabled = false;
         btn.classList.remove('opacity-70');
-        txt.innerText = '⚡ Riset & Draf Otomatis';
+        txt.innerText = 'Buat Draf AI';
       }
     }
 
     async function deleteArticle(id, title) {
-      if (!confirm(`Hapus artikel "${title || 'ini'}" dari database?`)) return;
-      try {
-        const res = await fetch(`/api/articles/${id}/delete`, { method: 'POST' });
-        const result = await res.json();
-        if (result.success) {
-          const modalId = document.getElementById('modal-article-id').value;
-          if (modalId == id) {
-            closeArticleModal();
+      showConfirm({
+        title: 'Hapus Draf Artikel',
+        message: `Hapus artikel "${title || 'ini'}" dari database secara permanen?`,
+        confirmText: 'Hapus Artikel',
+        isDestructive: true,
+        icon: '🗑️',
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/api/articles/${id}/delete`, { method: 'POST' });
+            const result = await res.json();
+            if (result.success) {
+              showToast('Artikel berhasil dihapus.', 'success');
+              const modalId = document.getElementById('modal-article-id').value;
+              if (modalId == id) {
+                closeArticleModal();
+              }
+              await loadData();
+            } else {
+              showToast('Gagal menghapus: ' + (result.error || 'Terjadi kesalahan'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
           }
-          await loadData();
-        } else {
-          alert('Gagal menghapus: ' + (result.error || 'Terjadi kesalahan'));
         }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      });
     }
 
     async function deleteCurrentArticle() {
@@ -2669,11 +2867,13 @@
           const pct = Math.min(100, Math.round((used / limit) * 100));
 
           pillName.innerText = tier;
-          pillRatio.innerText = `(${used}/${limit} Kredit)`;
+          pillRatio.innerText = `(${remaining} tersisa)`;
           pillBar.style.width = `${pct}%`;
 
           const elStatCredits = document.getElementById('stat-credits-remaining');
-          if (elStatCredits) elStatCredits.innerText = `${remaining} / ${limit}`;
+          const elStatSub = document.getElementById('stat-credits-sub');
+          if (elStatCredits) elStatCredits.innerText = `${remaining} Kredit`;
+          if (elStatSub) elStatSub.innerText = `${used} terpakai dari ${limit} limit`;
           
           if (pct >= 100) {
             pillBar.className = "bg-rose-500 h-full transition-all duration-300";
@@ -2693,11 +2893,13 @@
           const limit = data.subscription?.article_credits_limit || 3;
           const remaining = Math.max(0, limit - used);
           pillName.innerText = 'LOKAL';
-          pillRatio.innerText = `(${used}/${limit} Kredit)`;
+          pillRatio.innerText = `(${remaining} tersisa)`;
           pillBar.style.width = '30%';
 
           const elStatCredits = document.getElementById('stat-credits-remaining');
-          if (elStatCredits) elStatCredits.innerText = `${remaining} / ${limit}`;
+          const elStatSub = document.getElementById('stat-credits-sub');
+          if (elStatCredits) elStatCredits.innerText = `${remaining} Kredit`;
+          if (elStatSub) elStatSub.innerText = `${used} terpakai dari ${limit} limit`;
         }
 
         // Show Admin Console button if user has admin privileges
@@ -2801,7 +3003,7 @@
         await loadCurrentUser();
         await loadBlogs();
         await loadData();
-        alert(`Selamat datang kembali, ${data.user.full_name || data.user.email}!`);
+        showToast(`Selamat datang kembali, ${data.user.full_name || data.user.email}!`, 'success');
       } catch (err) {
         alertBox.innerText = err.message;
         alertBox.classList.remove('hidden');
@@ -2838,7 +3040,7 @@
         await loadCurrentUser();
         await loadBlogs();
         await loadData();
-        alert(`🎉 Pendaftaran berhasil! Akun Anda aktif dengan 3 kredit artikel gratis.`);
+        showToast('Pendaftaran berhasil! Akun Anda aktif dengan 3 kredit artikel gratis.', 'success');
       } catch (err) {
         alertBox.innerText = err.message;
         alertBox.classList.remove('hidden');
@@ -2848,14 +3050,24 @@
       }
     }
 
-    async function logoutSaas() {
-      if (!confirm('Apakah Anda yakin ingin keluar dari akun?')) return;
-      try {
-        await fetch('/api/saas/auth/logout', { method: 'POST' });
-        window.location.reload();
-      } catch (err) {
-        console.error('Logout error:', err);
-      }
+    function logoutSaas() {
+      showConfirm({
+        title: 'Keluar dari Akun',
+        message: 'Apakah Anda yakin ingin keluar dari akun sesi ini?',
+        confirmText: 'Keluar',
+        cancelText: 'Tetap Masuk',
+        isDestructive: true,
+        icon: '🚪',
+        onConfirm: async () => {
+          try {
+            await fetch('/api/saas/auth/logout', { method: 'POST' });
+            window.location.reload();
+          } catch (err) {
+            console.error('Logout error:', err);
+            window.location.reload();
+          }
+        }
+      });
     }
 
     function openUpgradeModal() {
@@ -2885,7 +3097,7 @@
 
     async function payWithMidtrans(planTier) {
       if (!currentUser) {
-        alert('Silakan masuk atau buat akun terlebih dahulu sebelum melakukan pembayaran.');
+        showToast('Silakan masuk atau buat akun terlebih dahulu sebelum melakukan pembayaran.', 'warning');
         closeUpgradeModal();
         openAuthModal('register');
         return;
@@ -2905,15 +3117,15 @@
         if (window.snap && data.token && !data.is_mock) {
           window.snap.pay(data.token, {
             onSuccess: async function(result) {
-              alert('🎉 Pembayaran berhasil dikonfirmasi! Kuota paket langganan Anda telah diperbarui.');
+              showToast('Pembayaran berhasil dikonfirmasi! Kuota paket langganan Anda telah diperbarui.', 'success');
               closeUpgradeModal();
               await loadCurrentUser();
             },
             onPending: function(result) {
-              alert('⏳ Menunggu pembayaran. Silakan transfer melalui Nomor VA / QRIS yang tertera di layar.');
+              showToast('Menunggu pembayaran. Silakan transfer melalui Nomor VA / QRIS yang tertera di layar.', 'info');
             },
             onError: function(result) {
-              alert('❌ Pembayaran dibatalkan atau terjadi kesalahan.');
+              showToast('Pembayaran dibatalkan atau terjadi kesalahan.', 'error');
             },
             onClose: function() {
               console.log('Customer closed popup');
@@ -2921,12 +3133,20 @@
           });
         } else {
           // If demo mock key is used or direct simulation
-          if (confirm(`Simulasi Pembayaran Midtrans Snap:\nOrder ID: ${data.order_id}\nJumlah: Rp ${Number(data.amount).toLocaleString('id-ID')}\n\nKonfirmasi aktivasi paket ${data.plan_name}?`)) {
-            await simulateDemoPayment(planTier);
-          }
+          showConfirm({
+            title: `Simulasi Pembayaran (${data.plan_name})`,
+            message: `Order ID: ${data.order_id} | Jumlah: Rp ${Number(data.amount).toLocaleString('id-ID')}. Konfirmasi aktivasi paket langganan ini?`,
+            confirmText: 'Aktivasi Paket',
+            cancelText: 'Batal',
+            icon: '💳',
+            isDestructive: false,
+            onConfirm: async () => {
+              await simulateDemoPayment(planTier);
+            }
+          });
         }
       } catch (err) {
-        alert('Error Midtrans: ' + err.message);
+        showToast('Error Midtrans: ' + err.message, 'error');
       }
     }
 
@@ -2939,21 +3159,21 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('🚀 ' + data.message);
+          showToast(data.message, 'success');
           closeUpgradeModal();
           await loadCurrentUser();
         } else {
-          alert('Gagal aktivasi demo: ' + (data.error || 'Error'));
+          showToast('Gagal aktivasi demo: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        showToast('Error: ' + err.message, 'error');
       }
     }
 
     // --- Two-Way Blogger Synchronization ---
     async function syncBloggerPosts() {
       if (!activeBlog) {
-        alert('Pilih blog terlebih dahulu untuk disinkronkan.');
+        showToast('Pilih blog terlebih dahulu untuk disinkronkan.', 'warning');
         return;
       }
       const btn = document.getElementById('btn-sync-blogger');
@@ -2970,13 +3190,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert(`✅ ${data.message}`);
+          showToast(data.message, 'success');
           await loadArticles();
         } else {
-          alert(`Gagal sinkronisasi: ${data.error || 'Terjadi kesalahan'}`);
+          showToast('Gagal sinkronisasi: ' + (data.error || 'Terjadi kesalahan'), 'error');
         }
       } catch (err) {
-        alert(`Error sinkronisasi: ${err.message}`);
+        showToast('Error sinkronisasi: ' + err.message, 'error');
       } finally {
         if (icon) icon.classList.remove('animate-spin');
         if (txt) txt.innerText = 'Sinkron Blogger';
@@ -3031,13 +3251,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ ' + data.message);
+          showToast(data.message, 'success');
           closeNotificationModal();
         } else {
-          alert('Gagal menyimpan: ' + (data.error || 'Error'));
+          showToast('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        showToast('Error: ' + err.message, 'error');
       } finally {
         btn.innerText = 'Simpan Pengaturan';
         btn.disabled = false;
@@ -3050,7 +3270,7 @@
       const webhook = document.getElementById('notify-webhook-url').value.trim();
 
       if (!token && !webhook) {
-        alert('Harap isi Telegram Bot Token & Chat ID atau Webhook URL terlebih dahulu sebelum menguji.');
+        showToast('Harap isi Telegram Bot Token & Chat ID atau Webhook URL terlebih dahulu sebelum menguji.', 'warning');
         return;
       }
 
@@ -3070,19 +3290,17 @@
         });
         const data = await res.json();
         if (data.success) {
-          let msg = '✅ Hasil Pengujian:\n';
-          if (data.results.telegram) {
-            msg += data.results.telegram.success ? '• Telegram: Sukses terkirim!\n' : `• Telegram: Gagal (${data.results.telegram.error})\n`;
-          }
-          if (data.results.webhook) {
-            msg += data.results.webhook.success ? '• Webhook: Sukses terkirim!\n' : `• Webhook: Gagal (${data.results.webhook.error})\n`;
-          }
-          alert(msg);
+          const isTgOk = data.results?.telegram?.success;
+          const isWhOk = data.results?.webhook?.success;
+          const statusText = (isTgOk || isWhOk)
+            ? 'Uji coba notifikasi berhasil dikirim!'
+            : 'Uji coba selesai diperiksa.';
+          showToast(statusText, isTgOk || isWhOk ? 'success' : 'info');
         } else {
-          alert('Pengujian gagal: ' + (data.error || 'Error'));
+          showToast('Pengujian gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        showToast('Error: ' + err.message, 'error');
       } finally {
         btn.innerText = '🚀 Kirim Pesan Uji Coba';
         btn.disabled = false;
@@ -3195,78 +3413,103 @@
       renderAdminTenants(filtered);
     }
 
-    async function adminChangePlan(userId, email, currentTier) {
-      const newPlan = prompt(`Ubah paket untuk ${email}:\nPilihan: free, starter, pro, agency`, currentTier);
-      if (!newPlan) return;
-      const cleanPlan = newPlan.toLowerCase().trim();
-      if (!['free', 'starter', 'pro', 'agency'].includes(cleanPlan)) {
-        alert('Paket tidak valid! Pilih: free, starter, pro, atau agency.');
-        return;
-      }
+    function adminChangePlan(userId, email, currentTier) {
+      showPrompt({
+        title: 'Ubah Paket Pengguna',
+        message: `Ubah paket langganan untuk ${email} (Pilihan: free, starter, pro, agency):`,
+        defaultValue: currentTier,
+        placeholder: 'free / starter / pro / agency',
+        confirmText: 'Simpan Paket',
+        onConfirm: async (newPlan) => {
+          if (!newPlan) return;
+          const cleanPlan = newPlan.toLowerCase().trim();
+          if (!['free', 'starter', 'pro', 'agency'].includes(cleanPlan)) {
+            showToast('Paket tidak valid! Pilih: free, starter, pro, atau agency.', 'warning');
+            return;
+          }
 
-      try {
-        const res = await fetch(`/api/admin/tenants/${userId}/plan`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan_tier: cleanPlan })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ ' + data.message);
-          await loadAdminData();
-        } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+          try {
+            const res = await fetch(`/api/admin/tenants/${userId}/plan`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ plan_tier: cleanPlan })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(data.message, 'success');
+              await loadAdminData();
+            } else {
+              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+          }
         }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      });
     }
 
-    async function adminAddCredits(userId, email) {
-      const amtStr = prompt(`Masukkan jumlah bonus kredit untuk ${email}:`, '20');
-      if (!amtStr) return;
-      const amount = parseInt(amtStr, 10);
-      if (isNaN(amount) || amount <= 0) {
-        alert('Jumlah kredit harus berupa angka positif.');
-        return;
-      }
+    function adminAddCredits(userId, email) {
+      showPrompt({
+        title: 'Tambah Bonus Kredit',
+        message: `Masukkan jumlah bonus kredit untuk ${email}:`,
+        defaultValue: '20',
+        placeholder: '20',
+        inputType: 'number',
+        confirmText: 'Tambah Kredit',
+        onConfirm: async (amtStr) => {
+          if (!amtStr) return;
+          const amount = parseInt(amtStr, 10);
+          if (isNaN(amount) || amount <= 0) {
+            showToast('Jumlah kredit harus berupa angka positif.', 'warning');
+            return;
+          }
 
-      try {
-        const res = await fetch(`/api/admin/tenants/${userId}/credits`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: amount })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ ' + data.message);
-          await loadAdminData();
-        } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+          try {
+            const res = await fetch(`/api/admin/tenants/${userId}/credits`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ amount: amount })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(data.message, 'success');
+              await loadAdminData();
+            } else {
+              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+          }
         }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      });
     }
 
-    async function adminToggleStatus(userId, email) {
-      if (!confirm(`Konfirmasi toggle status aktif/suspend untuk pengguna: ${email}?`)) return;
-
-      try {
-        const res = await fetch(`/api/admin/tenants/${userId}/toggle-status`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ ' + data.message);
-          await loadAdminData();
-        } else {
-          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+    function adminToggleStatus(userId, email) {
+      showConfirm({
+        title: 'Ubah Status Akun Pengguna',
+        message: `Apakah Anda yakin ingin mengubah status aktif/suspend untuk pengguna: ${email}?`,
+        confirmText: 'Ubah Status',
+        cancelText: 'Batal',
+        isDestructive: true,
+        icon: '⚠️',
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/api/admin/tenants/${userId}/toggle-status`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(data.message, 'success');
+              await loadAdminData();
+            } else {
+              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+          }
         }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      });
     }
 
     async function triggerGlobalScheduler() {
@@ -3276,13 +3519,13 @@
         const res = await fetch('/api/saas/scheduler/run-cycle', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          alert(`⚡ Siklus Scheduler Selesai!\nArtikel diproses: ${data.processed_count}\nTimestamp: ${data.timestamp}`);
+          showToast(`Siklus Scheduler Selesai! Diproses: ${data.processed_count} artikel.`, 'success');
           await loadAdminData();
         } else {
-          alert('Gagal: ' + (data.error || 'Error scheduler'));
+          showToast('Gagal scheduler: ' + (data.error || 'Error scheduler'), 'error');
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        showToast('Error: ' + err.message, 'error');
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -3306,10 +3549,10 @@
       }
       if (params.get('auth_success')) {
         const count = params.get('imported') || '0';
-        alert(`🎉 Berhasil menghubungkan akun Google! ${count} blog otomatis terdeteksi & terdaftar di dashboard.`);
+        showToast(`Berhasil menghubungkan akun Google! ${count} blog otomatis terdeteksi & terdaftar di dashboard.`, 'success');
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (params.get('auth_error')) {
-        alert('Gagal otorisasi Google: ' + params.get('auth_error'));
+        showToast('Gagal otorisasi Google: ' + params.get('auth_error'), 'error');
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
