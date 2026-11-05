@@ -132,6 +132,18 @@ def test_admin_console_api():
         assert toggle_res["is_active"] is False
         print("✓ Admin suspended user account successfully.")
 
+    # 6. Admin resets user password
+    reset_payload = {"new_password": "NewSecretPassword123!"}
+    reset_req = urllib.request.Request(
+        f"{BASE_URL}/api/admin/tenants/{target_user_id}/reset-password",
+        data=json.dumps(reset_payload).encode(),
+        headers={"Content-Type": "application/json"}
+    )
+    with opener_admin.open(reset_req) as res:
+        reset_res = json.loads(res.read().decode())
+        assert reset_res["success"] is True
+        print(f"✓ Admin successfully reset password for user {user_email}")
+
     print("\n🎉 ALL ADMIN CONSOLE & SCHEMA TESTS PASSED 100%!")
 
 if __name__ == "__main__":

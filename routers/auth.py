@@ -67,12 +67,14 @@ def api_saas_register(req: RegisterReq, request: Request, response: Response, db
             plan_tier='free'
         )
         token = create_access_token({'sub': user.id, 'email': user.email})
+        is_prod = os.environ.get('ENVIRONMENT') == 'production' or os.environ.get('SECURE_COOKIES', '').lower() in ('true', '1')
         response.set_cookie(
             key='saas_token',
             value=token,
             httponly=True,
             max_age=86400 * 30,
-            samesite='lax'
+            samesite='lax',
+            secure=is_prod
         )
         return {
             'success': True,
@@ -99,12 +101,14 @@ def api_saas_login(req: LoginReq, request: Request, response: Response, db: Sess
         raise HTTPException(status_code=401, detail="Email atau kata sandi tidak valid.")
 
     token = create_access_token({'sub': user.id, 'email': user.email})
+    is_prod = os.environ.get('ENVIRONMENT') == 'production' or os.environ.get('SECURE_COOKIES', '').lower() in ('true', '1')
     response.set_cookie(
         key='saas_token',
         value=token,
         httponly=True,
         max_age=86400 * 30,
-        samesite='lax'
+        samesite='lax',
+        secure=is_prod
     )
     return {
         'success': True,

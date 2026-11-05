@@ -3391,6 +3391,9 @@
                 <button onclick="adminAddCredits('${t.id}', '${t.email}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 text-brand-700 dark:text-brand-300 text-[10px] font-semibold rounded-lg border border-brand-200 dark:border-brand-500/30 transition" title="Tambah Kredit">
                   +Kredit
                 </button>
+                <button onclick="adminResetPassword('${t.id}', '${t.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-[10px] font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
+                  Reset Pwd
+                </button>
                 <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-[10px] font-semibold rounded-lg border transition">
                   ${t.is_active ? 'Suspend' : 'Aktifkan'}
                 </button>
@@ -3476,6 +3479,39 @@
               await loadAdminData();
             } else {
               showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+          }
+        }
+      });
+    }
+
+    function adminResetPassword(userId, email) {
+      showPrompt({
+        title: 'Reset Kata Sandi Pengguna',
+        message: `Masukkan kata sandi baru untuk ${email} (minimal 6 karakter):`,
+        defaultValue: 'Blogger2026!',
+        placeholder: 'Password baru',
+        inputType: 'text',
+        confirmText: 'Reset Password',
+        onConfirm: async (newPw) => {
+          if (!newPw || newPw.trim().length < 6) {
+            showToast('Kata sandi baru minimal 6 karakter.', 'warning');
+            return;
+          }
+
+          try {
+            const res = await fetch(`/api/admin/tenants/${userId}/reset-password`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ new_password: newPw.trim() })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(data.message, 'success');
+            } else {
+              showToast('Gagal: ' + (data.error || data.detail || 'Terjadi kesalahan sistem'), 'error');
             }
           } catch (err) {
             showToast('Error: ' + err.message, 'error');

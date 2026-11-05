@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from db_saas import get_saas_db
 from models_saas import User, Subscription, Blog as SaasBlog, Article as SaasArticle, Keyword as SaasKeyword
+from auth_saas import hash_password
 import midtrans_service
 from dependencies import get_session_user, get_or_create_default_admin
 
@@ -35,6 +36,9 @@ class AdminSetPlanReq(BaseModel):
 
 class AdminAddCreditsReq(BaseModel):
     amount: int
+
+class AdminResetPasswordReq(BaseModel):
+    new_password: str
 
 # --- Tenant Data Backup & 1-Click Export ---
 
@@ -294,4 +298,24 @@ def api_admin_toggle_tenant_status(user_id: str, request: Request, db: Session =
         'success': True,
         'message': f"Akun {target_user.email} berhasil {status_str}.",
         'is_active': target_user.is_active
+    }
+
+@router.post('/api/admin/tenants/{user_id}/reset-password')
+def api_admin_reset_user_password(user_id: str, req: AdminResetPasswordReq, request: Request, db: Session = Depends(get_saas_db)):
+    admin = require_admin(request, db)
+
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Tenant tidak ditemukan.")
+
+    clean_pw = req.new_password.strip()
+    if len(clean_pw) < 6:
+        raise HTTPException(status_code=400, detail="Password baru minimal 6 karakter.")
+
+    target_user.hashed_password = hash_password(clean_pw)
+    db.commit()
+
+    return {
+        'success': True,
+        'message': f"Kata sandi untuk pengguna {target_user.email} berhasil direset."
     }

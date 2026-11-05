@@ -54,7 +54,17 @@ async def api_midtrans_webhook(request: Request, db: Session = Depends(get_saas_
 
 @router.post('/api/billing/upgrade-demo')
 def api_upgrade_demo(req: UpgradeDemoReq, request: Request, db: Session = Depends(get_saas_db)):
+    import os
     user = get_session_user(request, db) or get_or_create_default_admin(db)
+    
+    # In production, strictly restrict demo upgrades to administrators
+    is_prod = os.environ.get('ENVIRONMENT') == 'production' or midtrans_service.MIDTRANS_IS_PRODUCTION
+    if is_prod and user.role != 'admin' and user.email != 'admin@bagustech.id':
+        raise HTTPException(
+            status_code=403,
+            detail="Simulasi demo dinonaktifkan di lingkungan produksi. Silakan lakukan pembayaran resmi melalui Midtrans."
+        )
+
     tier_info = midtrans_service.PLAN_TIERS.get(req.plan_tier, midtrans_service.PLAN_TIERS['starter'])
     sub = user.subscription
     if not sub:
