@@ -253,6 +253,17 @@ def handle_midtrans_webhook(event_data: Dict[str, Any], db: Session) -> Dict[str
     # Reference: https://docs.midtrans.com/en/after-payment/http-notification
     if transaction_status in ['capture', 'settlement'] and fraud_status in ['accept', '']:
         target_plan = PLAN_TIERS.get(plan_tier, PLAN_TIERS['starter'])
+        
+        # Idempotency guard: prevent duplicate webhook deliveries from resetting credit usage or shifting periods
+        if sub.midtrans_order_id == order_id and sub.status == 'active' and sub.plan_tier == plan_tier:
+            return {
+                'success': True,
+                'message': f"Order {order_id} sudah diproses sebelumnya (idempoten).",
+                'tier': plan_tier,
+                'status': 'active',
+                'idempotent': True
+            }
+
         sub.plan_tier = plan_tier
         sub.status = 'active'
         sub.article_credits_limit = target_plan['credits']

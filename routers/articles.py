@@ -261,12 +261,15 @@ def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, 
     return {'success': True, 'message': 'Agent dimulai di background'}
 
 @router.post('/api/images/upload')
-async def api_upload_image(file: UploadFile = File(...)):
+async def api_upload_image(request: Request, file: UploadFile = File(...), db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
     try:
         ext = os.path.splitext(file.filename)[1].lower()
         if ext not in ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp']:
             return JSONResponse({'success': False, 'error': 'Format file harus JPG, PNG, WEBP, atau GIF'}, status_code=400)
         content = await file.read()
+        if len(content) > 10 * 1024 * 1024:
+            return JSONResponse({'success': False, 'error': 'Ukuran file gambar maksimal 10MB.'}, status_code=400)
         res = process_and_upload_image(content, file.filename)
         return res
     except Exception as e:

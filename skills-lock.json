@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "pricing": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/pricing/SKILL.md",
+      "computedHash": "6fbe2646324fb367e6b854f91de063996485c0b4ef4b98e7ca8b21629e3e967b"
+    },
+    "production-audit": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/production-audit/SKILL.md",
+      "computedHash": "3c38cf12fdb504f6ce53fa9d33f4f0fff1aee3df8e96fbb4fdb76831b5fd51ce"
+    },
+    "ship": {
+      "source": "eigent-ai/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/coding-agents-and-ides/ship/SKILL.md",
+      "computedHash": "cdb111667ce067e5cfe9c5fbcc200ed9bf14b22862afbebf9b350f03c3b3acdc"
+    }
+  }
+}

@@ -48,24 +48,29 @@ class NotificationTestReq(BaseModel):
 # --- Endpoints ---
 
 @router.post('/api/prompt/save')
-def api_save_prompt(req: PromptSaveReq):
+def api_save_prompt(req: PromptSaveReq, request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
     with open(SEO_PROMPT_PATH, 'w') as f:
         f.write(req.content)
     return {'success': True}
 
 @router.post('/api/kb/save')
-def api_save_kb(req: KbSaveReq):
+def api_save_kb(req: KbSaveReq, request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
     with open(SEO_KB_PATH, 'w') as f:
         f.write(req.content)
     return {'success': True}
 
 @router.post('/api/kb/upload-pdf')
-async def api_upload_pdf(files: List[UploadFile] = File(...)):
+async def api_upload_pdf(request: Request, files: List[UploadFile] = File(...), db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
     try:
         total_pages = 0
         added_texts = []
         for file in files:
             contents = await file.read()
+            if len(contents) > 25 * 1024 * 1024:
+                return {'success': False, 'error': f"Ukuran file {file.filename} melebihi batas maksimal 25MB."}
             reader = PdfReader(io.BytesIO(contents))
             total_pages += len(reader.pages)
             extracted_text = []

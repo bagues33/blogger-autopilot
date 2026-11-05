@@ -55,8 +55,22 @@ def test_tenant_isolation():
         assert sub_b.plan_tier == 'free', f"Expected User B to be free, got {sub_b.plan_tier}"
         assert sub_b.article_credits_limit == 3, f"Expected 3 credits, got {sub_b.article_credits_limit}"
 
+        # Test Idempotency: simulate duplicate webhook retry
+        # Simulate user already consuming 5 credits
+        sub_a.article_credits_used = 5
+        db.commit()
+
+        res_dup = handle_midtrans_webhook(webhook_event, db)
+        assert res_dup['success'] is True
+        assert res_dup.get('idempotent') is True, f"Expected idempotent=True, got {res_dup}"
+
+        db.refresh(sub_a)
+        # Credits used MUST remain 5, NOT reset to 0!
+        assert sub_a.article_credits_used == 5, f"Expected credits_used=5 preserved, got {sub_a.article_credits_used}"
+
         print("✓ Multi-tenant isolation verified: User A was upgraded to PRO (120 credits), User B remained on FREE (3 credits).")
         print("✓ Midtrans webhook targeting verified: 0 leakages.")
+        print("✓ Midtrans webhook idempotency verified: Duplicate webhook did not reset usage.")
     finally:
         db.close()
 
