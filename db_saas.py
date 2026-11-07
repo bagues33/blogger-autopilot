@@ -8,6 +8,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from models_saas import Base
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def get_database_url() -> str:
