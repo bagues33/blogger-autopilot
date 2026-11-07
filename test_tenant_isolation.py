@@ -3,10 +3,11 @@ Tenant Isolation & Webhook Verification Test
 Proves that User A's data is strictly isolated from User B, and Midtrans webhook only modifies the intended tenant.
 """
 
+import uuid
+import hashlib
 from db_saas import SessionLocal
 from models_saas import User, Subscription, Blog, Article, Keyword
-from midtrans_service import handle_midtrans_webhook, PLAN_TIERS
-import uuid
+from midtrans_service import handle_midtrans_webhook, PLAN_TIERS, MIDTRANS_SERVER_KEY
 
 def test_tenant_isolation():
     db = SessionLocal()
@@ -30,10 +31,14 @@ def test_tenant_isolation():
 
         # Simulate Midtrans payment webhook for User A to 'pro'
         order_id = f"BAP-{user_a.id[:8]}-PRO-999999"
+        status_code = '200'
+        gross_amount = '249000'
+        sig = hashlib.sha512(f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}".encode()).hexdigest()
         webhook_event = {
             'order_id': order_id,
-            'status_code': '200',
-            'gross_amount': '249000',
+            'status_code': status_code,
+            'gross_amount': gross_amount,
+            'signature_key': sig,
             'transaction_status': 'settlement',
             'fraud_status': 'accept',
             'custom_field1': user_a.id,

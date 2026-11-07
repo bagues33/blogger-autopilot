@@ -13,6 +13,12 @@ import requests
 from sqlalchemy.orm import Session
 from models_saas import User, Subscription
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Configuration
 MIDTRANS_SERVER_KEY = os.environ.get('MIDTRANS_SERVER_KEY', 'SB-Mid-server-DemoTestKeyOnly12345').strip()
 MIDTRANS_CLIENT_KEY = os.environ.get('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-DemoTestKeyOnly12345').strip()
