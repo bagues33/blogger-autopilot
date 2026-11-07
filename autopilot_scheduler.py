@@ -72,6 +72,21 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
                     logger.info(f"User {user.email} reached credit limit ({sub.article_credits_used}/{sub.article_credits_limit}). Skipping further blogs.")
                     break
 
+                # Check autopilot enablement
+                if hasattr(blog, 'autopilot_enabled') and blog.autopilot_enabled is False and blog.is_active != 1:
+                    logger.debug(f"Blog '{blog.name}' has autopilot disabled. Skipping.")
+                    continue
+
+                # Check schedule frequency eligibility
+                if getattr(blog, 'last_run_at', None) and getattr(blog, 'schedule_frequency', None):
+                    now_utc = datetime.now(timezone.utc)
+                    last_utc = blog.last_run_at if blog.last_run_at.tzinfo else blog.last_run_at.replace(tzinfo=timezone.utc)
+                    elapsed = (now_utc - last_utc).total_seconds()
+                    min_elapsed = {'hourly': 3600, 'twice_daily': 43200, 'daily': 86400}.get(blog.schedule_frequency, 86400)
+                    if elapsed < min_elapsed:
+                        logger.debug(f"Blog '{blog.name}' schedule '{blog.schedule_frequency}' not yet due ({int(elapsed)}s < {min_elapsed}s). Skipping.")
+                        continue
+
                 # Find planned keyword for this user and blog
                 kw = db.query(Keyword).filter(
                     Keyword.user_id == user.id,
@@ -102,6 +117,8 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
                     )
                     if res.success:
                         processed_count += 1
+                        blog.last_run_at = datetime.now(timezone.utc)
+                        db.commit()
                         results.append({
                             'user_id': user.id,
                             'email': user.email,

@@ -204,139 +204,188 @@
   </div>
 
 
-  <!-- Header Navigation -->
-  <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b1120]/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-6 py-3 flex items-center justify-between shadow-sm flex-wrap gap-3">
-    <div class="flex items-center space-x-3.5">
-      <!-- Brand Logo & Name -->
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-sky-500 flex items-center justify-center shadow-md shadow-brand-500/20 text-white shrink-0 font-bold" aria-hidden="true">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-      </div>
-      <div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <div class="flex items-center gap-1.5">
-            <h1 class="font-extrabold text-base md:text-lg text-slate-900 dark:text-white leading-tight tracking-tight">Blogger Autopilot</h1>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20">Studio</span>
-          </div>
-          
-          <!-- Multi-Blog Selector Dropdown -->
-          <div class="relative" id="blog-dropdown-container">
-            <button onclick="toggleBlogDropdown()" class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition text-xs font-semibold text-slate-800 dark:text-slate-200 active:scale-95 shadow-sm" aria-haspopup="true" aria-expanded="false" aria-label="Pilih Blog">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-              <span id="active-blog-display-name">Pilih Blog</span>
-              <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
+  <!-- Header Navigation (Responsive Mobile & Desktop - P1-4) -->
+  <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b1120]/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-6 py-2.5 shadow-sm">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <!-- Brand Logo & Name -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-sky-500 flex items-center justify-center shadow-md shadow-brand-500/20 text-white shrink-0 font-bold" aria-hidden="true">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <h1 class="font-extrabold text-base md:text-lg text-slate-900 dark:text-white leading-tight tracking-tight">Blogger Autopilot</h1>
+              <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20">Studio</span>
+            </div>
             
-            <!-- Dropdown Menu -->
-            <div id="blog-dropdown-menu" class="hidden absolute left-0 mt-2 w-72 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-2 space-y-1 backdrop-blur-xl">
-              <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex items-center justify-between">
-                <span>Daftar Blog Terhubung</span>
-                <span id="blog-total-badge" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">0 Blog</span>
+            <!-- Multi-Blog Selector Dropdown -->
+            <div class="relative" id="blog-dropdown-container">
+              <button onclick="toggleBlogDropdown()" class="min-h-[38px] flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition text-xs font-semibold text-slate-800 dark:text-slate-200 active:scale-95 shadow-sm" aria-haspopup="true" aria-expanded="false" aria-label="Pilih Blog">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+                <span id="active-blog-display-name">Pilih Blog</span>
+                <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div id="blog-dropdown-menu" class="hidden absolute left-0 mt-2 w-72 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-2 space-y-1 backdrop-blur-xl">
+                <div class="text-xs font-bold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex items-center justify-between">
+                  <span>Daftar Blog Terhubung</span>
+                  <span id="blog-total-badge" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">0 Blog</span>
+                </div>
+                <div id="blog-items-list" class="space-y-1 max-h-56 overflow-y-auto pr-0.5">
+                  <!-- Populated dynamically via JS -->
+                </div>
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-1.5 mt-1 space-y-1">
+                  <button onclick="openAddBlogModal()" class="w-full py-2 px-2.5 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-400 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>+ Tambah Blog Baru</span>
+                  </button>
+                  <button onclick="openOnboardingWizard()" class="w-full py-1.5 px-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95">
+                    <span>🚀 Panduan Mulai Cepat</span>
+                  </button>
+                </div>
               </div>
-              <div id="blog-items-list" class="space-y-1 max-h-56 overflow-y-auto pr-0.5">
-                <!-- Populated dynamically via JS -->
-              </div>
-              <div class="border-t border-slate-100 dark:border-slate-800 pt-1.5 mt-1">
-                <button onclick="openAddBlogModal()" class="w-full py-1.5 px-2.5 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-400 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                  <span>+ Tambah Blog Baru</span>
-                </button>
-              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono flex items-center gap-1.5 flex-wrap" id="active-blog-meta-row">
+            <span>Blog ID: <strong class="text-slate-700 dark:text-slate-300 font-semibold" id="active-blog-id">-</strong></span>
+            <span>&bull;</span>
+            <a id="active-blog-url" href="#" onclick="openAddBlogModal(); return false;" class="text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5 font-sans font-medium">Hubungkan Blog Baru &nearr;</a>
+            <span>&bull;</span>
+            <button onclick="openAutopilotModal()" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/25 transition active:scale-95" title="Buka pengaturan autopilot blog">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+              <span id="active-blog-autopilot-label">Autopilot: Nonaktif</span>
+              <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <!-- Desktop Header Actions (hidden on mobile, visible on md+) -->
+      <div class="hidden md:flex items-center gap-2.5 flex-wrap">
+        <!-- Quick Start Onboarding Wizard -->
+        <button onclick="openOnboardingWizard()" class="min-h-[44px] px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Buka panduan onboarding">
+          <span>🚀 Mulai Cepat</span>
+        </button>
+
+        <!-- Light / Dark Theme Switcher Button -->
+        <button id="btn-theme-toggle" onclick="toggleTheme()" class="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 shadow-sm flex items-center justify-center" title="Beralih Tema Terang / Gelap" aria-label="Beralih Tema">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="theme-icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <!-- Real-time Notifications Setup Button -->
+        <button onclick="openNotificationModal()" class="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 shadow-sm flex items-center justify-center" title="Pengaturan Notifikasi Telegram & Webhook" aria-label="Notifikasi">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </button>
+
+        <!-- SaaS Plan & Quota Pill -->
+        <div id="saas-plan-pill" onclick="openUpgradeModal()" class="min-h-[44px] cursor-pointer flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition shadow-sm group" role="button" aria-label="Informasi Kuota dan Paket">
+          <span id="plan-badge-icon" class="text-amber-500 font-bold text-xs" aria-hidden="true">⚡</span>
+          <div class="flex flex-col text-left">
+            <div class="flex items-center gap-1.5">
+              <span id="plan-name-display" class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Free</span>
+              <span id="plan-credits-ratio" class="text-xs font-mono text-brand-600 dark:text-brand-400 font-semibold">(0/3 Kredit)</span>
+            </div>
+            <div class="w-16 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mt-0.5">
+              <div id="plan-progress-bar" class="bg-brand-500 h-full w-[0%] transition-all duration-300"></div>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-lg group-hover:bg-amber-200 dark:group-hover:bg-amber-500/25 transition">Upgrade</span>
+        </div>
+
+        <!-- Superadmin Console Button (Admin only) -->
+        <button id="btn-admin-console" onclick="openAdminModal()" class="min-h-[44px] hidden items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/80 dark:hover:bg-purple-900 border border-purple-200 dark:border-purple-500/50 text-xs font-bold text-purple-700 dark:text-purple-300 transition shadow-sm active:scale-95">
+          <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse" aria-hidden="true"></span>
+          <span>👑 Admin Console</span>
+        </button>
+
+        <!-- User Account Menu / Login Button -->
+        <div class="relative" id="user-menu-container">
+          <button id="btn-user-auth" onclick="toggleUserDropdown()" class="min-h-[44px] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-white transition active:scale-95 shadow-sm" aria-haspopup="true" aria-expanded="false" aria-label="Menu Akun">
+            <div class="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold text-white shrink-0" id="user-avatar-initial" aria-hidden="true">U</div>
+            <span id="user-display-email" class="max-w-[110px] truncate">Akun</span>
+            <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <!-- User Dropdown Menu -->
+          <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-2 space-y-1 backdrop-blur-xl">
+            <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+              <p class="text-xs font-bold text-slate-800 dark:text-white truncate" id="dropdown-user-name">Pengguna SaaS</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 truncate font-mono mt-0.5" id="dropdown-user-email">email@anda.com</p>
+            </div>
+            <button onclick="toggleLandingPreview(true); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+              <span>Halaman Promosi SaaS</span>
+            </button>
+            <button onclick="openNotificationModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span>Pengaturan Notifikasi</span>
+            </button>
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-1 mt-1">
+              <button id="menu-btn-auth-action" onclick="handleAuthAction()" class="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span id="menu-text-auth-action">Masuk ke Akun SaaS</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono flex items-center gap-1.5 flex-wrap" id="active-blog-meta-row">
-          <span>Blog ID: <strong class="text-slate-700 dark:text-slate-300 font-semibold" id="active-blog-id">-</strong></span>
-          <span>&bull;</span>
-          <a id="active-blog-url" href="#" onclick="openAddBlogModal(); return false;" class="text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5 font-sans font-medium">Hubungkan Blog Baru &nearr;</a>
-          <span>&bull;</span>
-          <button onclick="openAutopilotModal()" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/25 transition active:scale-95" title="Buka pengaturan autopilot blog">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-            <span id="active-blog-autopilot-label">Autopilot: Nonaktif</span>
-            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          </button>
-        </p>
-            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          </button>
-        </p>
+        <!-- Action Buttons -->
+        <button onclick="triggerAutoGenerate()" id="btn-auto-generate" class="min-h-[44px] px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-2" title="Minta Agent SEO Specialist meriset topik baru dari blog aktif dan menyusun draf sekarang">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span id="btn-auto-generate-text">Buat Draf AI</span>
+        </button>
+
+        <button onclick="openNewArticleModal()" class="min-h-[44px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <span>Tulis Manual</span>
+        </button>
+      </div>
+
+      <!-- Mobile Controls (visible on < md, clean and uncluttered) -->
+      <div class="flex items-center gap-2 md:hidden">
+        <button onclick="triggerAutoGenerate()" class="min-h-[44px] px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 flex items-center justify-center gap-1">
+          <span>⚡ Draf AI</span>
+        </button>
+        <button id="btn-mobile-drawer-toggle" onclick="toggleMobileDrawer()" class="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition active:scale-95" aria-label="Buka Menu Navigasi Mobile">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- Header Action Controls -->
-    <div class="flex items-center gap-2.5 flex-wrap">
-      <!-- Light / Dark Theme Switcher Button -->
-      <button id="btn-theme-toggle" onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 shadow-sm" title="Beralih Tema Terang / Gelap" aria-label="Beralih Tema">
-        <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        <svg id="theme-icon-moon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-      </button>
-
-      <!-- Real-time Notifications Setup Button -->
-      <button onclick="openNotificationModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 shadow-sm" title="Pengaturan Notifikasi Telegram & Webhook" aria-label="Notifikasi">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-      </button>
-
-      <!-- SaaS Plan & Quota Pill -->
-      <div id="saas-plan-pill" onclick="openUpgradeModal()" class="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition shadow-sm group" role="button" aria-label="Informasi Kuota dan Paket">
-        <span id="plan-badge-icon" class="text-amber-500 font-bold text-xs" aria-hidden="true">⚡</span>
-        <div class="flex flex-col text-left">
-          <div class="flex items-center gap-1.5">
-            <span id="plan-name-display" class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Free</span>
-            <span id="plan-credits-ratio" class="text-[10px] font-mono text-brand-600 dark:text-brand-400 font-semibold">(0/3 Kredit)</span>
-          </div>
-          <div class="w-16 bg-slate-200 dark:bg-slate-700 h-1 rounded-full overflow-hidden mt-0.5">
-            <div id="plan-progress-bar" class="bg-brand-500 h-full w-[0%] transition-all duration-300"></div>
-          </div>
+    <!-- Mobile Slide-Down Drawer (P1-4) -->
+    <div id="mobile-drawer-sheet" class="hidden md:hidden pt-3 mt-2 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <!-- Plan pill on mobile -->
+        <div onclick="openUpgradeModal()" class="flex-1 min-h-[44px] flex items-center justify-between px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <span class="text-xs font-bold text-slate-800 dark:text-white uppercase" id="mobile-plan-name">Free</span>
+          <span class="text-xs text-brand-600 dark:text-brand-400 font-semibold" id="mobile-plan-credits">(0/3 Kredit)</span>
+          <span class="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-500/15 px-2 py-0.5 rounded-md">Upgrade</span>
         </div>
-        <span class="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-1.5 py-0.5 rounded-lg group-hover:bg-amber-200 dark:group-hover:bg-amber-500/25 transition">Upgrade</span>
-      </div>
-
-      <!-- Superadmin Console Button (Admin only) -->
-      <button id="btn-admin-console" onclick="openAdminModal()" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/80 dark:hover:bg-purple-900 border border-purple-200 dark:border-purple-500/50 text-xs font-bold text-purple-700 dark:text-purple-300 transition shadow-sm active:scale-95">
-        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" aria-hidden="true"></span>
-        <span>👑 Admin Console</span>
-      </button>
-
-      <!-- User Account Menu / Login Button -->
-      <div class="relative" id="user-menu-container">
-        <button id="btn-user-auth" onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-white transition active:scale-95 shadow-sm" aria-haspopup="true" aria-expanded="false" aria-label="Menu Akun">
-          <div class="w-5 h-5 rounded-full bg-brand-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0" id="user-avatar-initial" aria-hidden="true">U</div>
-          <span id="user-display-email" class="max-w-[110px] truncate">Akun</span>
-          <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        <!-- Theme Switcher mobile -->
+        <button onclick="toggleTheme()" class="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center" aria-label="Ganti Tema">
+          🌓
         </button>
-
-        <!-- User Dropdown Menu -->
-        <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-2 space-y-1 backdrop-blur-xl">
-          <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-            <p class="text-xs font-bold text-slate-800 dark:text-white truncate" id="dropdown-user-name">Pengguna SaaS</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate font-mono mt-0.5" id="dropdown-user-email">email@anda.com</p>
-          </div>
-          <button onclick="toggleLandingPreview(true); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-            <span>Halaman Promosi SaaS</span>
-          </button>
-          <button onclick="openNotificationModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            <span>Pengaturan Notifikasi</span>
-          </button>
-          <div class="border-t border-slate-100 dark:border-slate-800 pt-1 mt-1">
-            <button id="menu-btn-auth-action" onclick="handleAuthAction()" class="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-              <span id="menu-text-auth-action">Masuk ke Akun SaaS</span>
-            </button>
-          </div>
-        </div>
       </div>
-
-      <!-- Action Buttons -->
-      <button onclick="triggerAutoGenerate()" id="btn-auto-generate" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Minta Agent SEO Specialist meriset topik baru dari blog aktif dan menyusun draf sekarang">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span id="btn-auto-generate-text">Buat Draf AI</span>
-      </button>
-
-      <button onclick="openNewArticleModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-1.5">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        <span>Tulis Manual</span>
-      </button>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="openNewArticleModal(); toggleMobileDrawer(false);" class="min-h-[44px] py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5">
+          <span>✍️ Tulis Manual</span>
+        </button>
+        <button onclick="openOnboardingWizard(); toggleMobileDrawer(false);" class="min-h-[44px] py-2 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200 dark:border-indigo-500/30 text-xs font-bold text-indigo-700 dark:text-indigo-400 flex items-center justify-center gap-1.5">
+          <span>🚀 Mulai Cepat</span>
+        </button>
+      </div>
+      <div class="flex items-center justify-between pt-1">
+        <button onclick="openNotificationModal(); toggleMobileDrawer(false);" class="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium flex items-center gap-1.5">
+          <span>🔔 Notifikasi</span>
+        </button>
+        <button id="mobile-btn-auth-action" onclick="handleAuthAction()" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline">
+          Masuk / Keluar
+        </button>
+      </div>
     </div>
   </header>
 
@@ -348,9 +397,9 @@
       <!-- Card 1: Draf Lokal -->
       <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
         <div>
-          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Draf Lokal</p>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Draf Lokal</p>
           <h4 id="stat-draft-count" class="text-2xl font-black text-amber-500 dark:text-amber-400 mt-1">0</h4>
-          <span class="text-[10px] text-slate-500">Siap direview</span>
+          <span class="text-xs text-slate-500">Siap direview</span>
         </div>
         <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg" aria-hidden="true">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -360,9 +409,9 @@
       <!-- Card 2: Draf Blogger -->
       <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
         <div>
-          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Draf Blogger</p>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Draf Blogger</p>
           <h4 id="stat-blogger-draft-count" class="text-2xl font-black text-sky-500 dark:text-sky-400 mt-1">0</h4>
-          <span class="text-[10px] text-slate-500">Tersinkron di Blogger</span>
+          <span class="text-xs text-slate-500">Tersinkron di Blogger</span>
         </div>
         <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-lg" aria-hidden="true">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -372,9 +421,9 @@
       <!-- Card 3: Live Terbit -->
       <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
         <div>
-          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Terbit</p>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Terbit</p>
           <h4 id="stat-published-count" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0</h4>
-          <span class="text-[10px] text-slate-500">Diindeks mesin pencari</span>
+          <span class="text-xs text-slate-500">Diindeks mesin pencari</span>
         </div>
         <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg" aria-hidden="true">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -384,9 +433,9 @@
       <!-- Card 4: Sisa Kuota AI -->
       <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm cursor-pointer hover:border-brand-500 transition group" onclick="openUpgradeModal()" role="button" aria-label="Upgrade Kuota AI">
         <div>
-          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sisa Kuota AI</p>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sisa Kuota AI</p>
           <h4 id="stat-credits-remaining" class="text-2xl font-black text-brand-600 dark:text-brand-400 mt-1">3 Kredit</h4>
-          <span id="stat-credits-sub" class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">0 terpakai dari 3 limit</span>
+          <span id="stat-credits-sub" class="text-xs text-slate-500 dark:text-slate-400 font-medium">0 terpakai dari 3 limit</span>
         </div>
         <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/20 transition flex items-center justify-center font-bold text-lg" aria-hidden="true">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -420,6 +469,7 @@
             <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs flex-wrap" role="tablist">
               <button id="filter-art-all" onclick="setArticleFilter('all')" class="px-2.5 py-1 rounded-lg font-semibold bg-brand-600 text-white shadow-sm transition" role="tab" aria-selected="true">Semua (<span id="count-all">0</span>)</button>
               <button id="filter-art-draft" onclick="setArticleFilter('draft')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition" role="tab" aria-selected="false">Draf (<span id="count-draft">0</span>)</button>
+              <button id="filter-art-review" onclick="setArticleFilter('review')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition" role="tab" aria-selected="false">Review (<span id="count-review">0</span>)</button>
               <button id="filter-art-blogger" onclick="setArticleFilter('blogger_draft')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition" role="tab" aria-selected="false">Blogger (<span id="count-blogger">0</span>)</button>
               <button id="filter-art-published" onclick="setArticleFilter('published')" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition" role="tab" aria-selected="false">Live (<span id="count-published">0</span>)</button>
             </div>
@@ -463,7 +513,7 @@
           <div id="tab-kb-content" class="flex flex-col">
             <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
               <span>Pedoman materi SEO khusus & preferensi:</span>
-              <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Auto-sync dari PDF</span>
+              <span class="text-xs text-amber-600 dark:text-amber-400 font-medium">Auto-sync dari PDF</span>
             </div>
             <textarea id="kb-editor" rows="11" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-800 dark:text-slate-300 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed">{{ kb_content }}</textarea>
           </div>
@@ -530,12 +580,12 @@
             <div>
               <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-900 dark:text-white">Skor Kualitas SEO & Standar E-E-A-T</span>
-                <span id="seo-score-status" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">Sangat Optimal</span>
+                <span id="seo-score-status" class="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">Sangat Optimal</span>
               </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5" id="seo-score-summary">Panjang judul, meta deskripsi, dan struktur konten sesuai panduan Google Search.</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="seo-score-summary">Panjang judul, meta deskripsi, dan struktur konten sesuai panduan Google Search.</p>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
+          <div class="flex items-center gap-1.5 flex-wrap text-xs">
             <span id="seo-check-title" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Judul SERP</span>
             <span id="seo-check-meta" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Meta Deskripsi</span>
             <span id="seo-check-words" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Panjang Kata</span>
@@ -551,7 +601,7 @@
               <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
               <span>Live Google Search SERP Preview</span>
             </span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Tampilan Snippet di Google</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Tampilan Snippet di Google</span>
           </div>
           <div class="p-3.5 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-xl max-w-2xl font-sans">
             <div class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mb-1 truncate font-mono" id="serp-preview-url">
@@ -570,7 +620,7 @@
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label for="modal-article-title" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Judul Artikel (H1)</label>
-            <span id="title-char-count" class="text-[11px] font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 50-60)</span>
+            <span id="title-char-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 50-60)</span>
           </div>
           <input type="text" id="modal-article-title" oninput="updateCharCount()" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 transition">
         </div>
@@ -591,7 +641,7 @@
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label for="modal-article-meta" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Meta Description</label>
-            <span id="meta-char-count" class="text-[11px] font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 140-155)</span>
+            <span id="meta-char-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 140-155)</span>
           </div>
           <textarea id="modal-article-meta" rows="2" oninput="updateCharCount()" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
         </div>
@@ -603,7 +653,7 @@
               <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               <span>Kelola & Sisipkan Gambar (Image SEO)</span>
             </span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Format: &lt;figure&gt; + &lt;img alt&gt; + &lt;figcaption&gt;</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Format: &lt;figure&gt; + &lt;img alt&gt; + &lt;figcaption&gt;</span>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-12 gap-2 text-xs">
             <div class="md:col-span-4">
@@ -633,9 +683,9 @@
               <button id="btn-tab-code" onclick="switchModalView('code')" class="px-3 py-1 text-xs font-semibold rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition" role="tab">Raw HTML</button>
             </div>
             <div class="flex items-center gap-3">
-              <span id="content-word-count" class="text-[11px] font-mono text-brand-600 dark:text-brand-400 font-semibold">0 kata (~0 mnt baca)</span>
-              <span class="text-[11px] text-slate-400 hidden sm:inline">&bull;</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">Format HTML siap terbit ke Blogger</span>
+              <span id="content-word-count" class="text-xs font-mono text-brand-600 dark:text-brand-400 font-semibold">0 kata (~0 mnt baca)</span>
+              <span class="text-xs text-slate-400 hidden sm:inline">&bull;</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Format HTML siap terbit ke Blogger</span>
             </div>
           </div>
 
@@ -661,8 +711,14 @@
             <span>Hapus Draf</span>
           </button>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           <button onclick="closeArticleModal()" class="px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 text-xs font-medium">Tutup</button>
+          <button id="btn-request-review" onclick="submitModalForReview()" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-1.5" title="Kirim draf untuk ditinjau editor">
+            <span>⏳ Minta Review</span>
+          </button>
+          <button id="btn-approve-article" onclick="approveModalArticle()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-1.5" title="Setujui draf konten">
+            <span>✓ Setujui</span>
+          </button>
           <button id="btn-draft-action" onclick="publishArticle(true)" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 flex items-center gap-1.5 transition active:scale-95" title="Kirim ke Blogger dan simpan sebagai status Draft">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             <span>Kirim Draft ke Blogger</span>
@@ -692,10 +748,39 @@
       </div>
 
       <div class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
+        <!-- 1-Click Google OAuth Prominent Primary Banner (P1-1) -->
+        <div class="p-4 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border border-brand-200 dark:border-brand-500/30 rounded-2xl flex flex-col gap-3 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-sm">
+              <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">🚀 Rekomendasi: Hubungkan Otomatis 1-Klik</h4>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                Login ke akun Google Anda. Sistem akan langsung mendeteksi seluruh blog Blogger Anda tanpa perlu menyalin Blog ID atau konfigurasi rumit.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <a href="/api/auth/google/login" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95">
+              <span>Hubungkan Akun Google (1-Klik Auto-Import)</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+            <button type="button" onclick="openOAuthLoginPopup()" class="px-3 py-2 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition active:scale-95">
+              Otorisasi Manual
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex items-center justify-center my-1">
+          <div class="border-t border-slate-200 dark:border-slate-800 w-full"></div>
+          <span class="bg-white dark:bg-[#0b1120] px-3 text-xs text-slate-500 font-semibold uppercase tracking-wider absolute">atau input ID manual</span>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">ID Blog Blogger *</label>
           <input type="text" id="new-blog-id" placeholder="Contoh: 8492019482019482019" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
-          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Dapat dilihat di URL dashboard Blogger (blogger.com/blog/posts/<b>[BLOG_ID]</b>)</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dapat dilihat di URL dashboard Blogger (blogger.com/blog/posts/<b>[BLOG_ID]</b>)</p>
         </div>
 
         <div>
@@ -725,7 +810,7 @@
               <input type="radio" name="token-choice" value="existing" checked onchange="toggleTokenUpload(false)" class="text-brand-600 focus:ring-0">
               <div class="text-xs">
                 <span class="font-semibold text-slate-900 dark:text-white block">Satu Akun Google dengan Blog Aktif</span>
-                <span class="text-slate-500 dark:text-slate-400 text-[11px]">Memakai token OAuth yang sama tanpa perlu login ulang</span>
+                <span class="text-slate-500 dark:text-slate-400 text-xs">Memakai token OAuth yang sama tanpa perlu login ulang</span>
               </div>
             </label>
 
@@ -733,28 +818,28 @@
               <input type="radio" name="token-choice" value="new" onchange="toggleTokenUpload(true)" class="text-brand-600 focus:ring-0">
               <div class="text-xs">
                 <span class="font-semibold text-slate-900 dark:text-white block">Akun Google Berbeda (Upload Token Baru)</span>
-                <span class="text-slate-500 dark:text-slate-400 text-[11px]">Unggah file token.json dari akun Google kedua</span>
+                <span class="text-slate-500 dark:text-slate-400 text-xs">Unggah file token.json dari akun Google kedua</span>
               </div>
             </label>
           </div>
 
           <div id="token-upload-area" class="hidden mt-3 p-3.5 bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 rounded-xl space-y-3.5">
             <div>
-              <span class="block text-[11px] font-bold text-brand-700 dark:text-brand-300 mb-1.5">Metode 1: Login Google Otomatis (SaaS 1-Klik Redirect):</span>
+              <span class="block text-xs font-bold text-brand-700 dark:text-brand-300 mb-1.5">Metode 1: Login Google Otomatis (SaaS 1-Klik Redirect):</span>
               <a href="/api/auth/google/login" class="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V13.4h6.887C18.2 16.14 15.645 18 12.24 18c-3.315 0-6-2.685-6-6s2.685-6 6-6c1.47 0 2.805.54 3.84 1.425l2.4-2.4C16.89 3.51 14.715 2.7 12.24 2.7 7.08 2.7 2.91 6.87 2.91 12.03s4.17 9.33 9.33 9.33c5.385 0 8.94-3.78 8.94-9.09 0-.615-.06-1.215-.165-1.785H12.24z"/></svg>
                 <span>Login dengan Google & Impor Otomatis</span>
               </a>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Mengimpor seluruh blog di akun tersebut tanpa perlu salin kode apapun.</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mengimpor seluruh blog di akun tersebut tanpa perlu salin kode apapun.</p>
             </div>
             
             <div class="pt-2 border-t border-brand-200 dark:border-brand-500/20">
-              <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 2: Buka di Tab Baru & Tempel Kode (Desktop App):</span>
+              <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 2: Buka di Tab Baru & Tempel Kode (Desktop App):</span>
               <button type="button" onclick="openOAuthLoginPopup()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm">
                 <span>Dapatkan Link Otorisasi</span>
               </button>
               <div id="oauth-code-input-group" class="hidden mt-2 space-y-1.5">
-                <label class="block text-[10px] text-slate-700 dark:text-slate-300">Tempel URL atau Kode Hasil Login:</label>
+                <label class="block text-xs text-slate-700 dark:text-slate-300">Tempel URL atau Kode Hasil Login:</label>
                 <div class="flex gap-2">
                   <input type="text" id="oauth-code-input" placeholder="http://localhost/?code=... atau kode otorisasi" class="flex-1 bg-white dark:bg-[#070b14] border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-white">
                   <button type="button" onclick="submitOAuthCode()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition">Verifikasi</button>
@@ -763,10 +848,10 @@
             </div>
 
             <div class="pt-2 border-t border-brand-200 dark:border-brand-500/20">
-              <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 3: Upload File token.json yang sudah ada:</span>
+              <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 3: Upload File token.json yang sudah ada:</span>
               <input type="file" id="new-blog-token-file" accept=".json" class="text-xs text-slate-700 dark:text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500 cursor-pointer">
             </div>
-            <p id="token-upload-status" class="text-[11px] font-medium"></p>
+            <p id="token-upload-status" class="text-xs font-medium"></p>
           </div>
         </div>
       </div>
@@ -776,6 +861,105 @@
         <button id="btn-save-new-blog" onclick="saveNewBlog()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-600/20 flex items-center gap-1.5 active:scale-95">
           <span>Simpan & Daftarkan</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-Step Guided Onboarding Wizard Modal (P1-1) -->
+  <div id="onboarding-wizard-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl flex flex-col shadow-2xl overflow-hidden">
+      <!-- Wizard Header -->
+      <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Panduan Mulai Cepat</span>
+          <h3 class="font-extrabold text-slate-900 dark:text-white text-base md:text-lg mt-0.5">Setup Blogger Autopilot Anda</h3>
+        </div>
+        <button onclick="closeOnboardingWizard()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition" aria-label="Tutup">&times;</button>
+      </div>
+
+      <!-- Stepper Indicator -->
+      <div class="px-6 pt-4 pb-3 bg-slate-50/60 dark:bg-[#0f172a]/60 border-b border-slate-100 dark:border-slate-800/60">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2" id="step-nav-1">
+            <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow-sm">1</span>
+            <span class="text-xs font-bold text-slate-900 dark:text-white">Sambungkan Google</span>
+          </div>
+          <div class="h-0.5 w-8 md:w-16 bg-slate-200 dark:bg-slate-700" id="step-line-1"></div>
+          <div class="flex items-center gap-2" id="step-nav-2">
+            <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex items-center justify-center">2</span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Niche & Topik</span>
+          </div>
+          <div class="h-0.5 w-8 md:w-16 bg-slate-200 dark:bg-slate-700" id="step-line-2"></div>
+          <div class="flex items-center gap-2" id="step-nav-3">
+            <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex items-center justify-center">3</span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Siap Publikasi</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Contents -->
+      <div class="p-6 space-y-4">
+        <!-- Step 1: Connect Google -->
+        <div id="wizard-step-1" class="space-y-4">
+          <div class="text-center py-4">
+            <div class="w-14 h-14 rounded-2xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 flex items-center justify-center mx-auto mb-3 shadow-sm">
+              <svg class="w-7 h-7" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-base">Hubungkan Akun Google Blogger</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 max-w-sm mx-auto leading-relaxed">
+              Otorisasi 1-klik yang aman untuk membaca antrean dan menerbitkan draf artikel secara otomatis ke Blogger.
+            </p>
+          </div>
+          <div class="flex flex-col gap-2.5">
+            <a href="/api/auth/google/login" class="w-full py-3 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-brand-500/20 transition active:scale-95">
+              <span>Hubungkan dengan Google (1-Klik Auto-Import)</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+            <button onclick="goToWizardStep(2)" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">
+              Sudah Terhubung / Lanjutkan ke Langkah 2 &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Niche & Seed Keywords -->
+        <div id="wizard-step-2" class="hidden space-y-4">
+          <div class="space-y-1">
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm">Tentukan Topik Blog & Buat Keyword</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Masukkan topik atau niche blog Anda, sistem akan otomatis meracik 5 ide keyword awal.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Niche Blog</label>
+            <input type="text" id="wizard-niche-input" placeholder="Contoh: Digital Marketing, Finansial, Teknologi AI" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <button id="btn-wizard-gen-kw" onclick="wizardGenerateKeywords()" class="w-full py-2.5 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-300 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm">
+            <span>✨ Racik 5 Keyword Otomatis</span>
+          </button>
+          <div class="flex items-center justify-between pt-2">
+            <button onclick="goToWizardStep(1)" class="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium">&larr; Kembali</button>
+            <button onclick="goToWizardStep(3)" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm">Lanjut ke Langkah 3 &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Trigger First AI Draft & Autopilot -->
+        <div id="wizard-step-3" class="hidden space-y-4">
+          <div class="text-center py-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center mx-auto mb-3 text-2xl shadow-sm">
+              🚀
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-base">Setup Selesai! Siap Meluncur</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 max-w-sm mx-auto">
+              Bank keyword sudah siap. Anda dapat langsung meminta AI menyusun draf pertama atau membiarkan autopilot berjalan harian.
+            </p>
+          </div>
+          <div class="flex flex-col gap-2.5">
+            <button onclick="closeOnboardingWizard(); triggerAutoGenerate();" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition active:scale-95">
+              <span>✍️ Buat Draf Artikel AI Pertama Sekarang</span>
+            </button>
+            <button onclick="closeOnboardingWizard()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">
+              Masuk ke Dashboard Utama
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -833,7 +1017,7 @@
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kata Sandi (Minimal 6 Karakter)</label>
             <input type="password" id="register-password" minlength="6" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
-          <p class="text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
+          <p class="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
             🎁 <b>Bonus Gratis Langsung:</b> 3 kredit artikel AI SEO otomatis diberikan saat pendaftaran selesai!
           </p>
           <button type="submit" id="btn-submit-register" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-500/20 active:scale-95">
@@ -867,7 +1051,7 @@
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Free</span>
-                <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full font-mono">Gratis</span>
+                <span class="text-xs bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full font-mono">Gratis</span>
               </div>
               <div class="mb-3">
                 <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 0</span>
@@ -892,7 +1076,7 @@
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Solo</span>
-                <span class="text-[10px] bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-500/30 px-1.5 py-0.5 rounded font-mono">Rp 3.300/art</span>
+                <span class="text-xs bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-500/30 px-1.5 py-0.5 rounded font-mono">Rp 3.300/art</span>
               </div>
               <div class="mb-3">
                 <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 99.000</span>
@@ -912,7 +1096,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 <span>Bayar Midtrans</span>
               </button>
-              <button onclick="simulateDemoPayment('starter')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+              <button onclick="simulateDemoPayment('starter')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition">
                 ⚡ Coba Demo Instan
               </button>
             </div>
@@ -920,13 +1104,13 @@
 
           <!-- Pro Plan Card (Anchor / Paling Populer) -->
           <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-[#0f1d38] dark:to-[#070b14] border-2 border-brand-500 rounded-2xl p-4 flex flex-col justify-between shadow-xl shadow-brand-500/15 relative">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap">
               Paling Populer ⭐
             </div>
             <div>
               <div class="flex items-center justify-between mb-2 pt-1">
                 <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro Publisher</span>
-                <span class="text-[10px] bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-1.5 py-0.5 rounded font-mono">Rp 2.075/art</span>
+                <span class="text-xs bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-1.5 py-0.5 rounded font-mono">Rp 2.075/art</span>
               </div>
               <div class="mb-3">
                 <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 249.000</span>
@@ -946,7 +1130,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 <span>Bayar Midtrans</span>
               </button>
-              <button onclick="simulateDemoPayment('pro')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+              <button onclick="simulateDemoPayment('pro')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition">
                 ⚡ Coba Demo Instan
               </button>
             </div>
@@ -957,7 +1141,7 @@
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Agency Network</span>
-                <span class="text-[10px] bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-1.5 py-0.5 rounded font-mono">Rp 1.398/art</span>
+                <span class="text-xs bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-1.5 py-0.5 rounded font-mono">Rp 1.398/art</span>
               </div>
               <div class="mb-3">
                 <span class="text-2xl font-extrabold text-slate-900 dark:text-white">Rp 699.000</span>
@@ -977,7 +1161,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 <span>Bayar Midtrans</span>
               </button>
-              <button onclick="simulateDemoPayment('agency')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-semibold transition">
+              <button onclick="simulateDemoPayment('agency')" class="w-full py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition">
                 ⚡ Coba Demo Instan
               </button>
             </div>
@@ -988,10 +1172,10 @@
         <div class="p-4 rounded-2xl bg-slate-100/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-3">
           <div class="flex items-center gap-2.5 flex-wrap">
             <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Metode Pembayaran Resmi Indonesia:</span>
-            <span class="text-[11px] bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded font-mono">QRIS (GoPay, OVO, ShopeePay, Dana, LinkAja)</span>
-            <span class="text-[11px] bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded font-mono">BCA &bull; Mandiri &bull; BRI &bull; BNI VA</span>
+            <span class="text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded font-mono">QRIS (GoPay, OVO, ShopeePay, Dana, LinkAja)</span>
+            <span class="text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded font-mono">BCA &bull; Mandiri &bull; BRI &bull; BNI VA</span>
           </div>
-          <div class="text-[11px] text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+          <div class="text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-semibold">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             <span>Verifikasi Otomatis Real-Time Midtrans</span>
           </div>
@@ -1025,7 +1209,7 @@
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Daftar Keyword (1 per baris)</label>
-            <span id="bulk-kw-count-label" class="text-[11px] font-mono text-slate-500 dark:text-slate-400">0 baris</span>
+            <span id="bulk-kw-count-label" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 baris</span>
           </div>
           <textarea id="bulk-kw-textarea" oninput="updateBulkCount()" rows="8" placeholder="cara optimasi seo blogspot&#10;panduan google adsense pemula&#10;rekomendasi template blogger cepat" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
         </div>
@@ -1056,7 +1240,7 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Topik Utama / Niche Blog *</label>
           <input type="text" id="ai-suggest-niche" placeholder="Contoh: Belajar Python, Wisata Kuliner, Saham" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Sistem akan menyusun 8 variasi kata kunci intent informasional dan komersial siap riset.</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sistem akan menyusun 8 variasi kata kunci intent informasional dan komersial siap riset.</p>
         </div>
       </div>
       <div class="px-6 py-3.5 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
@@ -1085,7 +1269,7 @@
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div>
             <span class="text-xs font-bold text-slate-900 dark:text-white block">Status Autopilot Latar Belakang</span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400">Jalankan riset & draf artikel secara terjadwal otomatis</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Jalankan riset & draf artikel secara terjadwal otomatis</span>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="autopilot-enabled-toggle" checked class="sr-only peer">
@@ -1145,19 +1329,19 @@
             <span class="text-xs font-bold text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
               <span>✈️ Bot Telegram</span>
             </span>
-            <span class="text-[10px] text-slate-500 dark:text-slate-400">Gratis & Instan</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Gratis & Instan</span>
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Telegram Bot Token</label>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Telegram Bot Token</label>
             <input type="text" id="notify-tg-token" placeholder="Contoh: 123456789:ABCdefGHIjkl..." class="w-full bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 transition font-mono">
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Dapatkan token dengan membuat bot baru di Telegram melalui <span class="text-sky-600 dark:text-sky-400 font-mono">@BotFather</span>.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dapatkan token dengan membuat bot baru di Telegram melalui <span class="text-sky-600 dark:text-sky-400 font-mono">@BotFather</span>.</p>
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Telegram Chat ID / Channel ID</label>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Telegram Chat ID / Channel ID</label>
             <input type="text" id="notify-tg-chat-id" placeholder="Contoh: 123456789 atau -100123456789" class="w-full bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-sky-500 transition font-mono">
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Kirim pesan ke bot Anda, lalu cek Chat ID Anda via <span class="text-sky-600 dark:text-sky-400 font-mono">@userinfobot</span>.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Kirim pesan ke bot Anda, lalu cek Chat ID Anda via <span class="text-sky-600 dark:text-sky-400 font-mono">@userinfobot</span>.</p>
           </div>
         </div>
 
@@ -1169,7 +1353,7 @@
             </span>
           </div>
           <input type="url" id="notify-webhook-url" placeholder="https://webhook.site/... atau https://discord.com/api/webhooks/..." class="w-full bg-white dark:bg-[#070b14] border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 transition font-mono">
-          <p class="text-[10px] text-slate-500 dark:text-slate-400">Menerima payload JSON event secara otomatis setiap ada siklus konten.</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Menerima payload JSON event secara otomatis setiap ada siklus konten.</p>
         </div>
 
         <!-- Notification Toggles -->
@@ -1212,7 +1396,7 @@
           </div>
           <div>
             <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Blogger Auto-Pilot</span>
-            <span class="ml-2 text-[10px] uppercase font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full">SaaS Indonesia</span>
+            <span class="ml-2 text-xs uppercase font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full">SaaS Indonesia</span>
           </div>
         </div>
         <div class="flex items-center gap-3">
@@ -1231,7 +1415,7 @@
           <span>🇮🇩 Solusi Otomasi Konten Blogger Berbasis AI #1 di Indonesia</span>
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-          Tulis & Terbitkan Puluhan Artikel SEO Berkualitas Tinggi Secara <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-indigo-600 to-pink-600 dark:from-brand-400 dark:via-indigo-400 dark:to-pink-400">Otomatis 24/7</span>
+          Tulis & Terbitkan Puluhan Artikel SEO Berkualitas Tinggi Secara <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-indigo-700 dark:from-brand-400 dark:to-indigo-300">Otomatis 24/7</span>
         </h1>
         <p class="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
           Kombinasi AI cerdas berstandar Google E-E-A-T, riset kata kunci otomatis, gambar relevan, dan sinkronisasi 2 arah langsung ke Blogspot Anda tanpa sentuhan manual.
@@ -1284,7 +1468,7 @@
             <div>
               <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Solo</span>
               <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 99.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cocok untuk solo blogger pemula</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cocok untuk solo blogger pemula</p>
               <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 30 Kredit Artikel / Bulan</li>
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 3 Blog</li>
@@ -1297,11 +1481,11 @@
 
           <!-- Pro (Popular) -->
           <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-brand-950/40 dark:to-slate-900 border-2 border-brand-500 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative shadow-2xl">
-            <span class="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">Paling Populer</span>
+            <span class="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">Paling Populer</span>
             <div>
               <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Pro Publisher</span>
               <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 249.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Untuk publisher & affiliate serius</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Untuk publisher & affiliate serius</p>
               <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 120 Kredit Artikel / Bulan</li>
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 10 Blog</li>
@@ -1317,7 +1501,7 @@
             <div>
               <span class="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Agency / Network</span>
               <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 699.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">PBN, agensi SEO & media jaringan</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">PBN, agensi SEO & media jaringan</p>
               <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 500 Kredit Artikel / Bulan</li>
                 <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 50 Blog</li>
@@ -1349,7 +1533,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h3 class="font-bold text-sm text-slate-900 dark:text-white">SaaS Superadmin Command Center</h3>
-              <span class="text-[10px] font-mono bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-2 py-0.5 rounded-full font-bold">Live Production</span>
+              <span class="text-xs font-mono bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-2 py-0.5 rounded-full font-bold">Live Production</span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Kelola pengguna, metrik pendapatan MRR, kuota paket, dan siklus autopilot global</p>
           </div>
@@ -1371,24 +1555,24 @@
       <div class="p-6 overflow-y-auto space-y-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           <div class="bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Total Pengguna (Tenants)</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Pengguna (Tenants)</p>
             <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="admin-total-tenants">0</h4>
-            <div class="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1" id="admin-paying-tenants">0 Berbayar</div>
+            <div class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mt-1" id="admin-paying-tenants">0 Berbayar</div>
           </div>
           <div class="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-4">
-            <p class="text-[11px] text-purple-700 dark:text-purple-300 font-medium">Estimasi MRR (IDR)</p>
+            <p class="text-xs text-purple-700 dark:text-purple-300 font-medium">Estimasi MRR (IDR)</p>
             <h4 class="text-2xl font-black text-purple-900 dark:text-purple-200 mt-1" id="admin-mrr-display">Rp 0</h4>
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-1">Pendapatan Bulanan</div>
+            <div class="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">Pendapatan Bulanan</div>
           </div>
           <div class="bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Total Artikel</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Artikel</p>
             <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="admin-total-articles">0</h4>
-            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-1" id="admin-articles-breakdown">0 Live / 0 Draf</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1" id="admin-articles-breakdown">0 Live / 0 Draf</div>
           </div>
           <div class="bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Blog & Kata Kunci</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Blog & Kata Kunci</p>
             <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="admin-total-blogs">0 Blog</h4>
-            <div class="text-[10px] text-brand-600 dark:text-brand-400 font-mono mt-1" id="admin-total-keywords">0 Keywords</div>
+            <div class="text-xs text-brand-600 dark:text-brand-400 font-mono mt-1" id="admin-total-keywords">0 Keywords</div>
           </div>
         </div>
 
@@ -1397,7 +1581,7 @@
           <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap">
             <div class="flex items-center gap-2">
               <h5 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Daftar Pelanggan & Penyewa</h5>
-              <span id="admin-tenant-count" class="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">0</span>
+              <span id="admin-tenant-count" class="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">0</span>
             </div>
             <div class="relative w-64 max-w-full">
               <input type="text" id="admin-search-input" oninput="filterAdminTenants(this.value)" placeholder="Cari email / nama..." class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
@@ -1407,7 +1591,7 @@
 
           <div class="overflow-x-auto max-h-80 overflow-y-auto">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-100 dark:bg-slate-900/90 text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider sticky top-0 border-b border-slate-200 dark:border-slate-800">
+              <thead class="bg-slate-100 dark:bg-slate-900/90 text-xs uppercase font-bold text-slate-600 dark:text-slate-400 tracking-wider sticky top-0 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th class="py-2.5 px-4">Pengguna</th>
                   <th class="py-2.5 px-3">Role</th>
@@ -1507,7 +1691,7 @@
       
       toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-lg text-xs font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${style}`;
       toast.innerHTML = `
-        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-[11px] shrink-0" aria-hidden="true">${icon}</span>
+        <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs shrink-0" aria-hidden="true">${icon}</span>
         <div class="flex-1 min-w-0 pr-1 leading-snug break-words">${cleanMessage}</div>
         <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white transition font-bold text-sm shrink-0" aria-label="Tutup notifikasi">&times;</button>
       `;
@@ -1746,9 +1930,9 @@
                 <div class="flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
                   <span class="font-bold text-xs text-slate-900 dark:text-white truncate">${b.name}</span>
-                  ${isActive ? '<span class="text-[9px] bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-1 rounded font-semibold">Aktif</span>' : ''}
+                  ${isActive ? '<span class="text-xs bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-1.5 py-0.5 rounded font-semibold">Aktif</span>' : ''}
                 </div>
-                <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
+                <div class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
                   ${b.account_name || 'Akun'} &bull; ID: ${b.id}
                 </div>
               </button>
@@ -1843,7 +2027,7 @@
         return;
       }
       const statusEl = document.getElementById('token-upload-status');
-      statusEl.className = 'text-[11px] text-amber-400 font-semibold';
+      statusEl.className = 'text-xs text-amber-400 font-semibold';
       statusEl.innerText = '⏳ Memverifikasi kode dengan Google...';
       try {
         const tokenName = 'token_' + Math.random().toString(36).substring(2, 10) + '.json';
@@ -1855,15 +2039,15 @@
         const data = await res.json();
         if (data.success) {
           generatedTokenPath = data.token_file;
-          statusEl.className = 'text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold';
+          statusEl.className = 'text-xs text-emerald-700 dark:text-emerald-400 font-semibold';
           statusEl.innerText = '✓ Token berhasil dibuat dan terverifikasi!';
           document.getElementById('oauth-code-input-group').classList.add('hidden');
         } else {
-          statusEl.className = 'text-[11px] text-rose-700 dark:text-rose-400 font-semibold';
+          statusEl.className = 'text-xs text-rose-700 dark:text-rose-400 font-semibold';
           statusEl.innerText = '✗ Gagal: ' + (data.error || 'Kode tidak valid');
         }
       } catch (e) {
-        statusEl.className = 'text-[11px] text-rose-700 dark:text-rose-400 font-semibold';
+        statusEl.className = 'text-xs text-rose-700 dark:text-rose-400 font-semibold';
         statusEl.innerText = 'Error: ' + e.message;
       }
     }
@@ -2002,15 +2186,17 @@
       currentArticleFilter = filter;
       const btnAll = document.getElementById('filter-art-all');
       const btnDraft = document.getElementById('filter-art-draft');
+      const btnReview = document.getElementById('filter-art-review');
       const btnBlogger = document.getElementById('filter-art-blogger');
       const btnPub = document.getElementById('filter-art-published');
 
-      [btnAll, btnDraft, btnBlogger, btnPub].forEach(b => {
+      [btnAll, btnDraft, btnReview, btnBlogger, btnPub].forEach(b => {
         if (b) b.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition";
       });
 
       if (filter === 'all' && btnAll) btnAll.className = "px-2.5 py-1 rounded-lg font-semibold bg-brand-600 text-white shadow-sm transition";
       if (filter === 'draft' && btnDraft) btnDraft.className = "px-2.5 py-1 rounded-lg font-semibold bg-amber-600 text-white shadow-sm transition";
+      if (filter === 'review' && btnReview) btnReview.className = "px-2.5 py-1 rounded-lg font-semibold bg-indigo-600 text-white shadow-sm transition";
       if (filter === 'blogger_draft' && btnBlogger) btnBlogger.className = "px-2.5 py-1 rounded-lg font-semibold bg-sky-600 text-white shadow-sm transition";
       if (filter === 'published' && btnPub) btnPub.className = "px-2.5 py-1 rounded-lg font-semibold bg-emerald-600 text-white shadow-sm transition";
 
@@ -2026,6 +2212,7 @@
       const list = document.getElementById('articles-list');
       
       const draftCount = (articles || []).filter(a => a.status === 'draft').length;
+      const reviewCount = (articles || []).filter(a => a.status === 'pending_review' || a.status === 'approved').length;
       const bloggerCount = (articles || []).filter(a => a.status === 'blogger_draft').length;
       const pubCount = (articles || []).filter(a => a.status === 'published').length;
       const totalCount = (articles || []).length;
@@ -2036,6 +2223,7 @@
       const elStatPub = document.getElementById('stat-published-count');
       const elCountAll = document.getElementById('count-all');
       const elCountDraft = document.getElementById('count-draft');
+      const elCountReview = document.getElementById('count-review');
       const elCountBlogger = document.getElementById('count-blogger');
       const elCountPub = document.getElementById('count-published');
       const elBadge = document.getElementById('article-count-badge');
@@ -2045,6 +2233,7 @@
       if (elStatPub) elStatPub.innerText = pubCount;
       if (elCountAll) elCountAll.innerText = totalCount;
       if (elCountDraft) elCountDraft.innerText = draftCount;
+      if (elCountReview) elCountReview.innerText = reviewCount;
       if (elCountBlogger) elCountBlogger.innerText = bloggerCount;
       if (elCountPub) elCountPub.innerText = pubCount;
       if (elBadge) elBadge.innerText = `${totalCount} Artikel`;
@@ -2062,9 +2251,12 @@
 
       // Filter articles
       let filtered = articles.slice();
-      if (currentArticleFilter !== 'all') {
+      if (currentArticleFilter === 'review') {
+        filtered = filtered.filter(a => a.status === 'pending_review' || a.status === 'approved');
+      } else if (currentArticleFilter !== 'all') {
         filtered = filtered.filter(a => a.status === currentArticleFilter);
       }
+
       if (currentSearchQuery) {
         filtered = filtered.filter(a => 
           (a.title || '').toLowerCase().includes(currentSearchQuery) ||
@@ -2085,13 +2277,27 @@
       list.innerHTML = filtered.map(a => {
         const isPublished = a.status === 'published';
         const isBloggerDraft = a.status === 'blogger_draft';
+        const isApproved = a.status === 'approved';
+        const isPendingReview = a.status === 'pending_review';
+
         let badge = '';
         if (isPublished) {
-          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Live di Blogger</span>`;
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Live di Blogger</span>`;
         } else if (isBloggerDraft) {
-          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Draft di Blogger</span>`;
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Draft di Blogger</span>`;
+        } else if (isApproved) {
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>✓ Disetujui (Siap Kirim)</span>`;
+        } else if (isPendingReview) {
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>⏳ Menunggu Review</span>`;
         } else {
-          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Draft Lokal</span>`;
+          badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Draft Lokal</span>`;
+        }
+
+        let workflowBtn = '';
+        if (a.status === 'draft') {
+          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'pending_review')" title="Kirim ke editor untuk direview" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 rounded-lg text-xs font-semibold transition active:scale-95">Minta Review</button>`;
+        } else if (a.status === 'pending_review') {
+          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'approved')" title="Setujui artikel untuk dipublikasikan" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 rounded-lg text-xs font-semibold transition active:scale-95">✓ Setujui</button>`;
         }
         
         return `
@@ -2099,15 +2305,16 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 ${badge}
-                <span class="text-[11px] text-slate-700 dark:text-slate-400 font-mono bg-white dark:bg-slate-900/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">KW: ${a.target_keyword || '-'}</span>
+                <span class="text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-slate-900/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">KW: ${a.target_keyword || '-'}</span>
               </div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm md:text-base leading-snug hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${a.title}</h3>
               <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">${a.meta_description || 'Belum ada meta deskripsi'}</p>
               ${a.blogger_url ? `<a href="${a.blogger_url}" target="_blank" class="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-500 dark:hover:text-brand-300 font-medium inline-flex items-center gap-1 hover:underline pt-1">Buka Post Live di Blogger &rarr;</a>` : ''}
             </div>
             <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/50 flex-wrap">
-              <button onclick="deleteArticle(${a.id}, '${(a.title || '').replace(/'/g, "\\'")}')" title="Hapus artikel dari database" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-red-500/10 transition text-sm font-bold shrink-0">&times;</button>
+              <button onclick="deleteArticle(${a.id}, '${(a.title || '').replace(/'/g, "\\'")}')" title="Hapus artikel dari database" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-red-500/10 transition text-sm font-bold shrink-0">&times;</button>
               <div class="flex items-center gap-2 flex-wrap">
+                ${workflowBtn}
                 <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
                 <button onclick="quickPublish(${a.id}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -2135,12 +2342,12 @@
           <div class="flex-1 min-w-0">
             <span class="font-semibold text-slate-900 dark:text-slate-200 block truncate" title="${k.keyword}">${k.keyword}</span>
             <div class="flex items-center gap-2 mt-1">
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Intent: ${k.search_intent || 'Informational'}</span>
-              <span class="text-[9px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/60">${k.priority || 'Medium'}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Intent: ${k.search_intent || 'Informational'}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/60">${k.priority || 'Medium'}</span>
             </div>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-mono font-medium border border-slate-200 dark:border-slate-700/50">${k.status}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-mono font-medium border border-slate-200 dark:border-slate-700/50">${k.status}</span>
             <button onclick="deleteKeyword(${k.id})" title="Hapus Keyword" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-sm font-bold">&times;</button>
           </div>
         </div>
@@ -2174,9 +2381,22 @@
         publishBtn.classList.remove('hidden');
         publishBtn.querySelector('span').innerText = isPublished ? 'Perbarui Post Live' : 'Publish Live ke Blogger';
       }
+
+      const reqReviewBtn = document.getElementById('btn-request-review');
+      if (reqReviewBtn) {
+        if (a.status === 'draft') reqReviewBtn.classList.remove('hidden');
+        else reqReviewBtn.classList.add('hidden');
+      }
+
+      const approveBtn = document.getElementById('btn-approve-article');
+      if (approveBtn) {
+        if (a.status === 'pending_review') approveBtn.classList.remove('hidden');
+        else approveBtn.classList.add('hidden');
+      }
       
       switchModalView('preview');
       updateSerpPreview(a.title, a.meta_description);
+      document.body.classList.add('overflow-hidden');
       document.getElementById('article-modal').classList.remove('hidden');
     }
 
@@ -2210,7 +2430,7 @@
         } else if (wordCount >= 500) {
           badgeClass = 'text-brand-600 dark:text-brand-400';
         }
-        el.className = `text-[11px] font-mono font-semibold ${badgeClass}`;
+        el.className = `text-xs font-mono font-semibold ${badgeClass}`;
         el.innerText = `${wordCount.toLocaleString('id-ID')} kata${timeStr}` + (wordCount < 600 && wordCount > 0 ? ' (Ideal: 800-1500+)' : '');
       }
 
@@ -2303,13 +2523,13 @@
       if (status) {
         if (score >= 85) {
           status.innerText = "Sangat Optimal (E-E-A-T)";
-          status.className = "text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30";
+          status.className = "text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30";
         } else if (score >= 60) {
           status.innerText = "Cukup Baik";
-          status.className = "text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/30";
+          status.className = "text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/30";
         } else {
           status.innerText = "Perlu Optimasi";
-          status.className = "text-[10px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 px-2.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-500/30";
+          status.className = "text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/15 px-2.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-500/30";
         }
       }
       if (summary) {
@@ -2420,15 +2640,136 @@
         publishBtn.classList.remove('hidden');
         publishBtn.querySelector('span').innerText = 'Publish Live ke Blogger';
       }
+      const reqReviewBtn = document.getElementById('btn-request-review');
+      if (reqReviewBtn) reqReviewBtn.classList.add('hidden');
+      const approveBtn = document.getElementById('btn-approve-article');
+      if (approveBtn) approveBtn.classList.add('hidden');
+
       syncModalContent();
       updateCharCount();
       switchModalView('preview');
       updateSerpPreview('Judul Artikel Baru', 'Deskripsi artikel Anda akan tampil di Google Search snippet.');
+      document.body.classList.add('overflow-hidden');
       document.getElementById('article-modal').classList.remove('hidden');
     }
 
     function closeArticleModal() {
       document.getElementById('article-modal').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    async function updateArticleStatus(articleId, status) {
+      try {
+        const res = await fetch(`/api/articles/${articleId}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Status artikel berhasil diperbarui', 'success');
+          await loadData();
+        } else {
+          showToast(data.detail || data.error || 'Gagal mengubah status', 'error');
+        }
+      } catch (e) {
+        showToast('Terjadi kesalahan: ' + e.message, 'error');
+      }
+    }
+
+    async function submitModalForReview() {
+      const id = document.getElementById('modal-article-id').value;
+      if (!id) {
+        showToast('Simpan draf artikel terlebih dahulu.', 'warning');
+        return;
+      }
+      await updateArticleStatus(id, 'pending_review');
+      closeArticleModal();
+    }
+
+    async function approveModalArticle() {
+      const id = document.getElementById('modal-article-id').value;
+      if (!id) return;
+      await updateArticleStatus(id, 'approved');
+      closeArticleModal();
+    }
+
+    // Mobile Drawer (P1-4)
+    function toggleMobileDrawer(forceState) {
+      const drawer = document.getElementById('mobile-drawer-sheet');
+      if (!drawer) return;
+      if (typeof forceState === 'boolean') {
+        if (forceState) drawer.classList.remove('hidden');
+        else drawer.classList.add('hidden');
+      } else {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    // Guided 3-Step Onboarding Stepper Wizard (P1-1)
+    let currentWizardStep = 1;
+
+    function openOnboardingWizard() {
+      currentWizardStep = 1;
+      goToWizardStep(1);
+      document.body.classList.add('overflow-hidden');
+      document.getElementById('onboarding-wizard-modal').classList.remove('hidden');
+    }
+
+    function closeOnboardingWizard() {
+      document.getElementById('onboarding-wizard-modal').classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    function goToWizardStep(step) {
+      currentWizardStep = step;
+      [1, 2, 3].forEach(s => {
+        const stepEl = document.getElementById(`wizard-step-${s}`);
+        const navEl = document.getElementById(`step-nav-${s}`);
+        if (stepEl) {
+          if (s === step) stepEl.classList.remove('hidden');
+          else stepEl.classList.add('hidden');
+        }
+        if (navEl) {
+          const circle = navEl.querySelector('span:first-child');
+          const title = navEl.querySelector('span:last-child');
+          if (s === step) {
+            if (circle) circle.className = "w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shadow-sm";
+            if (title) title.className = "text-xs font-bold text-slate-900 dark:text-white";
+          } else if (s < step) {
+            if (circle) circle.className = "w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shadow-sm";
+            if (title) title.className = "text-xs font-semibold text-emerald-600 dark:text-emerald-400";
+          } else {
+            if (circle) circle.className = "w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex items-center justify-center";
+            if (title) title.className = "text-xs font-semibold text-slate-500 dark:text-slate-400";
+          }
+        }
+      });
+    }
+
+    async function wizardGenerateKeywords() {
+      const nicheInput = document.getElementById('wizard-niche-input');
+      const niche = (nicheInput ? nicheInput.value.trim() : '') || 'Teknologi & Tutorial';
+      const btn = document.getElementById('btn-wizard-gen-kw');
+      btn.disabled = true;
+      btn.innerText = 'Meracik keyword...';
+      try {
+        const blogParam = activeBlog ? `?blog_id=${activeBlog.id}` : '';
+        const res = await fetch('/api/keywords/auto-generate' + blogParam, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Berhasil menambahkan ${data.added_count} keyword awal ke bank ide!`, 'success');
+          await loadData();
+          goToWizardStep(3);
+        } else {
+          showToast('Gagal meracik keyword: ' + (data.error || 'Terjadi kesalahan'), 'error');
+        }
+      } catch (e) {
+        showToast('Terjadi kesalahan: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✨ Racik 5 Keyword Otomatis';
+      }
     }
 
     async function saveArticleDraft() {
@@ -3489,38 +3830,38 @@
         }[t.plan_tier] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
 
         const statusBadge = t.is_active
-          ? '<span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>'
-          : '<span class="inline-flex items-center gap-1 text-[10px] text-rose-700 dark:text-rose-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Suspend</span>';
+          ? '<span class="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>'
+          : '<span class="inline-flex items-center gap-1 text-xs text-rose-700 dark:text-rose-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Suspend</span>';
 
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
             <td class="py-2.5 px-4">
               <div class="font-bold text-slate-900 dark:text-white text-xs truncate max-w-[180px]">${t.full_name}</div>
-              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[180px]">${t.email}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 font-mono truncate max-w-[180px]">${t.email}</div>
             </td>
             <td class="py-2.5 px-3">
-              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded ${t.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-700/50' : 'text-slate-500 dark:text-slate-400'}">${t.role}</span>
+              <span class="text-xs font-mono uppercase px-1.5 py-0.5 rounded ${t.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-700/50' : 'text-slate-500 dark:text-slate-400'}">${t.role}</span>
             </td>
             <td class="py-2.5 px-3">
-              <span class="text-[10px] font-bold uppercase border px-2 py-0.5 rounded-full ${tierBadge}">${t.plan_tier}</span>
+              <span class="text-xs font-bold uppercase border px-2 py-0.5 rounded-full ${tierBadge}">${t.plan_tier}</span>
             </td>
-            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+            <td class="py-2.5 px-3 font-mono text-xs text-slate-700 dark:text-slate-300">
               ${t.credits_used} / ${t.credits_limit}
             </td>
             <td class="py-2.5 px-3 font-mono text-xs text-slate-500 dark:text-slate-400">${t.blogs_count}</td>
             <td class="py-2.5 px-3">${statusBadge}</td>
             <td class="py-2.5 px-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
-                <button onclick="adminChangePlan('${t.id}', '${t.email}', '${t.plan_tier}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold rounded-lg transition" title="Ubah Paket">
+                <button onclick="adminChangePlan('${t.id}', '${t.email}', '${t.plan_tier}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition" title="Ubah Paket">
                   Paket
                 </button>
-                <button onclick="adminAddCredits('${t.id}', '${t.email}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 text-brand-700 dark:text-brand-300 text-[10px] font-semibold rounded-lg border border-brand-200 dark:border-brand-500/30 transition" title="Tambah Kredit">
+                <button onclick="adminAddCredits('${t.id}', '${t.email}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 text-brand-700 dark:text-brand-300 text-xs font-semibold rounded-lg border border-brand-200 dark:border-brand-500/30 transition" title="Tambah Kredit">
                   +Kredit
                 </button>
-                <button onclick="adminResetPassword('${t.id}', '${t.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-[10px] font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
+                <button onclick="adminResetPassword('${t.id}', '${t.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
                   Reset Pwd
                 </button>
-                <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-[10px] font-semibold rounded-lg border transition">
+                <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-xs font-semibold rounded-lg border transition">
                   ${t.is_active ? 'Suspend' : 'Aktifkan'}
                 </button>
               </div>
@@ -3703,8 +4044,55 @@
       }
     }
 
+    // --- Global Modal Interaction Manager (P1-5) ---
+    function closeAllModals() {
+      const modalIds = [
+        'article-modal', 'add-blog-modal', 'bulk-keyword-modal',
+        'niche-suggest-modal', 'auth-modal', 'pricing-modal',
+        'notification-modal', 'autopilot-modal', 'admin-modal',
+        'admin-tenant-plan-modal', 'admin-tenant-credits-modal',
+        'onboarding-wizard-modal', 'image-upload-modal', 'landing-preview-modal'
+      ];
+      modalIds.forEach(id => {
+        const m = document.getElementById(id);
+        if (m) m.classList.add('hidden');
+      });
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    // Escape Key Listener
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllModals();
+        toggleMobileDrawer(false);
+      }
+    });
+
+    // Backdrop Click Dismissal Setup
+    function setupModalBackdrops() {
+      const modalIds = [
+        'article-modal', 'add-blog-modal', 'bulk-keyword-modal',
+        'niche-suggest-modal', 'auth-modal', 'pricing-modal',
+        'notification-modal', 'autopilot-modal', 'admin-modal',
+        'admin-tenant-plan-modal', 'admin-tenant-credits-modal',
+        'onboarding-wizard-modal', 'image-upload-modal'
+      ];
+      modalIds.forEach(id => {
+        const m = document.getElementById(id);
+        if (m) {
+          m.addEventListener('click', (e) => {
+            if (e.target === m) {
+              m.classList.add('hidden');
+              document.body.classList.remove('overflow-hidden');
+            }
+          });
+        }
+      });
+    }
+
     async function init() {
       initTheme();
+      setupModalBackdrops();
       const params = new URLSearchParams(window.location.search);
       if (params.get('landing') === '1') {
         toggleLandingPreview(true);

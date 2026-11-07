@@ -5,6 +5,7 @@ on-demand article generation, and image uploads.
 """
 
 import os
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Request, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
@@ -35,6 +36,9 @@ class ArticleSaveReq(BaseModel):
 
 class ArticlePublishReq(BaseModel):
     is_draft: Optional[bool] = False
+
+class ArticleStatusReq(BaseModel):
+    status: str
 
 # --- Endpoints ---
 
@@ -240,6 +244,28 @@ def api_delete_article(article_id: int, request: Request, db: Session = Depends(
         db.commit()
 
     return {'success': True}
+
+@router.post('/api/articles/{article_id}/status')
+def api_update_article_status(article_id: int, req: ArticleStatusReq, request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
+    art = db.query(SaasArticle).filter(SaasArticle.id == article_id, SaasArticle.user_id == user.id).first()
+    if not art:
+        raise HTTPException(status_code=404, detail='Artikel tidak ditemukan.')
+
+    allowed = ['draft', 'pending_review', 'approved', 'blogger_draft', 'published']
+    target_status = req.status.lower().strip()
+    if target_status not in allowed:
+        raise HTTPException(status_code=400, detail=f"Status tidak valid. Pilihan: {', '.join(allowed)}")
+
+    art.status = target_status
+    art.updated_at = datetime.now(timezone.utc)
+    db.commit()
+
+    return {
+        'success': True,
+        'status': art.status,
+        'message': f"Status artikel berhasil diubah ke '{art.status}'"
+    }
 
 @router.post('/api/agent/generate-now')
 def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_saas_db)):

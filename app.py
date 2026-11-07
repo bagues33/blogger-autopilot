@@ -25,7 +25,7 @@ from dependencies import (
     get_session_user,
     get_or_create_default_admin
 )
-from routers import auth, billing, blogs, articles, keywords, settings, admin
+from routers import auth, billing, blogs, articles, keywords, settings, admin, workspaces
 
 # Auto-initialize SaaS schema on startup
 try:
@@ -112,6 +112,7 @@ app.include_router(articles.router)
 app.include_router(keywords.router)
 app.include_router(settings.router)
 app.include_router(admin.router)
+app.include_router(workspaces.router)
 
 if __name__ == '__main__':
     import uvicorn

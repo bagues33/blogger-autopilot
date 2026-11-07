@@ -167,22 +167,42 @@ def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, db:
     if not blog:
         raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")
 
+    # Persist in database
+    blog.autopilot_enabled = bool(req.autopilot_enabled)
+    blog.publish_mode = req.publish_mode
+    blog.schedule_frequency = req.schedule
+    db.commit()
+
+    # Legacy file backup mirror
     settings_dir = os.path.join(BASE_DIR, 'settings')
     os.makedirs(settings_dir, exist_ok=True)
     settings_file = os.path.join(settings_dir, f"autopilot_{blog.id}.json")
-    with open(settings_file, 'w') as f:
-        json.dump({
-            'blog_id': blog.id,
-            'autopilot_enabled': req.autopilot_enabled,
-            'publish_mode': req.publish_mode,
-            'schedule': req.schedule,
-            'user_id': user.id
-        }, f, indent=2)
+    try:
+        with open(settings_file, 'w') as f:
+            json.dump({
+                'blog_id': blog.id,
+                'autopilot_enabled': req.autopilot_enabled,
+                'publish_mode': req.publish_mode,
+                'schedule': req.schedule,
+                'user_id': user.id
+            }, f, indent=2)
+    except Exception:
+        pass
 
     return {'success': True, 'message': 'Pengaturan autopilot berhasil disimpan.'}
 
 @router.get('/api/blogs/{blog_id}/autopilot-settings')
 def api_get_autopilot_settings(blog_id: str, request: Request, db: Session = Depends(get_saas_db)):
+    blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id).first()
+    if blog:
+        return {
+            'blog_id': blog.id,
+            'autopilot_enabled': bool(blog.autopilot_enabled),
+            'publish_mode': blog.publish_mode or 'blogger_draft',
+            'schedule': blog.schedule_frequency or 'daily',
+            'last_run_at': blog.last_run_at.isoformat() if blog.last_run_at else None
+        }
+
     settings_file = os.path.join(BASE_DIR, 'settings', f"autopilot_{blog_id}.json")
     if os.path.exists(settings_file):
         try:

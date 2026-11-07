@@ -67,6 +67,10 @@ class Blog(Base):
     client_secret_file = Column(String(500), nullable=True)
     niche_description = Column(Text, nullable=True)
     is_active = Column(Integer, default=0, nullable=False)
+    autopilot_enabled = Column(Boolean, default=False, nullable=False)
+    publish_mode = Column(String(50), default='blogger_draft', nullable=False) # draft, blogger_draft, published
+    schedule_frequency = Column(String(50), default='daily', nullable=False) # hourly, daily, twice_daily
+    last_run_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     user = relationship('User', back_populates='blogs')
@@ -132,4 +136,33 @@ class NotificationSetting(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     user = relationship('User', back_populates='notification_setting')
+
+class Workspace(Base):
+    __tablename__ = 'workspaces'
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    name = Column(String(100), nullable=False)
+    owner_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    owner = relationship('User', backref='owned_workspaces')
+    memberships = relationship('WorkspaceMembership', back_populates='workspace', cascade='all, delete-orphan')
+
+class WorkspaceMembership(Base):
+    __tablename__ = 'workspace_memberships'
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    workspace_id = Column(String(36), ForeignKey('workspaces.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    role = Column(String(50), default='writer', nullable=False) # owner, admin, editor, writer, viewer
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    workspace = relationship('Workspace', back_populates='memberships')
+    user = relationship('User', backref='workspace_memberships')
+
+    __table_args__ = (
+        Index('uq_workspace_user', 'workspace_id', 'user_id', unique=True),
+    )
+
 

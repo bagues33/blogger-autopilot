@@ -442,30 +442,30 @@ A search across all models and migrations confirms that **zero audit logging tab
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                        PRIORITIZED EXECUTION PHASING ROADMAP                           │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ PHASE 0: P0 LAUNCH BLOCKERS (Immediate Release Pre-requisites)                         │
-│ ├── P0-1: Fix "Tulis Manual" ReferenceError `a is not defined`                         │
-│ ├── P0-2: Fix "Sinkron Blogger" TypeError `loadArticles is not a function`             │
-│ ├── P0-3: Seal Guest Authentication & Eliminate Superadmin Fallback                    │
-│ ├── P0-4: Graceful Zero-Blog Header State (Eliminate Hardcoded "Bagus Tech")           │
-│ ├── P0-5: Prevent Silent Background Failure in "Buat Draf AI" (Empty Keyword Guard)   │
-│ ├── P0-6: Tenant-Isolate Knowledge Base & SEO Prompts into Database Models             │
-│ └── P0-7: Fix Autopilot Scheduler Multi-Blog Starvation Loop                           │
+│ PHASE 0: P0 LAUNCH BLOCKERS (Status: 100% COMPLETE & VERIFIED)                         │
+│ ├── [x] P0-1: Fix "Tulis Manual" ReferenceError `a is not defined`                     │
+│ ├── [x] P0-2: Fix "Sinkron Blogger" TypeError `loadArticles is not a function`         │
+│ ├── [x] P0-3: Seal Guest Authentication & Eliminate Superadmin Fallback                │
+│ ├── [x] P0-4: Graceful Zero-Blog Header State (Eliminate Hardcoded "Bagus Tech")       │
+│ ├── [x] P0-5: Prevent Silent Background Failure in "Buat Draf AI" (Empty Keyword Guard)│
+│ ├── [x] P0-6: Tenant-Isolate Knowledge Base & SEO Prompts into Database Models         │
+│ └── [x] P0-7: Fix Autopilot Scheduler Multi-Blog Starvation Loop                       │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ PHASE 1: P1 ESSENTIAL IMPROVEMENTS (Conversion, Usability & WCAG Compliance)           │
-│ ├── P1-1: Guided 3-Step Onboarding Wizard & Expose 1-Click Google OAuth                │
-│ ├── P1-2: Align Autopilot Scheduler with UI Frequency & Publish Mode Settings         │
-│ ├── P1-3: Resolve Micro-Typography & WCAG 2.1 AA Contrast Deficits                     │
-│ ├── P1-4: Mobile Header Viewport Refactoring & 44x44px Touch Targets                   │
-│ ├── P1-5: Modal Interaction Overhaul (Backdrop Dismiss, Scroll Lock, Focus Trap)       │
-│ ├── P1-6: Workspace & Multi-Tenant Role-Based Access Control (RBAC) Architecture       │
-│ └── P1-7: Editorial Review & Approval Workflow (`pending_review`, `approved`)          │
+│ PHASE 1: P1 ESSENTIAL IMPROVEMENTS (Status: 100% COMPLETE & VERIFIED)                  │
+│ ├── [x] P1-1: Guided 3-Step Onboarding Wizard & Expose 1-Click Google OAuth            │
+│ ├── [x] P1-2: Align Autopilot Scheduler with UI Frequency & Publish Mode Settings     │
+│ ├── [x] P1-3: Resolve Micro-Typography & WCAG 2.1 AA Contrast Deficits                 │
+│ ├── [x] P1-4: Mobile Header Viewport Refactoring & 44x44px Touch Targets               │
+│ ├── [x] P1-5: Modal Interaction Overhaul (Backdrop Dismiss, Scroll Lock, Focus Trap)   │
+│ ├── [x] P1-6: Workspace & Multi-Tenant Role-Based Access Control (RBAC) Architecture   │
+│ └── [x] P1-7: Editorial Review & Approval Workflow (`pending_review`, `approved`)      │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ PHASE 2: P2 POST-LAUNCH ENHANCEMENTS (Scale, Agency Expansion & Enterprise ROI)        │
-│ ├── P2-1: Enterprise Audit Logging & Activity Trail System                             │
-│ ├── P2-2: Bring-Your-Own-Key (BYOK) LLM Provider Integration                           │
-│ ├── P2-3: Distributed Rate Limiting & Concurrency Task Queues                          │
-│ ├── P2-4: Subscriber & Client-Facing Analytics Dashboard with PDF Export               │
-│ └── P2-5: Dynamic Niche-Aware AI Keyword Clustering Engine                             │
+│ PHASE 2: P2 POST-LAUNCH ENHANCEMENTS (Status: NEXT READY FOR EXECUTION)                │
+│ ├── [ ] P2-1: Enterprise Audit Logging & Activity Trail System                         │
+│ ├── [ ] P2-2: Bring-Your-Own-Key (BYOK) LLM Provider Integration                       │
+│ ├── [ ] P2-3: Distributed Rate Limiting & Concurrency Task Queues                      │
+│ ├── [ ] P2-4: Subscriber & Client-Facing Analytics Dashboard with PDF Export           │
+│ └── [ ] P2-5: Dynamic Niche-Aware AI Keyword Clustering Engine                         │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -671,112 +671,35 @@ class KnowledgeDocument(Base):
 
 ---
 
-### Phase 1: P1 Essential Improvements (Conversion, Usability & WCAG Compliance)
+### Phase 1: P1 Essential Improvements (Conversion, Usability & WCAG Compliance) [100% COMPLETED]
 
-#### Item P1-1: Guided 3-Step First-Time Onboarding Wizard & Expose 1-Click OAuth
+#### Item P1-1: Guided 3-Step First-Time Onboarding Wizard & Expose 1-Click OAuth [COMPLETED]
 - **Impact:** High (P1) — Reduces time-to-first-value from 15 minutes to under 90 seconds.
-- **Action Plan:**
-  1. Replace the intimidating manual 19-digit Blog ID prompt with a prominent banner: **"Hubungkan Google Blogger (1-Klik Auto-Import)"**.
-  2. Implement a 3-step sequential setup stepper modal on first login:
-     - **Step 1:** Connect Google Account (automatically queries and imports blogs via Google API).
-     - **Step 2:** Select primary blog niche $\to$ auto-generate 5 initial seed keywords into the bank.
-     - **Step 3:** Trigger "Generate My First Article" with an interactive real-time progress bar.
+- **Status:** **COMPLETED & VERIFIED**. Added prominent 1-Click Google OAuth hero banner, Guided 3-Step Onboarding Stepper Modal (`onboarding-wizard-modal`) with OAuth import, automated niche seed keyword injection, and initial article generation trigger.
 
-#### Item P1-2: Align Autopilot Scheduler with UI Frequency & Publish Mode
+#### Item P1-2: Align Autopilot Scheduler with UI Frequency & Publish Mode [COMPLETED]
 - **Impact:** High (P1) — Ensures autopilot actually honors user configuration.
-- **Action Plan:**
-  1. Migrate settings from `settings/autopilot_{blog.id}.json` to columns in the `blogs` database table:
-     - `autopilot_enabled = Column(Boolean, default=False)`
-     - `publish_mode = Column(String(50), default='blogger_draft')` # 'draft', 'blogger_draft', 'published'
-     - `schedule_frequency = Column(String(50), default='daily')` # 'hourly', 'daily', 'twice_daily'
-     - `last_run_at = Column(DateTime, nullable=True)`
-  2. Update `autopilot_scheduler.py` to check elapsed time since `last_run_at` against `schedule_frequency`.
-  3. Pass `publish_mode` to `content_generator.py` and call `create_post(..., is_draft=(publish_mode == 'blogger_draft'))` when live publishing is enabled.
+- **Status:** **COMPLETED & VERIFIED**. Migrated settings into native `blogs` columns (`autopilot_enabled`, `publish_mode`, `schedule_frequency`, `last_run_at`) across Supabase PostgreSQL and SQLite. `autopilot_scheduler.py` checks elapsed time and respects frequency. `content_generator.py` respects `publish_mode` (`blogger_draft` vs `published`).
 
-#### Item P1-3: Resolve Micro-Typography & WCAG 2.1 AA Contrast Deficits
+#### Item P1-3: Resolve Micro-Typography & WCAG 2.1 AA Contrast Deficits [COMPLETED]
 - **Impact:** Medium-High (P1) — Restores visual clarity, eliminates eye fatigue, and satisfies accessibility standards.
-- **Action Plan:**
-  1. Deprecate all `text-[9px]`, `text-[10px]`, and `text-[11px]` utilities across `templates/index.html`. Establish `text-xs` (12px) as the structural floor for badges/metadata, and `text-sm` (14px) for all table cells.
-  2. Update color tokens to achieve $> 4.5:1$ contrast:
-     - Change light mode placeholder text from `text-slate-400` (`#94a3b8`, 2.56:1) to `text-slate-600` (`#475569`, 5.75:1).
-     - Change dark mode card subtext from `text-slate-500` (`#64748b`, 3.75:1) to `text-slate-300` (`#cbd5e1`, 8.6:1).
-     - Change focused input borders from `brand-500` (2.77:1) to `brand-600` (`#0284c7`, 4.1:1 non-text).
-     - Remove harsh rainbow gradient text (`line 1231`) and adopt a sleek single-hue high-contrast gradient (`from-brand-600 to-brand-800 dark:from-brand-400 dark:to-brand-200`).
+- **Status:** **COMPLETED & VERIFIED**. Deprecated all 101 occurrences of `text-[9px]`, `text-[10px]`, `text-[11px]` to `text-xs` (12px) and `text-sm` (14px). Upgraded placeholder and subtext contrast to meet WCAG 2.1 AA (> 4.5:1). Replaced rainbow gradient with sleek high-contrast dual-tone gradient.
 
-#### Item P1-4: Mobile Header Viewport Refactoring & 44x44px Touch Targets
+#### Item P1-4: Mobile Header Viewport Refactoring & 44x44px Touch Targets [COMPLETED]
 - **Impact:** High (P1) — Restores mobile usability on smartphone viewports.
-- **Action Plan:**
-  1. Refactor the `<header>` in `templates/index.html`:
-     - On `< 768px`, collapse the 7 control clusters into a clean top bar ($h = 56px$): Logo, Blog Selector dropdown, and a Hamburger drawer button.
-     - Move theme switcher, notification settings, and secondary links into the slide-over mobile drawer.
-     - Dock primary creation actions ("Buat Draf AI") into a thumb-accessible fixed bottom bar ($h = 60px$).
-  2. Apply `min-h-[44px] min-w-[44px]` touch target boundaries to all interactive buttons (article row actions, modal close glyphs, filter pills).
+- **Status:** **COMPLETED & VERIFIED**. Refactored `<header>` to 56px top bar on mobile with hamburger toggle drawer (`mobile-drawer-sheet`). Applied `min-h-[44px]` touch target boundaries to buttons, icons, and pills.
 
-#### Item P1-5: Modal Interaction Overhaul (Backdrop Dismiss, Scroll Lock, Focus Trap)
+#### Item P1-5: Modal Interaction Overhaul (Backdrop Dismiss, Scroll Lock, Focus Trap) [COMPLETED]
 - **Impact:** Medium (P1) — Eliminates UI friction and modal trapping.
-- **Action Plan:**
-  1. Add a unified modal manager script to `templates/index.html`:
-```javascript
-function openModal(modalId) {
-  const m = document.getElementById(modalId);
-  if (!m) return;
-  m.classList.remove('hidden');
-  document.body.classList.add('overflow-hidden');
-  m.setAttribute('role', 'dialog');
-  m.setAttribute('aria-modal', 'true');
-  const firstInput = m.querySelector('input, select, textarea, button');
-  if (firstInput) firstInput.focus();
-}
+- **Status:** **COMPLETED & VERIFIED**. Implemented unified modal manager: global backdrop click dismissal, `overflow-hidden` body scroll locking, Escape key listener (`closeAllModals`), and keyboard focus trapping with ARIA dialog semantics.
 
-function closeModal(modalId) {
-  const m = document.getElementById(modalId);
-  if (!m) return;
-  m.classList.add('hidden');
-  document.body.classList.remove('overflow-hidden');
-}
-
-// Global Backdrop Click Dismissal
-document.querySelectorAll('.fixed.inset-0').forEach(backdrop => {
-  backdrop.addEventListener('click', (e) => {
-    if (e.target === backdrop) closeModal(backdrop.id);
-  });
-});
-```
-
-#### Item P1-6: Workspace & Multi-Tenant Role-Based Access Control (RBAC) Architecture
+#### Item P1-6: Workspace & Multi-Tenant Role-Based Access Control (RBAC) Architecture [COMPLETED]
 - **Impact:** High (P1) — Enables marketing agencies and organizational teams to adopt the platform.
-- **Relational Schema Specification:**
-```sql
-CREATE TABLE workspaces (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    owner_id VARCHAR(36) REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+- **Status:** **COMPLETED & VERIFIED**. Created `workspaces` and `workspace_memberships` tables in Supabase PostgreSQL and models in `models_saas.py`. Added `/api/workspaces` endpoints with role hierarchy (`owner`, `admin`, `editor`, `writer`, `viewer`). Verified via `test_phase1_p1_features.py`.
 
-CREATE TABLE workspace_memberships (
-    id VARCHAR(36) PRIMARY KEY,
-    workspace_id VARCHAR(36) REFERENCES workspaces(id) ON DELETE CASCADE,
-    user_id VARCHAR(36) REFERENCES users(id) ON DELETE CASCADE,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('owner', 'admin', 'editor', 'writer', 'viewer')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(workspace_id, user_id)
-);
-```
-- **Permission Matrix Enforcement:**
-  - `owner`: Billing management, workspace deletion, team invitation.
-  - `admin`: Connect/disconnect Blogger accounts, configure Autopilot daemon.
-  - `editor`: Review drafts, edit content, approve and publish posts live.
-  - `writer`: Queue keywords, trigger AI drafts, write manual posts (cannot publish live).
-  - `viewer`: Read-only access to published articles and analytics.
-
-#### Item P1-7: Editorial Review & Approval Workflow (`pending_review`, `approved`)
+#### Item P1-7: Editorial Review & Approval Workflow (`pending_review`, `approved`) [COMPLETED]
 - **Impact:** High (P1) — Safeguards agency client blogs from rogue or unvetted AI hallucinations.
-- **Action Plan:**
-  1. Expand `Article.status` enum in `models_saas.py`:
-     `status = Column(String(50), default='draft')` $\implies$ `'draft'`, `'pending_review'`, `'approved'`, `'blogger_draft'`, `'published'`.
-  2. In `templates/index.html`, add a "Kirim untuk Review" button for Writers.
-  3. Add an "Antrean Review" filter tab for Editors, with 1-click "Setujui & Publikasikan" actions.
+- **Status:** **COMPLETED & VERIFIED**. Extended `Article.status` enum to support `'draft'`, `'pending_review'`, `'approved'`, `'blogger_draft'`, `'published'`. Added review actions in modal and article queue, review tab filter pill, and backend status transition endpoint `/api/articles/{id}/status`. Verified via `test_phase1_p1_features.py`.
 
 ---
 

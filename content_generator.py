@@ -460,8 +460,33 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
         except Exception as schema_err:
             logger.warning(f"Schema injection warning: {schema_err}")
 
-        # 7. Atomic Storage Mutation
+        # 7. Atomic Storage Mutation & Publish Mode Handling
         kw.status = 'in_progress'
+
+        pub_mode = getattr(blog, 'publish_mode', 'draft') or 'draft'
+        initial_status = 'draft'
+        blogger_post_id = None
+        blogger_url = None
+
+        if pub_mode in ['blogger_draft', 'published'] and (getattr(blog, 'encrypted_token', None) or getattr(blog, 'token_file', None)):
+            try:
+                from blogger_client import create_post
+                is_draft = (pub_mode == 'blogger_draft')
+                b_post = create_post(
+                    title=title,
+                    content_html=content_html,
+                    labels=labels,
+                    is_draft=is_draft,
+                    token_file=blog.token_file,
+                    blog_id=blog.id,
+                    encrypted_token=blog.encrypted_token
+                )
+                if b_post and b_post.get('id'):
+                    blogger_post_id = str(b_post.get('id'))
+                    blogger_url = b_post.get('url')
+                    initial_status = 'published' if pub_mode == 'published' else 'blogger_draft'
+            except Exception as blog_err:
+                logger.warning(f"Could not sync with Blogger on generation: {blog_err}")
 
         article = Article(
             user_id=user.id,
@@ -471,7 +496,9 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
             meta_description=meta_desc,
             content_html=content_html,
             labels=labels,
-            status='draft'
+            status=initial_status,
+            blogger_post_id=blogger_post_id,
+            blogger_url=blogger_url
         )
         db.add(article)
 

@@ -55,6 +55,10 @@ CREATE TABLE IF NOT EXISTS blogs (
     client_secret_file VARCHAR(500),
     niche_description TEXT,
     is_active INT NOT NULL DEFAULT 0,
+    autopilot_enabled BOOLEAN NOT NULL DEFAULT false,
+    publish_mode VARCHAR(50) NOT NULL DEFAULT 'blogger_draft', -- draft, blogger_draft, published
+    schedule_frequency VARCHAR(50) NOT NULL DEFAULT 'daily', -- hourly, daily, twice_daily
+    last_run_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -108,6 +112,28 @@ CREATE TABLE IF NOT EXISTS notification_settings (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+-- 8. Workspaces & RBAC Tables (For Teams & Agencies)
+CREATE TABLE IF NOT EXISTS workspaces (
+    id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4()::text,
+    name VARCHAR(100) NOT NULL,
+    owner_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS workspace_memberships (
+    id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4()::text,
+    workspace_id VARCHAR(36) NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(50) NOT NULL DEFAULT 'writer', -- owner, admin, editor, writer, viewer
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    UNIQUE(workspace_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_workspaces_owner ON workspaces(owner_id);
+CREATE INDEX IF NOT EXISTS idx_workspace_memberships_ws ON workspace_memberships(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_workspace_memberships_user ON workspace_memberships(user_id);
 
 -- ==============================================================================
 -- ROW-LEVEL SECURITY (RLS) FOR SUPABASE
