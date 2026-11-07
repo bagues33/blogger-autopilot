@@ -25,6 +25,8 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     role = Column(String(50), default='subscriber', nullable=False) # admin, subscriber, agency
     is_active = Column(Boolean, default=True, nullable=False)
+    custom_prompt = Column(Text, nullable=True) # Tenant-isolated system prompt override
+    custom_kb = Column(Text, nullable=True) # Tenant-isolated knowledge base override
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

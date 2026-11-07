@@ -222,7 +222,7 @@
           <div class="relative" id="blog-dropdown-container">
             <button onclick="toggleBlogDropdown()" class="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition text-xs font-semibold text-slate-800 dark:text-slate-200 active:scale-95 shadow-sm" aria-haspopup="true" aria-expanded="false" aria-label="Pilih Blog">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-              <span id="active-blog-display-name">Bagus Tech</span>
+              <span id="active-blog-display-name">Pilih Blog</span>
               <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             
@@ -230,7 +230,7 @@
             <div id="blog-dropdown-menu" class="hidden absolute left-0 mt-2 w-72 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-2 space-y-1 backdrop-blur-xl">
               <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-2 py-1 uppercase tracking-wider flex items-center justify-between">
                 <span>Daftar Blog Terhubung</span>
-                <span id="blog-total-badge" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">1 Blog</span>
+                <span id="blog-total-badge" class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">0 Blog</span>
               </div>
               <div id="blog-items-list" class="space-y-1 max-h-56 overflow-y-auto pr-0.5">
                 <!-- Populated dynamically via JS -->
@@ -246,13 +246,16 @@
         </div>
 
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono flex items-center gap-1.5 flex-wrap" id="active-blog-meta-row">
-          <span>Blog ID: <strong class="text-slate-700 dark:text-slate-300 font-semibold" id="active-blog-id">2940095957137948013</strong></span>
+          <span>Blog ID: <strong class="text-slate-700 dark:text-slate-300 font-semibold" id="active-blog-id">-</strong></span>
           <span>&bull;</span>
-          <a id="active-blog-url" href="https://bagustechnologia.blogspot.com/" target="_blank" rel="noopener noreferrer" class="text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5 font-sans font-medium">bagustechnologia.blogspot.com &nearr;</a>
+          <a id="active-blog-url" href="#" onclick="openAddBlogModal(); return false;" class="text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5 font-sans font-medium">Hubungkan Blog Baru &nearr;</a>
           <span>&bull;</span>
           <button onclick="openAutopilotModal()" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/25 transition active:scale-95" title="Buka pengaturan autopilot blog">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-            <span id="active-blog-autopilot-label">Autopilot: Aktif</span>
+            <span id="active-blog-autopilot-label">Autopilot: Nonaktif</span>
+            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </button>
+        </p>
             <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </button>
         </p>
@@ -1694,15 +1697,43 @@
     }
 
     function renderBlogSelector() {
-      if (!activeBlog) return;
-      document.getElementById('active-blog-display-name').innerText = activeBlog.name;
-      document.getElementById('active-blog-id').innerText = activeBlog.id;
+      const nameEl = document.getElementById('active-blog-display-name');
+      const idEl = document.getElementById('active-blog-id');
       const urlEl = document.getElementById('active-blog-url');
+      const autopilotEl = document.getElementById('active-blog-autopilot-label');
+      const totalBadge = document.getElementById('blog-total-badge');
+      const itemsList = document.getElementById('blog-items-list');
+
+      if (!activeBlog || blogs.length === 0) {
+        if (nameEl) nameEl.innerText = 'Belum Ada Blog';
+        if (idEl) idEl.innerText = '-';
+        if (urlEl) {
+          urlEl.href = '#';
+          urlEl.innerText = 'Hubungkan Blog Baru ↗';
+          urlEl.onclick = (e) => { e.preventDefault(); openAddBlogModal(); };
+        }
+        if (autopilotEl) autopilotEl.innerText = 'Autopilot: Nonaktif';
+        if (totalBadge) totalBadge.innerText = '0 Blog';
+        if (itemsList) {
+          itemsList.innerHTML = `
+            <div class="p-3 text-center text-xs text-slate-500 dark:text-slate-400">
+              Belum ada blog terhubung.<br>
+              <button onclick="openAddBlogModal()" class="mt-2 text-brand-600 dark:text-brand-400 font-bold hover:underline">
+                + Hubungkan Akun Google
+              </button>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      if (nameEl) nameEl.innerText = activeBlog.name;
+      if (idEl) idEl.innerText = activeBlog.id;
       if (urlEl) {
+        urlEl.onclick = null;
         urlEl.href = activeBlog.url || '#';
         urlEl.innerText = (activeBlog.url ? activeBlog.url.replace(/^https?:\/\//, '').replace(/\/$/, '') : activeBlog.name) + ' ↗';
       }
-      const totalBadge = document.getElementById('blog-total-badge');
       if (totalBadge) totalBadge.innerText = blogs.length + ' Blog';
 
       const itemsList = document.getElementById('blog-items-list');
@@ -2392,7 +2423,7 @@
       syncModalContent();
       updateCharCount();
       switchModalView('preview');
-      updateSerpPreview(a.title, a.meta_description);
+      updateSerpPreview('Judul Artikel Baru', 'Deskripsi artikel Anda akan tampil di Google Search snippet.');
       document.getElementById('article-modal').classList.remove('hidden');
     }
 
@@ -2847,20 +2878,22 @@
         const data = await res.json();
         if (data.success) {
           showToast('Permintaan diterima! Draf artikel akan otomatis muncul di antrean saat siap.', 'success', 5000);
+          const checkInterval = setInterval(async () => {
+            await loadData();
+          }, 10000);
+          
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            txt.innerText = 'Buat Draf AI';
+            clearInterval(checkInterval);
+          }, 120000);
         } else {
-          showToast(data.error || 'Gagal memicu agent AI.', 'error', 5000);
-        }
-        
-        const checkInterval = setInterval(async () => {
-          await loadData();
-        }, 10000);
-        
-        setTimeout(() => {
+          showToast(data.error || 'Gagal memicu agent AI.', 'error', 6000);
           btn.disabled = false;
           btn.classList.remove('opacity-70');
           txt.innerText = 'Buat Draf AI';
-          clearInterval(checkInterval);
-        }, 120000);
+        }
       } catch (e) {
         showToast('Terjadi kesalahan: ' + e.message, 'error');
         btn.disabled = false;
@@ -2986,6 +3019,23 @@
           } else {
             adminBtn.classList.add('hidden');
           }
+        }
+
+        // Sync isolated prompt and knowledge base for current tenant
+        try {
+          const [pRes, kRes] = await Promise.all([fetch('/api/prompt'), fetch('/api/kb')]);
+          const pData = await pRes.json();
+          const kData = await kRes.json();
+          if (pData && pData.content !== undefined) {
+            const pe = document.getElementById('prompt-editor');
+            if (pe) pe.value = pData.content;
+          }
+          if (kData && kData.content !== undefined) {
+            const ke = document.getElementById('kb-editor');
+            if (ke) ke.value = kData.content;
+          }
+        } catch (e) {
+          console.error('Error syncing prompt/kb:', e);
         }
       } catch (err) {
         console.error('Error loading current user:', err);
@@ -3267,7 +3317,7 @@
         const data = await res.json();
         if (data.success) {
           showToast(data.message, 'success');
-          await loadArticles();
+          await loadData();
         } else {
           showToast('Gagal sinkronisasi: ' + (data.error || 'Terjadi kesalahan'), 'error');
         }

@@ -6,7 +6,7 @@ and router composition across domain contexts.
 
 import os
 import time
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -83,14 +83,16 @@ def api_health(db: Session = Depends(get_saas_db)):
     }
 
 @app.get('/', response_class=HTMLResponse)
-def index():
-    kb_content = ''
-    if os.path.exists(SEO_KB_PATH):
+def index(request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db)
+    
+    kb_content = (user.custom_kb if user and user.custom_kb else '')
+    if not kb_content and os.path.exists(SEO_KB_PATH):
         with open(SEO_KB_PATH, 'r', encoding='utf-8') as f:
             kb_content = f.read()
             
-    prompt_content = ''
-    if os.path.exists(SEO_PROMPT_PATH):
+    prompt_content = (user.custom_prompt if user and user.custom_prompt else '')
+    if not prompt_content and os.path.exists(SEO_PROMPT_PATH):
         with open(SEO_PROMPT_PATH, 'r', encoding='utf-8') as f:
             prompt_content = f.read()
             

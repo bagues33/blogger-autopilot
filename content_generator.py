@@ -406,14 +406,18 @@ def generate_article(
                 error="Tidak ada keyword berstatus 'planned' yang tersedia."
             )
 
-        # 4. Construct Prompt
+        # 4. Construct Prompt (Tenant isolated with fallback to system defaults)
         master_prompt = ""
-        if os.path.exists(SEO_PROMPT_PATH):
+        if user and getattr(user, 'custom_prompt', None):
+            master_prompt = user.custom_prompt
+        elif os.path.exists(SEO_PROMPT_PATH):
             with open(SEO_PROMPT_PATH, "r", encoding="utf-8") as f:
                 master_prompt = f.read()
 
         kb_notes = ""
-        if os.path.exists(SEO_KB_PATH):
+        if user and getattr(user, 'custom_kb', None):
+            kb_notes = user.custom_kb
+        elif os.path.exists(SEO_KB_PATH):
             with open(SEO_KB_PATH, "r", encoding="utf-8") as f:
                 kb_notes = f.read()
 

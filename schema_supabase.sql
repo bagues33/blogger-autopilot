@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(255),
     role VARCHAR(50) NOT NULL DEFAULT 'subscriber', -- admin, subscriber, agency
     is_active BOOLEAN NOT NULL DEFAULT true,
+    custom_prompt TEXT, -- Tenant-isolated system prompt override
+    custom_kb TEXT, -- Tenant-isolated knowledge base override
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

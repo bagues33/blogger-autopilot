@@ -130,10 +130,18 @@ def api_saas_logout(response: Response):
 def api_saas_me(request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db)
     if not user:
-        user = get_or_create_default_admin(db)
-        is_default = True
-    else:
-        is_default = False
+        return {
+            'authenticated': False,
+            'user': None,
+            'subscription': {
+                'plan_tier': 'free',
+                'status': 'guest',
+                'article_credits_limit': 0,
+                'article_credits_used': 0,
+                'credits_remaining': 0,
+                'current_period_end': None
+            }
+        }
 
     sub = user.subscription
     plan_tier = sub.plan_tier if sub else 'free'
@@ -142,7 +150,7 @@ def api_saas_me(request: Request, db: Session = Depends(get_saas_db)):
     remaining = max(0, credits_limit - credits_used)
 
     return {
-        'authenticated': not is_default,
+        'authenticated': True,
         'user': {
             'id': user.id,
             'email': user.email,

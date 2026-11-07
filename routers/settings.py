@@ -47,18 +47,42 @@ class NotificationTestReq(BaseModel):
 
 # --- Endpoints ---
 
+@router.get('/api/prompt')
+def api_get_prompt(request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
+    if user and user.custom_prompt:
+        return {'success': True, 'content': user.custom_prompt}
+    default_prompt = ''
+    if os.path.exists(SEO_PROMPT_PATH):
+        with open(SEO_PROMPT_PATH, 'r', encoding='utf-8') as f:
+            default_prompt = f.read()
+    return {'success': True, 'content': default_prompt}
+
 @router.post('/api/prompt/save')
 def api_save_prompt(req: PromptSaveReq, request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db) or get_or_create_default_admin(db)
-    with open(SEO_PROMPT_PATH, 'w') as f:
-        f.write(req.content)
+    if user:
+        user.custom_prompt = req.content
+        db.commit()
     return {'success': True}
+
+@router.get('/api/kb')
+def api_get_kb(request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
+    if user and user.custom_kb:
+        return {'success': True, 'content': user.custom_kb}
+    default_kb = ''
+    if os.path.exists(SEO_KB_PATH):
+        with open(SEO_KB_PATH, 'r', encoding='utf-8') as f:
+            default_kb = f.read()
+    return {'success': True, 'content': default_kb}
 
 @router.post('/api/kb/save')
 def api_save_kb(req: KbSaveReq, request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db) or get_or_create_default_admin(db)
-    with open(SEO_KB_PATH, 'w') as f:
-        f.write(req.content)
+    if user:
+        user.custom_kb = req.content
+        db.commit()
     return {'success': True}
 
 @router.post('/api/kb/upload-pdf')
@@ -81,14 +105,15 @@ async def api_upload_pdf(request: Request, files: List[UploadFile] = File(...), 
             if extracted_text:
                 added_texts.append(f"\n\n## Materi Tambahan dari Dokumen PDF: {file.filename}\n" + "\n".join(extracted_text))
                 
-        existing_content = ''
-        if os.path.exists(SEO_KB_PATH):
-            with open(SEO_KB_PATH, 'r') as f:
+        existing_content = user.custom_kb if (user and user.custom_kb) else ''
+        if not existing_content and os.path.exists(SEO_KB_PATH):
+            with open(SEO_KB_PATH, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
                 
         new_content = existing_content + "".join(added_texts)
-        with open(SEO_KB_PATH, 'w') as f:
-            f.write(new_content)
+        if user:
+            user.custom_kb = new_content
+            db.commit()
             
         return {'success': True, 'total_files': len(files), 'total_pages': total_pages, 'content': new_content}
     except Exception as e:

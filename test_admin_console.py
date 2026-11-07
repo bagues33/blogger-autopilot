@@ -52,6 +52,16 @@ def test_admin_console_api():
     cj_admin = http.cookiejar.CookieJar()
     opener_admin = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj_admin))
 
+    # Authenticate as Superadmin
+    login_req = urllib.request.Request(
+        f"{BASE_URL}/api/saas/auth/login",
+        data=json.dumps({"email": "admin@bagustech.id", "password": "admin-saas-password-2026"}).encode(),
+        headers={"Content-Type": "application/json"}
+    )
+    with opener_admin.open(login_req) as res:
+        login_data = json.loads(res.read().decode())
+        assert login_data["success"] is True
+
     # Metrics
     req = urllib.request.Request(f"{BASE_URL}/api/admin/metrics")
     with opener_admin.open(req) as res:

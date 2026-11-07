@@ -22,8 +22,10 @@ router = APIRouter(tags=['Admin'])
 def require_admin(request: Request, db: Session):
     user = get_session_user(request, db)
     if not user:
-        default_admin = get_or_create_default_admin(db)
-        return default_admin
+        # Strict security in production: require active admin authentication
+        if os.environ.get('ENVIRONMENT') == 'production':
+            raise HTTPException(status_code=401, detail="Sesi telah berakhir atau belum login. Silakan login sebagai administrator.")
+        return get_or_create_default_admin(db)
     if user.role != 'admin' and user.email != 'admin@bagustech.id':
         raise HTTPException(status_code=403, detail="Akses ditolak: Hanya untuk Administrator SaaS.")
     return user

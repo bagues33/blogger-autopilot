@@ -51,68 +51,84 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
             if not user or not user.is_active:
                 continue
 
-            # Find active blog for this user
-            blog = db.query(Blog).filter(Blog.user_id == user.id, Blog.is_active == 1).first()
-            if not blog:
-                blog = db.query(Blog).filter(Blog.user_id == user.id).first()
+            # Query all active user blogs up to their plan limit
+            max_blogs = {'free': 1, 'starter': 3, 'pro': 10, 'agency': 50}.get(sub.plan_tier, 1)
+            user_blogs = (
+                db.query(Blog)
+                .filter(Blog.user_id == user.id)
+                .order_by(Blog.is_active.desc(), Blog.created_at.asc())
+                .limit(max_blogs)
+                .all()
+            )
 
-            if not blog:
+            if not user_blogs:
                 logger.debug(f"User {user.email} has no registered blog. Skipping.")
                 continue
 
-            # Find planned keyword for this user and blog
-            kw = db.query(Keyword).filter(
-                Keyword.user_id == user.id,
-                Keyword.blog_id == blog.id,
-                Keyword.status == 'planned'
-            ).order_by(Keyword.id.asc()).first()
+            for blog in user_blogs:
+                if processed_count >= max_per_cycle:
+                    break
+                if sub.article_credits_used >= sub.article_credits_limit:
+                    logger.info(f"User {user.email} reached credit limit ({sub.article_credits_used}/{sub.article_credits_limit}). Skipping further blogs.")
+                    break
 
-            if not kw:
-                # Check keywords without specific blog_id
+                # Find planned keyword for this user and blog
                 kw = db.query(Keyword).filter(
                     Keyword.user_id == user.id,
+                    Keyword.blog_id == blog.id,
                     Keyword.status == 'planned'
                 ).order_by(Keyword.id.asc()).first()
 
-            if not kw:
-                logger.debug(f"User {user.email} has no 'planned' keywords queued. Skipping.")
-                continue
+                if not kw:
+                    # Check keywords without specific blog_id
+                    kw = db.query(Keyword).filter(
+                        Keyword.user_id == user.id,
+                        Keyword.blog_id.is_(None),
+                        Keyword.status == 'planned'
+                    ).order_by(Keyword.id.asc()).first()
 
-            logger.info(f"Executing Autopilot for User: {user.email} (Plan: {sub.plan_tier}) | Blog: {blog.name} | Keyword: '{kw.keyword}'")
-            try:
-                # Trigger autonomous generation for this specific tenant user, blog, and keyword
-                res = generate_article(
-                    tenant_id=user.id,
-                    blog_id=blog.id,
-                    keyword_id=kw.id,
-                    db=db
-                )
-                if res.success:
-                    processed_count += 1
+                if not kw:
+                    logger.debug(f"User {user.email} has no 'planned' keywords queued for blog '{blog.name}'. Skipping.")
+                    continue
+
+                logger.info(f"Executing Autopilot for User: {user.email} (Plan: {sub.plan_tier}) | Blog: {blog.name} | Keyword: '{kw.keyword}'")
+                try:
+                    # Trigger autonomous generation for this specific tenant user, blog, and keyword
+                    res = generate_article(
+                        tenant_id=user.id,
+                        blog_id=blog.id,
+                        keyword_id=kw.id,
+                        db=db
+                    )
+                    if res.success:
+                        processed_count += 1
+                        results.append({
+                            'user_id': user.id,
+                            'email': user.email,
+                            'blog_id': blog.id,
+                            'keyword': kw.keyword,
+                            'status': 'success',
+                            'article_id': res.article_id
+                        })
+                    else:
+                        logger.error(f"Error running content generator for {user.email}: {res.error}")
+                        results.append({
+                            'user_id': user.id,
+                            'email': user.email,
+                            'blog_id': blog.id,
+                            'keyword': kw.keyword,
+                            'error': res.error,
+                            'status': 'failed'
+                        })
+                except Exception as e:
+                    logger.error(f"Unexpected error running content generator for {user.email}: {e}")
                     results.append({
                         'user_id': user.id,
                         'email': user.email,
                         'blog_id': blog.id,
-                        'keyword': kw.keyword,
-                        'status': 'success',
-                        'article_id': res.article_id
-                    })
-                else:
-                    logger.error(f"Error running content generator for {user.email}: {res.error}")
-                    results.append({
-                        'user_id': user.id,
-                        'email': user.email,
-                        'error': res.error,
+                        'error': str(e),
                         'status': 'failed'
                     })
-            except Exception as e:
-                logger.error(f"Unexpected error running content generator for {user.email}: {e}")
-                results.append({
-                    'user_id': user.id,
-                    'email': user.email,
-                    'error': str(e),
-                    'status': 'failed'
-                })
 
         return {
             'success': True,

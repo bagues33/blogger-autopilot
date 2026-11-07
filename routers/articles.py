@@ -257,6 +257,20 @@ def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, 
                 }
             )
 
+    # Check planned keywords availability
+    kw_count = db.query(SaasKeyword).filter(
+        SaasKeyword.user_id == user.id,
+        SaasKeyword.status == 'planned'
+    ).count()
+    if kw_count == 0:
+        return JSONResponse(
+            status_code=400,
+            content={
+                'success': False,
+                'error': "Bank keyword Anda masih kosong. Tambahkan minimal 1 keyword dengan status 'planned' atau gunakan fitur 'Ide Niche' terlebih dahulu."
+            }
+        )
+
     background_tasks.add_task(generate_article, tenant_id=user.id)
     return {'success': True, 'message': 'Agent dimulai di background'}
 
