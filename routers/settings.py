@@ -14,6 +14,7 @@ from pypdf import PdfReader
 from db_saas import get_saas_db
 from models_saas import NotificationSetting
 from notification_service import send_telegram_message, send_webhook_event
+from audit_service import record_audit_log
 from dependencies import (
     get_session_user,
     get_or_create_default_admin,
@@ -44,6 +45,11 @@ class NotificationTestReq(BaseModel):
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
     webhook_url: Optional[str] = None
+
+class ByokSettingsReq(BaseModel):
+    custom_gemini_key: Optional[str] = None
+    custom_openai_key: Optional[str] = None
+    custom_groq_key: Optional[str] = None
 
 # --- Endpoints ---
 
@@ -204,3 +210,60 @@ def api_test_notification(req: NotificationTestReq):
         return {'success': False, 'error': 'Harap masukkan Telegram Bot Token & Chat ID atau Webhook URL untuk diuji.'}
         
     return {'success': True, 'results': results}
+
+def mask_key(k: Optional[str]) -> Optional[str]:
+    if not k:
+        return None
+    k_str = k.strip()
+    if len(k_str) <= 8:
+        return "********"
+    return f"{k_str[:4]}...{k_str[-4:]}"
+
+@router.get('/api/settings/byok')
+def api_get_byok(request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
+    return {
+        'success': True,
+        'byok_active': bool(user.custom_gemini_key or user.custom_openai_key or user.custom_groq_key),
+        'has_gemini': bool(user.custom_gemini_key),
+        'has_openai': bool(user.custom_openai_key),
+        'has_groq': bool(user.custom_groq_key),
+        'masked_gemini': mask_key(user.custom_gemini_key),
+        'masked_openai': mask_key(user.custom_openai_key),
+        'masked_groq': mask_key(user.custom_groq_key),
+    }
+
+@router.post('/api/settings/byok')
+def api_save_byok(req: ByokSettingsReq, request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db) or get_or_create_default_admin(db)
+    
+    updated_providers = []
+    if req.custom_gemini_key is not None:
+        val = req.custom_gemini_key.strip()
+        user.custom_gemini_key = val if val else None
+        updated_providers.append("gemini")
+    if req.custom_openai_key is not None:
+        val = req.custom_openai_key.strip()
+        user.custom_openai_key = val if val else None
+        updated_providers.append("openai")
+    if req.custom_groq_key is not None:
+        val = req.custom_groq_key.strip()
+        user.custom_groq_key = val if val else None
+        updated_providers.append("groq")
+
+    db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="byok.updated",
+        user_id=user.id,
+        metadata={"providers": updated_providers, "byok_active": bool(user.custom_gemini_key or user.custom_openai_key or user.custom_groq_key)},
+        ip_address=request.client.host if request.client else None
+    )
+
+    return {
+        'success': True,
+        'message': 'Kunci API LLM pribadi (BYOK) berhasil diperbarui.',
+        'byok_active': bool(user.custom_gemini_key or user.custom_openai_key or user.custom_groq_key)
+    }
+

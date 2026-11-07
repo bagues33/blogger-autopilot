@@ -27,6 +27,9 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     custom_prompt = Column(Text, nullable=True) # Tenant-isolated system prompt override
     custom_kb = Column(Text, nullable=True) # Tenant-isolated knowledge base override
+    custom_gemini_key = Column(String(255), nullable=True) # BYOK: Private Gemini API key
+    custom_openai_key = Column(String(255), nullable=True) # BYOK: Private OpenAI API key
+    custom_groq_key = Column(String(255), nullable=True)   # BYOK: Private Groq API key
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -164,5 +167,25 @@ class WorkspaceMembership(Base):
     __table_args__ = (
         Index('uq_workspace_user', 'workspace_id', 'user_id', unique=True),
     )
+
+class AuditLog(Base):
+    __tablename__ = 'audit_logs'
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    workspace_id = Column(String(36), ForeignKey('workspaces.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    event_type = Column(String(100), nullable=False, index=True) # e.g. 'article.generated', 'article.approved', 'article.published', 'blog.connected', 'member.added', 'byok.updated'
+    entity_id = Column(String(100), nullable=True)
+    metadata_json = Column(Text, nullable=True)
+    ip_address = Column(String(45), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship('User', backref='audit_logs')
+    workspace = relationship('Workspace', backref='audit_logs')
+
+    __table_args__ = (
+        Index('idx_audit_logs_user_event', 'user_id', 'event_type'),
+    )
+
 
 

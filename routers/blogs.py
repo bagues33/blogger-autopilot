@@ -14,6 +14,8 @@ from sqlalchemy.orm import Session
 
 from db_saas import get_saas_db
 from models_saas import Blog as SaasBlog, Article as SaasArticle
+from rate_limiter import check_rate_limit
+from audit_service import record_audit_log
 from dependencies import (
     get_session_user,
     get_or_create_default_admin,
@@ -89,6 +91,7 @@ def api_select_blog(req: BlogSelectReq, request: Request, db: Session = Depends(
 
     return {'success': True}
 
+@router.post('/api/blogs')
 @router.post('/api/blogs/add')
 def api_add_blog(req: BlogAddReq, request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db) or get_or_create_default_admin(db)
@@ -125,6 +128,15 @@ def api_add_blog(req: BlogAddReq, request: Request, db: Session = Depends(get_sa
         )
         db.add(new_b)
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="blog.connected",
+        user_id=user.id,
+        entity_id=new_b.id,
+        metadata={"name": new_b.name, "url": new_b.url},
+        ip_address=request.client.host if request.client else None
+    )
 
     return {'success': True}
 
@@ -173,6 +185,20 @@ def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, db:
     blog.schedule_frequency = req.schedule
     db.commit()
 
+    record_audit_log(
+        db=db,
+        event_type="blog.autopilot_updated",
+        user_id=user.id,
+        entity_id=blog.id,
+        metadata={
+            "blog_name": blog.name,
+            "autopilot_enabled": blog.autopilot_enabled,
+            "publish_mode": blog.publish_mode,
+            "schedule": blog.schedule_frequency
+        },
+        ip_address=request.client.host if request.client else None
+    )
+
     # Legacy file backup mirror
     settings_dir = os.path.join(BASE_DIR, 'settings')
     os.makedirs(settings_dir, exist_ok=True)
@@ -219,6 +245,7 @@ def api_get_autopilot_settings(blog_id: str, request: Request, db: Session = Dep
 
 @router.post('/api/blogs/{blog_id}/sync-blogger-posts')
 def api_sync_blogger_posts(blog_id: str, request: Request, db: Session = Depends(get_saas_db)):
+    check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="sync")
     user = get_session_user(request, db) or get_or_create_default_admin(db)
     blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id, SaasBlog.user_id == user.id).first()
     if not blog:

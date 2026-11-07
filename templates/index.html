@@ -270,6 +270,11 @@
           <span>🚀 Mulai Cepat</span>
         </button>
 
+        <!-- ROI & Productivity Stats -->
+        <button onclick="openRoiModal()" class="min-h-[44px] px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1.5" title="Buka statistik produktivitas dan estimasi ROI">
+          <span>📈 ROI & Statistik</span>
+        </button>
+
         <!-- Light / Dark Theme Switcher Button -->
         <button id="btn-theme-toggle" onclick="toggleTheme()" class="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition active:scale-95 shadow-sm flex items-center justify-center" title="Beralih Tema Terang / Gelap" aria-label="Beralih Tema">
           <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -319,6 +324,18 @@
             <button onclick="toggleLandingPreview(true); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
               <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
               <span>Halaman Promosi SaaS</span>
+            </button>
+            <button onclick="openRoiModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
+              <span class="text-emerald-500 font-bold">📈</span>
+              <span>Statistik & Estimasi ROI</span>
+            </button>
+            <button onclick="openByokModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
+              <span class="text-amber-500 font-bold">🔑</span>
+              <span>Kunci API Pribadi (BYOK)</span>
+            </button>
+            <button onclick="openAuditModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
+              <span class="text-indigo-500 font-bold">📋</span>
+              <span>Riwayat Audit Trail</span>
             </button>
             <button onclick="openNotificationModal(); toggleUserDropdown(false);" class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center gap-2">
               <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -1615,6 +1632,150 @@
       <div class="px-6 py-3.5 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
         <span>Blogger Auto-Pilot Multi-Tenant Control Layer</span>
         <button onclick="closeAdminModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. ROI & Productivity Analytics Modal -->
+  <div id="roi-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="roi-modal-title">
+    <div class="bg-white dark:bg-[#0b101b] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#0f172a]">
+        <div>
+          <h3 id="roi-modal-title" class="font-bold text-slate-900 dark:text-white text-base">📈 Statistik & Estimasi ROI Konten</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Analisis efisiensi biaya dan waktu pembuatan konten SEO blog Anda</p>
+        </div>
+        <button onclick="closeModal('roi-modal')" class="min-h-[44px] min-w-[44px] p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center" aria-label="Tutup Modal ROI">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6">
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-2 gap-3.5">
+          <div class="bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 border-l-4 border-l-brand-600">
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Artikel Dibuat</p>
+            <h4 id="roi-total-articles" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</h4>
+            <span id="roi-articles-sub" class="text-xs text-slate-500">0 live | 0 draft</span>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 border-l-4 border-l-emerald-600">
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Jam Kerja Hemat</p>
+            <h4 id="roi-hours-saved" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0 Jam</h4>
+            <span id="roi-hours-sub" class="text-xs text-slate-500">~0 hari kerja copywriter</span>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 border-l-4 border-l-amber-500">
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Efisiensi Anggaran</p>
+            <h4 id="roi-cost-saved" class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">Rp 0</h4>
+            <span class="text-xs text-slate-500">Standar IDR 150 / kata SEO</span>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 border-l-4 border-l-indigo-600">
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rasio Publikasi Sukses</p>
+            <h4 id="roi-success-rate" class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">0%</h4>
+            <span id="roi-words-total" class="text-xs text-slate-500">0 total kata dihasilkan</span>
+          </div>
+        </div>
+
+        <!-- Export Action Card -->
+        <div class="bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border border-brand-200 dark:border-brand-500/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm">Unduh Laporan ROI Klien</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Cetak langsung atau simpan dalam format PDF untuk pelaporan kepada klien dan pimpinan.</p>
+          </div>
+          <button onclick="window.open('/api/analytics/report', '_blank')" class="min-h-[44px] px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 shrink-0 flex items-center gap-2 active:scale-95">
+            <span>🖨️ Cetak / Ekspor PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <button onclick="closeModal('roi-modal')" class="min-h-[44px] px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. BYOK (Bring-Your-Own-Key) Settings Modal -->
+  <div id="byok-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="byok-modal-title">
+    <div class="bg-white dark:bg-[#0b101b] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#0f172a]">
+        <div>
+          <h3 id="byok-modal-title" class="font-bold text-slate-900 dark:text-white text-base">🔑 Kunci API LLM Pribadi (BYOK)</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gunakan kuota API AI Anda sendiri untuk bypass limit kredit SaaS</p>
+        </div>
+        <button onclick="closeModal('byok-modal')" class="min-h-[44px] min-w-[44px] p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center" aria-label="Tutup Modal BYOK">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4">
+        <div id="byok-status-banner" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+
+        <div>
+          <label for="byok-gemini-key" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Google Gemini API Key</label>
+          <input type="password" id="byok-gemini-key" placeholder="AIzaSy... (kosongkan untuk hapus)" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          <p id="byok-gemini-masked" class="text-[11px] text-slate-500 mt-1">Belum diatur</p>
+        </div>
+
+        <div>
+          <label for="byok-openai-key" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">OpenAI API Key</label>
+          <input type="password" id="byok-openai-key" placeholder="sk-proj-... (kosongkan untuk hapus)" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          <p id="byok-openai-masked" class="text-[11px] text-slate-500 mt-1">Belum diatur</p>
+        </div>
+
+        <div>
+          <label for="byok-groq-key" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Groq Cloud API Key</label>
+          <input type="password" id="byok-groq-key" placeholder="gsk_... (kosongkan untuk hapus)" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          <p id="byok-groq-masked" class="text-[11px] text-slate-500 mt-1">Belum diatur</p>
+        </div>
+
+        <div class="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl text-xs text-amber-700 dark:text-amber-300">
+          💡 <strong>Keuntungan BYOK:</strong> Artikel yang dihasilkan dengan kunci API pribadi Anda tidak memotong kuota kredit bulanan paket SaaS.
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeModal('byok-modal')" class="min-h-[44px] px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button onclick="saveByokSettings()" class="min-h-[44px] px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">Simpan Kunci API</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. Enterprise Audit Trail Modal -->
+  <div id="audit-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title">
+    <div class="bg-white dark:bg-[#0b101b] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#0f172a]">
+        <div>
+          <h3 id="audit-modal-title" class="font-bold text-slate-900 dark:text-white text-base">📋 Riwayat Audit Trail & Kepatuhan</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Rekam jejak setiap aksi penerbitan, pembuatan draf, dan integrasi blog</p>
+        </div>
+        <button onclick="closeModal('audit-modal')" class="min-h-[44px] min-w-[44px] p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center" aria-label="Tutup Modal Audit">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto">
+        <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-[#0f172a] text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Waktu</th>
+                <th class="py-3 px-4">Aktivitas (Event)</th>
+                <th class="py-3 px-4">Entitas ID</th>
+                <th class="py-3 px-4">IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="audit-logs-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
+              <tr>
+                <td colspan="4" class="text-center py-8 text-slate-500 text-xs">Memuat riwayat aktivitas...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <button onclick="closeModal('audit-modal')" class="min-h-[44px] px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition">Tutup</button>
       </div>
     </div>
   </div>
@@ -4088,6 +4249,146 @@
           });
         }
       });
+    }
+
+    // --- Phase 2: ROI & Productivity Analytics ---
+    function openRoiModal() {
+      openModal('roi-modal');
+      loadRoiData();
+    }
+
+    async function loadRoiData() {
+      try {
+        const res = await fetch('/api/analytics/roi');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.metrics) {
+          const m = data.metrics;
+          const totalEl = document.getElementById('roi-total-articles');
+          const subEl = document.getElementById('roi-articles-sub');
+          const hoursEl = document.getElementById('roi-hours-saved');
+          const hoursSub = document.getElementById('roi-hours-sub');
+          const costEl = document.getElementById('roi-cost-saved');
+          const rateEl = document.getElementById('roi-success-rate');
+          const wordsEl = document.getElementById('roi-words-total');
+
+          if (totalEl) totalEl.innerText = m.total_articles;
+          if (subEl) subEl.innerText = `${m.published_count} live | ${m.draft_count} draft`;
+          if (hoursEl) hoursEl.innerText = `${m.hours_saved} Jam`;
+          if (hoursSub) hoursSub.innerText = `~${(m.hours_saved / 8).toFixed(1)} hari kerja copywriter`;
+          if (costEl) costEl.innerText = m.cost_saved_formatted;
+          if (rateEl) rateEl.innerText = `${m.success_rate_percent}%`;
+          if (wordsEl) wordsEl.innerText = `${Number(m.total_words).toLocaleString('id-ID')} kata dihasilkan`;
+        }
+      } catch (err) {
+        console.error('Error loading ROI data:', err);
+      }
+    }
+
+    // --- Phase 2: BYOK (Bring-Your-Own-Key) ---
+    function openByokModal() {
+      openModal('byok-modal');
+      loadByokSettings();
+    }
+
+    async function loadByokSettings() {
+      try {
+        const res = await fetch('/api/settings/byok');
+        if (!res.ok) return;
+        const d = await res.json();
+        const gMask = document.getElementById('byok-gemini-masked');
+        const oMask = document.getElementById('byok-openai-masked');
+        const rMask = document.getElementById('byok-groq-masked');
+        const banner = document.getElementById('byok-status-banner');
+
+        if (gMask) gMask.innerText = d.has_gemini ? `Aktif: ${d.masked_gemini}` : 'Belum diatur';
+        if (oMask) oMask.innerText = d.has_openai ? `Aktif: ${d.masked_openai}` : 'Belum diatur';
+        if (rMask) rMask.innerText = d.has_groq ? `Aktif: ${d.masked_groq}` : 'Belum diatur';
+
+        if (banner) {
+          if (d.byok_active) {
+            banner.className = 'p-3 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30';
+            banner.innerHTML = '✅ Mode BYOK Aktif: Sistem menggunakan kuota token API pribadi Anda.';
+            banner.classList.remove('hidden');
+          } else {
+            banner.classList.add('hidden');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading BYOK:', err);
+      }
+    }
+
+    async function saveByokSettings() {
+      const g = document.getElementById('byok-gemini-key').value;
+      const o = document.getElementById('byok-openai-key').value;
+      const r = document.getElementById('byok-groq-key').value;
+
+      const payload = {};
+      if (g) payload.custom_gemini_key = g;
+      if (o) payload.custom_openai_key = o;
+      if (r) payload.custom_groq_key = r;
+
+      try {
+        const res = await fetch('/api/settings/byok', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Kunci API BYOK berhasil disimpan.', 'success');
+          document.getElementById('byok-gemini-key').value = '';
+          document.getElementById('byok-openai-key').value = '';
+          document.getElementById('byok-groq-key').value = '';
+          loadByokSettings();
+        } else {
+          showToast('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'), 'error');
+        }
+      } catch (err) {
+        showToast('Error koneksi: ' + err.message, 'error');
+      }
+    }
+
+    // --- Phase 2: Audit Logs ---
+    function openAuditModal() {
+      openModal('audit-modal');
+      loadAuditLogs();
+    }
+
+    async function loadAuditLogs() {
+      const tbody = document.getElementById('audit-logs-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500 text-xs">Mengambil catatan audit...</td></tr>';
+
+      try {
+        const res = await fetch('/api/audit-logs?limit=30');
+        if (!res.ok) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">Gagal memuat catatan audit.</td></tr>';
+          return;
+        }
+        const data = await res.json();
+        if (!data.logs || data.logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500 text-xs">Belum ada riwayat aktivitas yang tercatat.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.logs.map(l => {
+          const dt = l.created_at ? new Date(l.created_at).toLocaleString('id-ID', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}) : '-';
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+              <td class="py-2.5 px-4 font-mono text-xs text-slate-500">${dt}</td>
+              <td class="py-2.5 px-4 font-semibold text-slate-900 dark:text-white">
+                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono">${l.event_type}</span>
+              </td>
+              <td class="py-2.5 px-4 font-mono text-xs text-slate-600 dark:text-slate-400">${l.entity_id || '-'}</td>
+              <td class="py-2.5 px-4 text-slate-500 font-mono text-xs">${l.ip_address || '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">Error: ${err.message}</td></tr>`;
+      }
     }
 
     async function init() {

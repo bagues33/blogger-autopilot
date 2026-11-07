@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS users (
     is_active BOOLEAN NOT NULL DEFAULT true,
     custom_prompt TEXT, -- Tenant-isolated system prompt override
     custom_kb TEXT, -- Tenant-isolated knowledge base override
+    custom_gemini_key VARCHAR(255), -- BYOK: Private Gemini API key
+    custom_openai_key VARCHAR(255), -- BYOK: Private OpenAI API key
+    custom_groq_key VARCHAR(255),   -- BYOK: Private Groq API key
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -134,6 +137,21 @@ CREATE TABLE IF NOT EXISTS workspace_memberships (
 CREATE INDEX IF NOT EXISTS idx_workspaces_owner ON workspaces(owner_id);
 CREATE INDEX IF NOT EXISTS idx_workspace_memberships_ws ON workspace_memberships(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_workspace_memberships_user ON workspace_memberships(user_id);
+
+-- 9. Enterprise Audit Logging Table
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4()::text,
+    workspace_id VARCHAR(36) REFERENCES workspaces(id) ON DELETE CASCADE,
+    user_id VARCHAR(36) REFERENCES users(id) ON DELETE SET NULL,
+    event_type VARCHAR(100) NOT NULL, -- 'article.generated', 'article.approved', 'article.published', 'blog.connected', etc.
+    entity_id VARCHAR(100),
+    metadata_json JSONB,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_event ON audit_logs(user_id, event_type);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_workspace ON audit_logs(workspace_id);
 
 -- ==============================================================================
 -- ROW-LEVEL SECURITY (RLS) FOR SUPABASE

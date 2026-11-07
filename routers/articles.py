@@ -19,6 +19,8 @@ from image_service import process_and_upload_image
 from schema_builder import inject_schema_if_missing
 from notification_service import dispatch_notification
 from content_generator import generate_article
+from audit_service import record_audit_log
+from rate_limiter import check_rate_limit
 from dependencies import get_session_user, get_or_create_default_admin, BASE_DIR
 
 router = APIRouter(tags=['Articles'])
@@ -72,6 +74,7 @@ def api_get_articles(request: Request, blog_id: Optional[str] = None, db: Sessio
         for a in arts
     ]
 
+@router.post('/api/articles')
 @router.post('/api/articles/save')
 def api_save_article(req: ArticleSaveReq, request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db) or get_or_create_default_admin(db)
@@ -124,8 +127,9 @@ def api_save_article(req: ArticleSaveReq, request: Request, db: Session = Depend
             kw.status = 'in_progress'
 
     db.commit()
+    db.refresh(art)
 
-    return {'success': True}
+    return {'success': True, 'id': art.id}
 
 @router.post('/api/articles/{article_id}/publish')
 def api_publish_article(article_id: int, request: Request, is_draft: Optional[bool] = None, req: Optional[ArticlePublishReq] = None, db: Session = Depends(get_saas_db)):
@@ -224,6 +228,21 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
         except Exception as notify_err:
             print(f"[NOTIFICATION] Warning: {notify_err}")
 
+        # Record Audit Log
+        record_audit_log(
+            db=db,
+            event_type="article.published" if not target_draft else "article.draft_synced",
+            user_id=user.id,
+            entity_id=str(art.id),
+            metadata={
+                "title": art_title,
+                "url": blogger_url,
+                "post_id": blogger_post_id,
+                "is_draft": target_draft
+            },
+            ip_address=request.client.host if request.client else None
+        )
+
         return {
             'success': True,
             'action': action,
@@ -240,8 +259,17 @@ def api_delete_article(article_id: int, request: Request, db: Session = Depends(
     user = get_session_user(request, db) or get_or_create_default_admin(db)
     art = db.query(SaasArticle).filter(SaasArticle.id == article_id, SaasArticle.user_id == user.id).first()
     if art:
+        art_title = art.title
         db.delete(art)
         db.commit()
+        record_audit_log(
+            db=db,
+            event_type="article.deleted",
+            user_id=user.id,
+            entity_id=str(article_id),
+            metadata={"title": art_title},
+            ip_address=request.client.host if request.client else None
+        )
 
     return {'success': True}
 
@@ -257,9 +285,23 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
     if target_status not in allowed:
         raise HTTPException(status_code=400, detail=f"Status tidak valid. Pilihan: {', '.join(allowed)}")
 
+    old_status = art.status
     art.status = target_status
     art.updated_at = datetime.now(timezone.utc)
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type=f"article.{target_status}",
+        user_id=user.id,
+        entity_id=str(art.id),
+        metadata={
+            "title": art.title,
+            "old_status": old_status,
+            "new_status": target_status
+        },
+        ip_address=request.client.host if request.client else None
+    )
 
     return {
         'success': True,
@@ -269,6 +311,7 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
 
 @router.post('/api/agent/generate-now')
 def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_saas_db)):
+    check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="generate")
     user = get_session_user(request, db) or get_or_create_default_admin(db)
     
     # Check tenant quota

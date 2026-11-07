@@ -44,6 +44,40 @@ class InMemoryRateLimiter:
 
 limiter = InMemoryRateLimiter()
 
+class ConcurrencyLimiter:
+    """
+    Limits simultaneous long-running operations (like LLM content generation) per tenant/user.
+    """
+    def __init__(self, max_concurrent: int = 2):
+        self.max_concurrent = max_concurrent
+        self.in_flight: Dict[str, int] = {}
+
+    def acquire(self, key: str) -> bool:
+        current = self.in_flight.get(key, 0)
+        if current >= self.max_concurrent:
+            return False
+        self.in_flight[key] = current + 1
+        return True
+
+    def release(self, key: str):
+        if key in self.in_flight:
+            self.in_flight[key] = max(0, self.in_flight[key] - 1)
+            if self.in_flight[key] == 0:
+                del self.in_flight[key]
+
+concurrency_limiter = ConcurrencyLimiter(max_concurrent=2)
+
+def check_concurrency(key: str, max_concurrent: int = 2):
+    if not concurrency_limiter.acquire(key):
+        raise HTTPException(
+            status_code=429,
+            detail="Tugas pembuatan artikel sedang berjalan untuk akun Anda. Silakan tunggu tugas selesai sebelum memicu yang baru.",
+            headers={"Retry-After": "5"}
+        )
+
+def release_concurrency(key: str):
+    concurrency_limiter.release(key)
+
 def get_client_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:

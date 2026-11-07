@@ -19,6 +19,7 @@ from db_saas import SessionLocal, BASE_DIR
 from models_saas import User, Blog, Keyword, Article, Subscription
 from schema_builder import inject_schema_if_missing
 from notification_service import dispatch_notification
+from audit_service import record_audit_log
 
 logger = logging.getLogger("ContentGenerator")
 
@@ -178,7 +179,8 @@ class BaseLLMAdapter(ABC):
         keyword: str,
         search_intent: str,
         blog_name: str,
-        blog_url: str
+        blog_url: str,
+        custom_keys: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         pass
 
@@ -241,11 +243,13 @@ class LiveLLMAdapter(BaseLLMAdapter):
         keyword: str,
         search_intent: str,
         blog_name: str,
-        blog_url: str
+        blog_url: str,
+        custom_keys: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
-        gemini_key = os.environ.get('GEMINI_API_KEY')
-        groq_key = os.environ.get('GROQ_API_KEY')
-        openai_key = os.environ.get('OPENAI_API_KEY')
+        keys = custom_keys or {}
+        gemini_key = keys.get('gemini_key') or os.environ.get('GEMINI_API_KEY')
+        groq_key = keys.get('groq_key') or os.environ.get('GROQ_API_KEY')
+        openai_key = keys.get('openai_key') or os.environ.get('OPENAI_API_KEY')
 
         if gemini_key:
             try:
@@ -296,13 +300,15 @@ class InMemoryLLMAdapter(BaseLLMAdapter):
         keyword: str,
         search_intent: str,
         blog_name: str,
-        blog_url: str
+        blog_url: str,
+        custom_keys: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         self.call_history.append({
             'keyword': keyword,
             'search_intent': search_intent,
             'blog_name': blog_name,
-            'blog_url': blog_url
+            'blog_url': blog_url,
+            'custom_keys': custom_keys
         })
         if self.canned_response:
             return self.canned_response
@@ -359,7 +365,12 @@ def generate_article(
                 )
 
         sub = user.subscription
-        if sub and sub.article_credits_used >= sub.article_credits_limit:
+        is_byok = bool(
+            getattr(user, 'custom_gemini_key', None) or
+            getattr(user, 'custom_openai_key', None) or
+            getattr(user, 'custom_groq_key', None)
+        )
+        if sub and not is_byok and sub.article_credits_used >= sub.article_credits_limit:
             return ArticleGenerationResult(
                 success=False,
                 error=f"Kuota kredit artikel tenant telah habis ({sub.article_credits_used}/{sub.article_credits_limit})."
@@ -432,6 +443,12 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
 """
 
         # 5. Invoke LLM via Seam Adapter
+        custom_keys = {
+            'gemini_key': getattr(user, 'custom_gemini_key', None),
+            'openai_key': getattr(user, 'custom_openai_key', None),
+            'groq_key': getattr(user, 'custom_groq_key', None)
+        } if is_byok else None
+
         adapter = llm_adapter or get_llm_adapter()
         raw_article = adapter.generate_content(
             system_prompt=combined_system_prompt,
@@ -439,7 +456,8 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
             keyword=kw.keyword,
             search_intent=kw.search_intent or 'Informational',
             blog_name=blog.name,
-            blog_url=blog.url or ''
+            blog_url=blog.url or '',
+            custom_keys=custom_keys
         )
 
         # 6. Sanitize Metadata & Inject Schema
@@ -502,11 +520,25 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
         )
         db.add(article)
 
-        if sub:
+        if sub and not is_byok:
             sub.article_credits_used += 1
 
         db.commit()
         db.refresh(article)
+
+        # Audit Logging
+        record_audit_log(
+            db=db,
+            event_type="article.generated",
+            user_id=user.id,
+            entity_id=str(article.id),
+            metadata={
+                "title": title,
+                "keyword": kw.keyword,
+                "status": initial_status,
+                "byok": is_byok
+            }
+        )
 
         remaining_credits = (sub.article_credits_limit - sub.article_credits_used) if sub else None
 
