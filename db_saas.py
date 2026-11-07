@@ -13,9 +13,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_database_url() -> str:
     raw_url = os.environ.get('DATABASE_URL', '').strip()
     if raw_url:
-        # Normalize postgres:// to postgresql:// for modern SQLAlchemy
+        # Normalize postgres:// or postgresql:// to postgresql+psycopg2:// for seamless driver compatibility
         if raw_url.startswith('postgres://'):
-            raw_url = raw_url.replace('postgres://', 'postgresql://', 1)
+            raw_url = 'postgresql+psycopg2://' + raw_url[len('postgres://'):]
+        elif raw_url.startswith('postgresql://'):
+            raw_url = 'postgresql+psycopg2://' + raw_url[len('postgresql://'):]
         return raw_url
         
     # Local fallback SQLite
