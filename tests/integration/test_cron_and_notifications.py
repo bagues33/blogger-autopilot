@@ -90,3 +90,4 @@ def test_notification_settings_and_test_dispatch(tenant_factory):
     assert mock_adapter.sent_telegrams[-1]["chat_id"] == "987654321"
     assert "Tes Notifikasi Berhasil" in mock_adapter.sent_telegrams[-1]["message_text"]
     assert len(mock_adapter.sent_webhooks) >= 1
+

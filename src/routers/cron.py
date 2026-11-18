@@ -18,7 +18,8 @@ from autopilot_scheduler import run_scheduler_cycle, get_scheduler_status
 logger = logging.getLogger("CronRouter")
 router = APIRouter(tags=["Autopilot & Cron"])
 
-CRON_SECRET_KEY = os.environ.get("CRON_SECRET_KEY", "blogger-autopilot-cron-secret-2026")
+def get_cron_secret() -> str:
+    return os.environ.get("CRON_SECRET_KEY", "blogger-autopilot-cron-secret-2026").strip()
 
 def verify_cron_access(
     request: Request,
@@ -31,18 +32,21 @@ def verify_cron_access(
     Verifies that the request carries a valid Cron Secret Token
     or originates from an authenticated superadmin session.
     """
+    secret = get_cron_secret()
+
     # 1. Check Query parameter ?key=
-    if key and key == CRON_SECRET_KEY:
+    if key and key.strip() == secret:
         return True
 
     # 2. Check X-Cron-Key header
-    if x_cron_key and x_cron_key == CRON_SECRET_KEY:
+    if x_cron_key and x_cron_key.strip() == secret:
         return True
 
     # 3. Check Authorization: Bearer <key>
     if authorization and authorization.startswith("Bearer "):
         bearer_token = authorization.split(" ", 1)[1].strip()
-        if bearer_token == CRON_SECRET_KEY:
+        if bearer_token == secret:
+            return True
             return True
 
     # 4. Check if originating from an authenticated Admin user session
@@ -85,3 +89,4 @@ def api_cron_trigger_cycle(
     logger.info(f"Cron cycle triggered via HTTP API (max_per_cycle={max_per_cycle}, force={force})")
     result = run_scheduler_cycle(max_per_cycle=max_per_cycle, force=force)
     return result
+
