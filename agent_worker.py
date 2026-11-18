@@ -7,7 +7,7 @@ backward-compatible CLI and programmatic interfaces.
 
 import sys
 from typing import Optional
-from content_generator import (
+from src.services.content_generator import (
     generate_article,
     ArticleGenerationResult,
     BaseLLMAdapter,

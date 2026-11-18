@@ -15,7 +15,7 @@ IF NOT EXIST ".venv" (
 
 IF NOT EXIST "data_saas.db" (
     echo [INFO] Menginisialisasi basis data...
-    call .venv\Scripts\python -c "import db_saas; db_saas.init_saas_db()"
+    call .venv\Scripts\python -c "from src.core.database import init_saas_db; init_saas_db()"
 )
 
 echo [INFO] Membuka browser ke http://localhost:8090 ...

@@ -1,0 +1,182 @@
+<!-- Preview & Edit Article Modal -->
+  <div id="article-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title-header">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-5xl h-[94vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm" aria-hidden="true">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h3 id="modal-title-header" class="font-bold text-slate-900 dark:text-white text-base leading-tight">Preview & Edit Draf Artikel</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Pemeriksaan kualitas On-Page SEO sebelum publikasi resmi ke Blogger</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <span id="modal-word-badge" class="text-xs font-mono font-semibold px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 border border-brand-200 dark:border-brand-500/30">0 kata</span>
+          <button onclick="closeArticleModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Tutup Modal">&times;</button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-white dark:bg-[#0b1120]">
+        <input type="hidden" id="modal-article-id">
+        
+        <!-- SEO Health Audit Banner -->
+        <div class="p-4 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between flex-wrap gap-4 shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-mono font-extrabold text-white text-lg shadow-md shadow-emerald-500/20 shrink-0" id="seo-score-badge">95</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">Skor Kualitas SEO & Standar E-E-A-T</span>
+                <span id="seo-score-status" class="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">Sangat Optimal</span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="seo-score-summary">Panjang judul, meta deskripsi, dan struktur konten sesuai panduan Google Search.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap text-xs">
+            <span id="seo-check-title" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Judul SERP</span>
+            <span id="seo-check-meta" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Meta Deskripsi</span>
+            <span id="seo-check-words" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Panjang Kata</span>
+            <span id="seo-check-schema" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ FAQPage Schema</span>
+            <span id="seo-check-img" class="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-medium">✓ Gambar WebP</span>
+          </div>
+        </div>
+
+        <!-- Google SERP Snippet Live Preview -->
+        <div class="p-4 bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <span>Live Google Search SERP Preview</span>
+            </span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Tampilan Snippet di Google</span>
+          </div>
+          <div class="p-3.5 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-xl max-w-2xl font-sans">
+            <div class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mb-1 truncate font-mono" id="serp-preview-url">
+              https://bagustechnologia.blogspot.com › artikel
+            </div>
+            <div class="text-base font-semibold text-blue-700 dark:text-blue-400 hover:underline cursor-pointer leading-snug line-clamp-1" id="serp-preview-title">
+              Judul Artikel Anda Akan Tampil di Sini
+            </div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 mt-1 line-clamp-2 leading-relaxed" id="serp-preview-meta">
+              Deskripsi artikel akan tampil di hasil pencarian Google agar menarik minat pembaca.
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 1: Title -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="modal-article-title" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Judul Artikel (H1)</label>
+            <span id="title-char-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 50-60)</span>
+          </div>
+          <input type="text" id="modal-article-title" oninput="updateCharCount()" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <!-- Row 2: Target Keyword & Labels -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="modal-article-keyword" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Target Primary Keyword</label>
+            <input type="text" id="modal-article-keyword" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label for="modal-article-labels" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Labels / Tags</label>
+            <input type="text" id="modal-article-labels" placeholder="Tech, Tutorial, SEO" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+          </div>
+        </div>
+
+        <!-- Row 3: Meta Description -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="modal-article-meta" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Meta Description</label>
+            <span id="meta-char-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 karakter (Ideal: 140-155)</span>
+          </div>
+          <textarea id="modal-article-meta" rows="2" oninput="updateCharCount()" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
+        </div>
+
+        <!-- Row 4: Image Helper Tools (Upload / Insert Image) -->
+        <div class="bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Kelola & Sisipkan Gambar (Image SEO)</span>
+            </span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Format: &lt;figure&gt; + &lt;img alt&gt; + &lt;figcaption&gt;</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 text-xs">
+            <div class="md:col-span-4">
+              <input type="text" id="img-url-input" placeholder="URL Gambar (Unsplash/CDN/Hosting)" class="w-full bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-3">
+              <input type="text" id="img-alt-input" placeholder="Alt Text (Sertakan Keyword)" class="w-full bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-3">
+              <input type="text" id="img-caption-input" placeholder="Caption / Keterangan Gambar" class="w-full bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition">
+            </div>
+            <div class="md:col-span-2 flex items-center gap-1.5">
+              <label for="modal-img-upload" class="cursor-pointer flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-center font-medium transition active:scale-95 border border-slate-200 dark:border-slate-700">
+                <span>Upload</span>
+              </label>
+              <input type="file" id="modal-img-upload" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+              <button type="button" onclick="insertImageSnippet()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-semibold transition active:scale-95 shadow-sm">+ Sisipkan</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Content Tabs (Visual Render vs Raw HTML) -->
+        <div class="flex flex-col space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div class="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800" role="tablist">
+              <button id="btn-tab-preview" onclick="switchModalView('preview')" class="px-3 py-1 text-xs font-semibold rounded bg-brand-600 text-white shadow-sm transition" role="tab">Visual Preview</button>
+              <button id="btn-tab-code" onclick="switchModalView('code')" class="px-3 py-1 text-xs font-semibold rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition" role="tab">Raw HTML</button>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="content-word-count" class="text-xs font-mono text-brand-600 dark:text-brand-400 font-semibold">0 kata (~0 mnt baca)</span>
+              <span class="text-xs text-slate-400 hidden sm:inline">&bull;</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Format HTML siap terbit ke Blogger</span>
+            </div>
+          </div>
+
+          <!-- Visual Rendered Container -->
+          <div id="modal-render-container" class="bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl p-5 min-h-[300px] max-h-[420px] overflow-y-auto prose-rendered">
+            <!-- Content rendered via innerHTML -->
+          </div>
+
+          <!-- Raw Code Container -->
+          <div id="modal-code-container" class="hidden">
+            <textarea id="modal-article-content" rows="14" oninput="syncModalContent()" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500 transition resize-none leading-relaxed"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between shrink-0 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <button onclick="saveArticleDraft()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
+            <span>Simpan Perubahan</span>
+          </button>
+          <button id="btn-delete-article" onclick="deleteCurrentArticle()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-rose-700 dark:text-red-400 border border-rose-200 dark:border-red-500/30 rounded-xl text-xs font-semibold transition active:scale-95">
+            <span>Hapus Draf</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="closeArticleModal()" class="px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 text-xs font-medium">Tutup</button>
+          <button id="btn-request-review" onclick="submitModalForReview()" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-1.5" title="Kirim draf untuk ditinjau editor">
+            <span>⏳ Minta Review</span>
+          </button>
+          <button id="btn-approve-article" onclick="approveModalArticle()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-1.5" title="Setujui draf konten">
+            <span>✓ Setujui</span>
+          </button>
+          <button id="btn-draft-action" onclick="publishArticle(true)" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 flex items-center gap-1.5 transition active:scale-95" title="Kirim ke Blogger dan simpan sebagai status Draft">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span>Kirim Draft ke Blogger</span>
+          </button>
+          <button id="btn-publish-action" onclick="publishArticle(false)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 flex items-center gap-1.5 transition active:scale-95" title="Publikasikan langsung (Live) ke Blogger">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>Publish Live</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

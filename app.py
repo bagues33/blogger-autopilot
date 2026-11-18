@@ -9,11 +9,12 @@ import time
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-from db_saas import get_saas_db, is_sqlite, init_saas_db
-from dependencies import (
+from src.core.database import get_saas_db, is_sqlite, init_saas_db
+from src.core.dependencies import (
     BASE_DIR,
     SEO_KB_PATH,
     SEO_PROMPT_PATH,
@@ -22,10 +23,9 @@ from dependencies import (
     DEFAULT_TOKEN_FILE,
     DEFAULT_CLIENT_SECRET,
     TOKENS_DIR,
-    get_session_user,
-    get_or_create_default_admin
+    get_session_user
 )
-from routers import auth, billing, blogs, articles, keywords, settings, admin, workspaces, audit_logs, analytics
+from src.routers import auth, billing, blogs, articles, keywords, settings, admin, workspaces, audit_logs, analytics
 
 # Auto-initialize SaaS schema on startup
 try:
@@ -54,9 +54,15 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 
-# Static file mounts
+# Static file mounts & Jinja2 Templates
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+os.makedirs(STATIC_DIR, exist_ok=True)
+app.mount('/static', StaticFiles(directory=STATIC_DIR), name='static')
+
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 app.mount('/uploads', StaticFiles(directory=UPLOADS_DIR), name='uploads')
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, 'templates'))
 
 # --- Root HTML & Health Monitoring Endpoints ---
 
@@ -96,13 +102,14 @@ def index(request: Request, db: Session = Depends(get_saas_db)):
         with open(SEO_PROMPT_PATH, 'r', encoding='utf-8') as f:
             prompt_content = f.read()
             
-    template_path = os.path.join(BASE_DIR, 'templates', 'index.html')
-    if os.path.exists(template_path):
-        with open(template_path, 'r', encoding='utf-8') as f:
-            tpl = f.read()
-            return tpl.replace('{{ kb_content }}', kb_content).replace('{{ prompt_content }}', prompt_content)
-
-    return HTMLResponse('<h1>Template templates/index.html tidak ditemukan</h1>', status_code=500)
+    return templates.TemplateResponse(
+        request=request,
+        name='index.html',
+        context={
+            'kb_content': kb_content,
+            'prompt_content': prompt_content
+        }
+    )
 
 # --- Mount Domain Routers ---
 app.include_router(auth.router)

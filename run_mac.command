@@ -23,7 +23,7 @@ fi
 # Auto initialize database if missing
 if [ ! -f "data_saas.db" ]; then
     echo "⚡ Menginisialisasi basis data..."
-    .venv/bin/python -c "import db_saas; db_saas.init_saas_db()"
+    .venv/bin/python -c "from src.core.database import init_saas_db; init_saas_db()"
 fi
 
 echo "🚀 Membuka Web Dashboard di browser Anda..."

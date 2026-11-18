@@ -1,0 +1,132 @@
+<div id="add-blog-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white text-base leading-tight">Hubungkan Blog Baru</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Daftarkan blog lain (satu akun atau akun Google berbeda)</p>
+          </div>
+        </div>
+        <button onclick="closeAddBlogModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition" aria-label="Tutup Modal">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
+        <!-- 1-Click Google OAuth Prominent Primary Banner (P1-1) -->
+        <div class="p-4 bg-gradient-to-r from-brand-50 to-indigo-50 dark:from-brand-950/40 dark:to-indigo-950/40 border border-brand-200 dark:border-brand-500/30 rounded-2xl flex flex-col gap-3 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-sm">
+              <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">🚀 Rekomendasi: Hubungkan Otomatis 1-Klik</h4>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                Login ke akun Google Anda. Sistem akan langsung mendeteksi seluruh blog Blogger Anda tanpa perlu menyalin Blog ID atau konfigurasi rumit.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <a href="/api/auth/google/login" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95">
+              <span>Hubungkan Akun Google (1-Klik Auto-Import)</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+            <button type="button" onclick="openOAuthLoginPopup()" class="px-3 py-2 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition active:scale-95">
+              Otorisasi Manual
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex items-center justify-center my-1">
+          <div class="border-t border-slate-200 dark:border-slate-800 w-full"></div>
+          <span class="bg-white dark:bg-[#0b1120] px-3 text-xs text-slate-500 font-semibold uppercase tracking-wider absolute">atau input ID manual</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">ID Blog Blogger *</label>
+          <input type="text" id="new-blog-id" placeholder="Contoh: 8492019482019482019" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dapat dilihat di URL dashboard Blogger (blogger.com/blog/posts/<b>[BLOG_ID]</b>)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nama Blog *</label>
+          <input type="text" id="new-blog-name" placeholder="Contoh: Info Finansial ID" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">URL Blog</label>
+          <input type="text" id="new-blog-url" placeholder="https://namablog.blogspot.com/" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Nama Label Akun Google</label>
+          <input type="text" id="new-blog-account" placeholder="Contoh: Akun Kantor, Akun Pribadi" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Niche / Topik Pembahasan</label>
+          <input type="text" id="new-blog-niche" placeholder="Contoh: Bisnis, Investasi, Tutorial, Kuliner" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+        </div>
+
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Kredensial Akun Google</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition">
+              <input type="radio" name="token-choice" value="existing" checked onchange="toggleTokenUpload(false)" class="text-brand-600 focus:ring-0">
+              <div class="text-xs">
+                <span class="font-semibold text-slate-900 dark:text-white block">Satu Akun Google dengan Blog Aktif</span>
+                <span class="text-slate-500 dark:text-slate-400 text-xs">Memakai token OAuth yang sama tanpa perlu login ulang</span>
+              </div>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition">
+              <input type="radio" name="token-choice" value="new" onchange="toggleTokenUpload(true)" class="text-brand-600 focus:ring-0">
+              <div class="text-xs">
+                <span class="font-semibold text-slate-900 dark:text-white block">Akun Google Berbeda (Upload Token Baru)</span>
+                <span class="text-slate-500 dark:text-slate-400 text-xs">Unggah file token.json dari akun Google kedua</span>
+              </div>
+            </label>
+          </div>
+
+          <div id="token-upload-area" class="hidden mt-3 p-3.5 bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 rounded-xl space-y-3.5">
+            <div>
+              <span class="block text-xs font-bold text-brand-700 dark:text-brand-300 mb-1.5">Metode 1: Login Google Otomatis (SaaS 1-Klik Redirect):</span>
+              <a href="/api/auth/google/login" class="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V13.4h6.887C18.2 16.14 15.645 18 12.24 18c-3.315 0-6-2.685-6-6s2.685-6 6-6c1.47 0 2.805.54 3.84 1.425l2.4-2.4C16.89 3.51 14.715 2.7 12.24 2.7 7.08 2.7 2.91 6.87 2.91 12.03s4.17 9.33 9.33 9.33c5.385 0 8.94-3.78 8.94-9.09 0-.615-.06-1.215-.165-1.785H12.24z"/></svg>
+                <span>Login dengan Google & Impor Otomatis</span>
+              </a>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mengimpor seluruh blog di akun tersebut tanpa perlu salin kode apapun.</p>
+            </div>
+            
+            <div class="pt-2 border-t border-brand-200 dark:border-brand-500/20">
+              <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 2: Buka di Tab Baru & Tempel Kode (Desktop App):</span>
+              <button type="button" onclick="openOAuthLoginPopup()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm">
+                <span>Dapatkan Link Otorisasi</span>
+              </button>
+              <div id="oauth-code-input-group" class="hidden mt-2 space-y-1.5">
+                <label class="block text-xs text-slate-700 dark:text-slate-300">Tempel URL atau Kode Hasil Login:</label>
+                <div class="flex gap-2">
+                  <input type="text" id="oauth-code-input" placeholder="http://localhost/?code=... atau kode otorisasi" class="flex-1 bg-white dark:bg-[#070b14] border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-white">
+                  <button type="button" onclick="submitOAuthCode()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition">Verifikasi</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-brand-200 dark:border-brand-500/20">
+              <span class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Metode 3: Upload File token.json yang sudah ada:</span>
+              <input type="file" id="new-blog-token-file" accept=".json" class="text-xs text-slate-700 dark:text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500 cursor-pointer">
+            </div>
+            <p id="token-upload-status" class="text-xs font-medium"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-50 dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+        <button onclick="closeAddBlogModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button id="btn-save-new-blog" onclick="saveNewBlog()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-600/20 flex items-center gap-1.5 active:scale-95">
+          <span>Simpan & Daftarkan</span>
+        </button>
+      </div>
+    </div>
+  </div>

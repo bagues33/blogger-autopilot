@@ -102,21 +102,37 @@ python autopilot_scheduler.py
 
 ```text
 blogger-autopilot/
-├── app.py                     # Entrypoint FastAPI & static mounts
-├── routers/                   # Domain API Routers (auth, billing, blogs, articles, keywords, settings, admin)
-├── content_generator.py       # Deep Module peracik artikel & BaseLLMAdapter seam
-├── blogger_client.py          # Seam Blogger API v3 (Live & InMemory adapters)
-├── midtrans_service.py        # Seam Midtrans Payment Gateway (Live & InMemory adapters)
-├── notification_service.py    # Seam Notifikasi Telegram & Webhook (Live & InMemory adapters)
-├── db_saas.py                 # Engine persistensi SQLAlchemy multi-tenant
-├── models_saas.py             # Model relational User, Subscription, Blog, Article, Keyword
-├── auth_saas.py               # Otentikasi tenant JWT, Bcrypt, & HttpOnly cookies
-├── crypto_service.py          # Enkripsi & dekripsi token OAuth AES-256
-├── autopilot_scheduler.py     # Background scheduler daemon siklus konten otonom
-├── templates/index.html       # Authoritative Single Page Application Dashboard
-├── seo_knowledge.md           # Basis pengetahuan SEO E-E-A-T
-├── seo_master_prompt.md       # Prompt standar penulisan artikel
-├── requirements.txt           # Dependensi Python
-├── .env.example               # Template environment variables
-└── uploads/                   # Media gambar WebP
+├── src/                          # Arsitektur Inti Aplikasi Backend
+│   ├── core/                     # Database, Security, Rate Limiter, Crypto, Dependencies
+│   ├── models/                   # SQLAlchemy Multi-Tenant Models
+│   ├── services/                 # Blogger, Content Generator, Payment, Notifications, Audit, Images, Schema
+│   └── routers/                  # Modular FastAPI Domain Routers
+├── static/                       # Aset Frontend
+│   └── js/                       # 10 Modul JavaScript ES6
+├── templates/                    # Jinja2 Templates
+│   ├── index.html                # Ramping (563 baris)
+│   └── modals/                   # 14 Partial Modals Komponen
+├── alembic/                      # Managed Database Schema Migrations
+├── tests/                        # Modern Pytest Test Suite (Unit & Integration)
+├── docs/                         # Dokumentasi Arsitektur, Runbook, & Deployment
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── GLOSSARY.md
+│   ├── PRODUCT_OWNER_AUDIT_ROADMAP.md
+│   ├── SAAS_PRODUCTION_RUNBOOK.md
+│   └── schema_supabase.sql
+├── scripts/                      # Setup & Utility Scripts
+├── app.py                        # Entrypoint FastAPI Server
+├── autopilot_scheduler.py        # Background Daemon Scheduler
+├── manage_saas.py                # Admin CLI Manager
+├── requirements.txt              # Dependensi Python
+└── .env.example                  # Template Konfigurasi Environment
 ```
+
+---
+
+## 📚 Dokumentasi Lanjutan
+
+- [Deployment Guide](file:///Users/mac/Documents/projects/blogger-autopilot/docs/DEPLOYMENT_GUIDE.md)
+- [SaaS Production Runbook](file:///Users/mac/Documents/projects/blogger-autopilot/docs/SAAS_PRODUCTION_RUNBOOK.md)
+- [Product Owner Audit & Roadmap](file:///Users/mac/Documents/projects/blogger-autopilot/docs/PRODUCT_OWNER_AUDIT_ROADMAP.md)
+- [Glossary Istilah](file:///Users/mac/Documents/projects/blogger-autopilot/docs/GLOSSARY.md)

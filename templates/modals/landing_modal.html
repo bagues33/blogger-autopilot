@@ -1,0 +1,135 @@
+<!-- SaaS Public Marketing Landing Page Modal -->
+  <div id="landing-preview-modal" class="fixed inset-0 bg-white/95 dark:bg-[#070b14]/98 backdrop-blur-xl z-50 hidden overflow-y-auto text-slate-900 dark:text-white">
+    <div class="max-w-6xl mx-auto px-4 py-6 md:py-10 space-y-12">
+      <!-- Landing Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Blogger Auto-Pilot</span>
+            <span class="ml-2 text-xs uppercase font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full">SaaS Indonesia</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="toggleLandingPreview(false); openAuthModal('login');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl transition">
+            Masuk ke Akun
+          </button>
+          <button onclick="toggleLandingPreview(false)" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition" aria-label="Tutup Preview">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="text-center max-w-3xl mx-auto space-y-5 pt-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-400 text-xs font-semibold">
+          <span>🇮🇩 Solusi Otomasi Konten Blogger Berbasis AI #1 di Indonesia</span>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+          Tulis & Terbitkan Puluhan Artikel SEO Berkualitas Tinggi Secara <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-indigo-700 dark:from-brand-400 dark:to-indigo-300">Otomatis 24/7</span>
+        </h1>
+        <p class="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
+          Kombinasi AI cerdas berstandar Google E-E-A-T, riset kata kunci otomatis, gambar relevan, dan sinkronisasi 2 arah langsung ke Blogspot Anda tanpa sentuhan manual.
+        </p>
+        <div class="flex items-center justify-center gap-3.5 pt-2 flex-wrap">
+          <button onclick="toggleLandingPreview(false); openAuthModal('register');" class="px-6 py-3.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-brand-500/25 transition active:scale-95 flex items-center gap-2">
+            <span>🚀 Coba Gratis Sekarang (3 Kredit Artikel)</span>
+          </button>
+          <button onclick="document.getElementById('landing-pricing-section').scrollIntoView({behavior:'smooth'})" class="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl font-semibold text-sm transition">
+            Lihat Paket Harga
+          </button>
+        </div>
+      </div>
+
+      <!-- Value Proposition Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-6">
+        <div class="bg-white dark:bg-[#0f172a]/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">🛡️</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Google E-E-A-T & HCU Guard</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Dilengkapi SEO Quality Gauge real-time (0-100) yang memvalidasi heading, FAQ schema, external authority link, dan pengalaman nyata agar artikel Anda kebal terhadap penalti algoritma Google.
+          </p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a]/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">⏰</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Autopilot Daemon 24/7</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Pekerja latar belakang yang mengeksekusi riset keyword, penulisan artikel, dan penerbitan secara terjadwal otomatis setiap hari tanpa perlu membuka browser.
+          </p>
+        </div>
+        <div class="bg-white dark:bg-[#0f172a]/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold">💳</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Bayar Mudah via Midtrans</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Dukung seluruh ekosistem pembayaran populer Indonesia: scan QRIS pakai GoPay, ShopeePay, BCA, Mandiri, BRI, BNI Virtual Account aktif seketika.
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Pricing Preview Section -->
+      <div id="landing-pricing-section" class="pt-8 space-y-6">
+        <div class="text-center space-y-2">
+          <h2 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">Harga Transparan & Terjangkau</h2>
+          <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">Pilih paket sesuai skala blogspot Anda. Batalkan langganan kapan saja.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <!-- Starter Solo -->
+          <div class="bg-white dark:bg-[#0f172a]/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
+            <div>
+              <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Solo</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 99.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cocok untuk solo blogger pemula</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 30 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 3 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Riset Keyword Otomatis</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Notifikasi Telegram</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand-600/25">Pilih Starter</button>
+          </div>
+
+          <!-- Pro (Popular) -->
+          <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-brand-950/40 dark:to-slate-900 border-2 border-brand-500 rounded-2xl p-5 flex flex-col justify-between space-y-4 relative shadow-2xl">
+            <span class="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">Paling Populer</span>
+            <div>
+              <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Pro Publisher</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 249.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Untuk publisher & affiliate serius</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 120 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 10 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Autopilot Scheduler Harian</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Telegram & Webhook Instant</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-black transition shadow-lg shadow-orange-500/25">Pilih Pro</button>
+          </div>
+
+          <!-- Agency -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
+            <div>
+              <span class="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Agency / Network</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white mt-2">Rp 699.000<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">PBN, agensi SEO & media jaringan</p>
+              <ul class="mt-4 space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> 500 Kredit Artikel / Bulan</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Kelola Hingga 50 Blog</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Ekspor Backup Data 1-Klik</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span> Priority Support 24/7</li>
+              </ul>
+            </div>
+            <button onclick="toggleLandingPreview(false); openUpgradeModal();" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-600/25">Pilih Agency</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="text-center pt-8 border-t border-slate-200 dark:border-slate-800 pb-6">
+        <p class="text-xs text-slate-500">&copy; 2026 Blogger Auto-Pilot SaaS. Seluruh Hak Cipta Dilindungi.</p>
+      </div>
+    </div>
+  </div>

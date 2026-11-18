@@ -9,9 +9,9 @@ import time
 import logging
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from db_saas import SessionLocal
-from models_saas import User, Subscription, Blog, Article, Keyword
-from content_generator import generate_article
+from src.core.database import SessionLocal
+from src.models.models import User, Subscription, Blog, Article, Keyword
+from src.services.content_generator import generate_article
 
 logging.basicConfig(
     level=logging.INFO,

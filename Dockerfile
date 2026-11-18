@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python -c "import db_saas; db_saas.init_saas_db()"
+RUN python -c "from src.core.database import init_saas_db; init_saas_db()"
 
 EXPOSE 8090
 
