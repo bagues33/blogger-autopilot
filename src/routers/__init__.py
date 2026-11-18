@@ -13,6 +13,7 @@ from . import admin
 from . import analytics
 from . import audit_logs
 from . import workspaces
+from . import cron
 
 __all__ = [
     'auth',
@@ -24,5 +25,6 @@ __all__ = [
     'admin',
     'analytics',
     'audit_logs',
-    'workspaces'
+    'workspaces',
+    'cron'
 ]

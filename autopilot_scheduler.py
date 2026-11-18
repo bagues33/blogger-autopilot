@@ -1,12 +1,14 @@
 """
 Autopilot Scheduler Daemon for Blogger Auto-Pilot SaaS
 Runs periodic background cycles to generate articles for subscribers with active plans and remaining credits.
+Supports standalone daemon loops, one-shot cron jobs, dry-run simulations, and queue status reports.
 """
 
 import os
 import sys
 import time
 import logging
+from typing import Optional
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from src.core.database import SessionLocal
@@ -22,13 +24,52 @@ logger = logging.getLogger("AutopilotScheduler")
 
 SCHEDULER_INTERVAL_SECONDS = int(os.environ.get('SCHEDULER_INTERVAL_SECONDS', '3600')) # Default: 1 hour
 
-def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
+def get_scheduler_status(db: Optional[Session] = None) -> dict:
+    """
+    Returns current health and queue metrics of the Autopilot daemon.
+    """
+    close_db = False
+    if db is None:
+        db = SessionLocal()
+        close_db = True
+    try:
+        active_subs_count = db.query(Subscription).filter(
+            Subscription.status == 'active',
+            Subscription.article_credits_used < Subscription.article_credits_limit
+        ).count()
+        autopilot_blogs_count = db.query(Blog).filter(
+            (Blog.autopilot_enabled == True) | (Blog.is_active == 1)
+        ).count()
+        planned_kws_count = db.query(Keyword).filter(
+            Keyword.status == 'planned'
+        ).count()
+        total_articles_count = db.query(Article).count()
+        published_count = db.query(Article).filter(Article.status == 'published').count()
+        return {
+            'active_eligible_subscriptions': active_subs_count,
+            'autopilot_blogs_configured': autopilot_blogs_count,
+            'planned_keywords_in_queue': planned_kws_count,
+            'total_articles': total_articles_count,
+            'published_articles': published_count,
+            'cycle_interval_seconds': SCHEDULER_INTERVAL_SECONDS
+        }
+    finally:
+        if close_db:
+            db.close()
+
+def run_scheduler_cycle(max_per_cycle: int = 5, force: bool = False, dry_run: bool = False) -> dict:
     """
     Executes one autonomous cycle across all active tenants.
     Finds subscribers with remaining credits, picks their active blog and next keyword,
     and runs the autonomous AI generation worker.
+
+    Args:
+        max_per_cycle: Maximum articles to draft in one execution cycle.
+        force: If True, bypasses frequency threshold (min_elapsed check).
+        dry_run: If True, simulates selection without invoking LLM or mutating database.
     """
-    logger.info("Starting Autopilot Scheduler cycle...")
+    mode_str = "DRY-RUN SIMULATION" if dry_run else ("FORCE RUN" if force else "STANDARD RUN")
+    logger.info(f"Starting Autopilot Scheduler cycle ({mode_str}, max_per_cycle={max_per_cycle})...")
     db: Session = SessionLocal()
     processed_count = 0
     results = []
@@ -77,8 +118,8 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
                     logger.debug(f"Blog '{blog.name}' has autopilot disabled. Skipping.")
                     continue
 
-                # Check schedule frequency eligibility
-                if getattr(blog, 'last_run_at', None) and getattr(blog, 'schedule_frequency', None):
+                # Check schedule frequency eligibility (bypassed if force=True)
+                if not force and getattr(blog, 'last_run_at', None) and getattr(blog, 'schedule_frequency', None):
                     now_utc = datetime.now(timezone.utc)
                     last_utc = blog.last_run_at if blog.last_run_at.tzinfo else blog.last_run_at.replace(tzinfo=timezone.utc)
                     elapsed = (now_utc - last_utc).total_seconds()
@@ -104,6 +145,18 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
 
                 if not kw:
                     logger.debug(f"User {user.email} has no 'planned' keywords queued for blog '{blog.name}'. Skipping.")
+                    continue
+
+                if dry_run:
+                    processed_count += 1
+                    logger.info(f"[SIMULATION] Would generate article for {user.email} | Blog: {blog.name} | Keyword: '{kw.keyword}'")
+                    results.append({
+                        'user_id': user.id,
+                        'email': user.email,
+                        'blog_id': blog.id,
+                        'keyword': kw.keyword,
+                        'status': 'simulated'
+                    })
                     continue
 
                 logger.info(f"Executing Autopilot for User: {user.email} (Plan: {sub.plan_tier}) | Blog: {blog.name} | Keyword: '{kw.keyword}'")
@@ -150,6 +203,8 @@ def run_scheduler_cycle(max_per_cycle: int = 5) -> dict:
         return {
             'success': True,
             'timestamp': datetime.now(timezone.utc).isoformat(),
+            'dry_run': dry_run,
+            'force': force,
             'processed_count': processed_count,
             'details': results
         }
@@ -169,12 +224,39 @@ def start_scheduler_loop(interval_seconds: int = SCHEDULER_INTERVAL_SECONDS):
     except KeyboardInterrupt:
         logger.info("Autopilot Scheduler stopped by user.")
 
+def print_help():
+    print("""
+Blogger Auto-Pilot Scheduler Daemon
+Commands & Options:
+  --status         Print current Autopilot queue metrics and eligible subscriptions
+  --dry-run        Simulate one execution cycle without generating content or mutating database
+  --once           Execute one cycle immediately and terminate
+  --force          Execute one cycle bypassing frequency limits (min_elapsed)
+  --interval <sec> Run continuous daemon loop with custom sleep interval in seconds
+  --help           Show this help message
+""")
+
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == '--once':
-        result = run_scheduler_cycle()
-        print(f"Cycle result: {result}")
+    args = sys.argv[1:]
+    if '--help' in args or '-h' in args:
+        print_help()
+    elif '--status' in args:
+        status = get_scheduler_status()
+        print("\n--- Blogger Auto-Pilot Daemon Status ---")
+        for k, v in status.items():
+            print(f"  {k:35}: {v}")
+        print("----------------------------------------\n")
+    elif '--dry-run' in args:
+        result = run_scheduler_cycle(dry_run=True, force='--force' in args)
+        print(f"Dry-run simulation result: {result}")
+    elif '--once' in args:
+        result = run_scheduler_cycle(force='--force' in args)
+        print(f"One-shot cycle result: {result}")
     else:
         interval = SCHEDULER_INTERVAL_SECONDS
-        if len(sys.argv) > 1 and sys.argv[1].isdigit():
-            interval = int(sys.argv[1])
+        for i, a in enumerate(args):
+            if a in ('--interval', '-i') and i + 1 < len(args) and args[i+1].isdigit():
+                interval = int(args[i+1])
+            elif a.isdigit():
+                interval = int(a)
         start_scheduler_loop(interval)

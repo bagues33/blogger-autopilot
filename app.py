@@ -25,7 +25,7 @@ from src.core.dependencies import (
     TOKENS_DIR,
     get_session_user
 )
-from src.routers import auth, billing, blogs, articles, keywords, settings, admin, workspaces, audit_logs, analytics
+from src.routers import auth, billing, blogs, articles, keywords, settings, admin, workspaces, audit_logs, analytics, cron
 
 # Auto-initialize SaaS schema on startup
 try:
@@ -139,6 +139,7 @@ app.include_router(admin.router)
 app.include_router(workspaces.router)
 app.include_router(audit_logs.router)
 app.include_router(analytics.router)
+app.include_router(cron.router)
 
 if __name__ == '__main__':
     import uvicorn

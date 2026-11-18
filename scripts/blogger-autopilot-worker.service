@@ -1,0 +1,20 @@
+[Unit]
+Description=Blogger Auto-Pilot SaaS Background Worker Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/blogger-autopilot
+Environment="PATH=/var/www/blogger-autopilot/.venv/bin"
+Environment="ENVIRONMENT=production"
+Environment="SCHEDULER_INTERVAL_SECONDS=3600"
+ExecStart=/var/www/blogger-autopilot/.venv/bin/python autopilot_scheduler.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

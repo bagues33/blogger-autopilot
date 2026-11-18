@@ -180,7 +180,7 @@ def api_save_notification_settings(req: NotificationSettingsReq, request: Reques
     return {'success': True, 'message': 'Pengaturan notifikasi berhasil disimpan.'}
 
 @router.post('/api/notifications/test')
-def api_test_notification(req: NotificationTestReq):
+def api_test_notification(req: NotificationTestReq, user: User = Depends(get_current_user)):
     results = {}
     
     if req.telegram_bot_token and req.telegram_chat_id:
