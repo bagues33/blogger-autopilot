@@ -1,11 +1,4 @@
 // --- Blogger Auto-Pilot: Settings (KB, Autopilot, Notifications, BYOK) ---
-              btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
-              btnEl.innerHTML = originalHtml;
-            }
-          }
-        }
-      });
-    }
 
     function switchRightTab(tab) {
       const kbContent = document.getElementById('tab-kb-content');
@@ -150,15 +143,6 @@
         btn.innerText = 'Simpan Pengaturan';
       }
     }
-
-    async function triggerAutoGenerate() {
-      const btn = document.getElementById('btn-auto-generate');
-      const txt = document.getElementById('btn-auto-generate-text');
-      const bName = activeBlog ? activeBlog.name : 'Blogger';
-      
-      btn.disabled = true;
-      btn.classList.add('opacity-70');
-      txt.innerText = '⏳ Sedang meriset...';
 
     // --- Notification Settings Modal Logic ---
     function openNotificationModal() {

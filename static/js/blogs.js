@@ -57,7 +57,6 @@
       }
       if (totalBadge) totalBadge.innerText = blogs.length + ' Blog';
 
-      const itemsList = document.getElementById('blog-items-list');
       if (itemsList) {
         itemsList.innerHTML = blogs.map(b => {
           const isActive = b.id === activeBlog.id;
@@ -80,6 +79,7 @@
           `;
         }).join('');
       }
+      if (typeof updateOnboardingStepper === 'function') updateOnboardingStepper();
     }
 
     function toggleBlogDropdown() {

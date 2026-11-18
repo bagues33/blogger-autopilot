@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogger Auto-Pilot | Platform Otomasi Konten & SEO Google Blogger #1 di Indonesia</title>
+  <meta name="description" content="Tulis dan publikasikan puluhan artikel SEO berkualitas tinggi berstandar Google E-E-A-T secara otomatis 24/7 ke blog Blogspot Anda dengan Autonomous SEO Specialist Agent.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M13 10V3L4 14h7v7l9-11h-7z'/></svg>">
+
+  <!-- OpenGraph / Social Meta Tags -->
+  <meta property="og:title" content="Blogger Auto-Pilot - Otomasi Konten & SEO Blogger API">
+  <meta property="og:description" content="Platform autonomous SEO content generator dan background publisher untuk Google Blogger.">
+  <meta property="og:type" content="website">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Schema.org SoftwareApplication Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Blogger AutoPilot SaaS",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web-based",
+    "description": "Platform SaaS Content & SEO Command Center otomatis untuk Google Blogger Blogspot dengan AI E-E-A-T.",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Community",
+        "price": "0",
+        "priceCurrency": "IDR",
+        "description": "3 artikel AI per bulan, 1 blog Blogger terhubung"
+      },
+      {
+        "@type": "Offer",
+        "name": "Starter Solo Creator",
+        "price": "99000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "30 artikel AI SEO per bulan, 3 blog Blogger terhubung, riset keyword otomatis, notifikasi Telegram"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro Publisher Autopilot",
+        "price": "249000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "120 artikel AI SEO per bulan, 10 blog Blogger terhubung, autopilot scheduler harian"
+      },
+      {
+        "@type": "Offer",
+        "name": "Agency & Media Network",
+        "price": "699000",
+        "priceCurrency": "IDR",
+        "billingDuration": "P1M",
+        "description": "500 artikel AI SEO per bulan, 50 blog Blogger terhubung, backup data 1-klik, priority support"
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
+
+  <!-- Sticky Navbar -->
+  <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b1120]/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 py-3.5 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center space-x-3 group">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/25 group-hover:scale-105 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div>
+          <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Blogger Auto-Pilot</span>
+          <span class="hidden sm:inline-block ml-2 text-[10px] uppercase font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full">SaaS Indonesia</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Fitur Utama</a>
+        <a href="#cara-kerja" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Cara Kerja</a>
+        <a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Paket Harga</a>
+        <a href="#faq" class="hover:text-brand-600 dark:hover:text-brand-400 transition">FAQ</a>
+      </nav>
+
+      <!-- Right CTAs -->
+      <div class="flex items-center space-x-3">
+        <!-- Theme Toggle Button -->
+        <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" aria-label="Ganti Tema">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        {% if is_authenticated %}
+        <a href="/dashboard" class="px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 flex items-center gap-2">
+          <span>Buka Studio Dashboard</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        {% else %}
+        <button onclick="openAuthModal('login')" class="px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-white text-xs font-bold transition">
+          Masuk
+        </button>
+        <button onclick="openAuthModal('register')" class="px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20">
+          Coba Gratis (3 Kredit)
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-28">
+    <div class="max-w-5xl mx-auto px-4 text-center space-y-6">
+      <!-- Highlight Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-400 text-xs font-bold shadow-sm">
+        <span>🇮🇩 Solusi Otomasi Konten Google Blogger (Blogspot) #1 di Indonesia</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15]">
+        Tulis & Publikasikan Puluhan Artikel SEO Berkualitas Tinggi Secara <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 dark:from-brand-400 dark:via-indigo-300 dark:to-purple-300">Otomatis 24/7</span>
+      </h1>
+
+      <!-- Subheadline -->
+      <p class="max-w-3xl mx-auto text-slate-600 dark:text-slate-300 text-sm md:text-lg leading-relaxed">
+        Kombinasi AI mandiri berstandar <strong>Google E-E-A-T</strong>, riset kata kunci berbasis search intent, optimasi gambar WebP, dan integrasi penuh <strong>Google Blogger API v3</strong> untuk mengisi blog Anda tanpa sentuhan manual.
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div class="flex items-center justify-center gap-3.5 pt-4 flex-wrap">
+        {% if is_authenticated %}
+        <a href="/dashboard" class="px-7 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-brand-500/30 transition active:scale-95 flex items-center gap-2.5">
+          <span>⚡ Buka Studio Dashboard Anda</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        {% else %}
+        <button onclick="openAuthModal('register')" class="px-7 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-sm shadow-xl shadow-brand-500/30 transition active:scale-95 flex items-center gap-2.5">
+          <span>🚀 Mulai Gratis (3 Kredit Artikel)</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+        {% endif %}
+        <a href="#harga" class="px-6 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl font-semibold text-sm transition">
+          Lihat Paket Harga
+        </a>
+      </div>
+
+      <!-- Trust Metrics Strip -->
+      <div class="pt-8 flex items-center justify-center gap-6 md:gap-12 text-xs font-semibold text-slate-500 dark:text-slate-400 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-500 text-base font-bold">✓</span>
+          <span>Google E-E-A-T & Schema JSON-LD</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-500 text-base font-bold">✓</span>
+          <span>1-Klik Google OAuth 2.0</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-500 text-base font-bold">✓</span>
+          <span>Bayar Mudah via QRIS & VA Midtrans</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Feature Grid -->
+  <section id="fitur" class="py-16 bg-white/60 dark:bg-[#0b1120]/50 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 space-y-12">
+      <div class="text-center space-y-3">
+        <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Keunggulan Utama</span>
+        <h2 class="text-2xl md:text-4xl font-black text-slate-900 dark:text-white">Didesain Khusus untuk Publisher & Affiliate Blogspot</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Tinggalkan cara lama menulis artikel berjam-jam atau menyalin AI generik yang terkena penalti Google.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl font-bold">🛡️</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Anti-Slop & Google E-E-A-T</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Artikel ditulis dengan struktur profesional: hook direct answer 40-50 kata pertama, tabel komparasi markdown, FAQ Schema JSON-LD, tanpa kata-kata klise pembuka AI.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-2xl font-bold">⚡</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Autopilot Daemon 24/7</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Pekerja background yang mengeksekusi riset keyword, drafting, dan publikasi secara terjadwal otomatis (harian / 2x sehari) tanpa Anda harus membuka browser.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-500/15 border border-purple-200 dark:border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl font-bold">🔗</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">1-Klik Google OAuth 2.0</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Tidak perlu input manual Blog ID 19-digit yang rumit. Cukup login dengan akun Google Anda, sistem langsung mendeteksi seluruh blog yang Anda miliki.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl font-bold">🖼️</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Image SEO & Auto-WebP</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Setiap artikel dilengkapi gambar relevan yang otomatis dikonversi ke format WebP super cepat dan diisi alt-text kaya kata kunci untuk merajai Google Images.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-600 dark:text-sky-400 flex items-center justify-center text-2xl font-bold">🎯</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Bank Keyword & Search Intent</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Kelola amunisi keyword terstruktur (Informational, Commercial, Navigational). Import ratusan keyword via CSV atau racik otomatis dari topik niche.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-3.5 shadow-sm hover:border-brand-500/50 transition">
+          <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center justify-center text-2xl font-bold">💳</div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Pembayaran Lokal Midtrans</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Dukung ekosistem pembayaran Indonesia: scan QRIS dengan GoPay/ShopeePay atau transfer Virtual Account BCA, Mandiri, BRI, BNI aktif seketika.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="cara-kerja" class="py-16 max-w-5xl mx-auto px-4 space-y-12">
+    <div class="text-center space-y-3">
+      <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Alur Kerja Praktis</span>
+      <h2 class="text-2xl md:text-4xl font-black text-slate-900 dark:text-white">3 Langkah Menuju Autopilot Konten</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400">Hanya butuh 60 detik untuk setup dan melihat artikel pertama Anda siap tayang.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+      <!-- Step 1 -->
+      <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-4 shadow-sm text-center">
+        <div class="w-10 h-10 rounded-full bg-brand-600 text-white font-extrabold flex items-center justify-center mx-auto shadow-md shadow-brand-500/30">1</div>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">Sambungkan Blogger</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Klik tombol 1-klik OAuth Google. Seluruh blog Blogger Anda otomatis terdeteksi dan tersambung aman ke dashboard.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-4 shadow-sm text-center">
+        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white font-extrabold flex items-center justify-center mx-auto shadow-md shadow-indigo-500/30">2</div>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">Isi Ide & Keyword</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Masukkan topik niche atau impor list keyword target Anda. AI mengelompokkannya ke antrean <em>planned</em>.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-4 shadow-sm text-center">
+        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-extrabold flex items-center justify-center mx-auto shadow-md shadow-emerald-500/30">3</div>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">Autopilot Posting</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Klik tombol "Buat Draf AI" kapan saja, atau aktifkan background scheduler agar blog Anda otomatis terisi postingan setiap hari.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="harga" class="py-16 bg-white/60 dark:bg-[#0b1120]/50 border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 space-y-12">
+      <div class="text-center space-y-3">
+        <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Harga Transparan</span>
+        <h2 class="text-2xl md:text-4xl font-black text-slate-900 dark:text-white">Pilih Paket Sesuai Skala Blog Anda</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Tanpa biaya tersembunyi. Batalkan langganan kapan saja tanpa ikatan kontrak.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Free Tier -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+          <div class="space-y-4">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Free Trial</span>
+              <div class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp 0</div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Uji coba fitur lengkap</p>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> 3 Kredit Artikel AI</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Kelola 1 Blog Blogger</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Visual Rich Editor</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Schema FAQ JSON-LD</li>
+            </ul>
+          </div>
+          {% if is_authenticated %}
+          <a href="/dashboard" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold text-center transition">Buka Studio</a>
+          {% else %}
+          <button onclick="openAuthModal('register')" class="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition">Mulai Gratis</button>
+          {% endif %}
+        </div>
+
+        <!-- Starter Solo -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+          <div class="space-y-4">
+            <div>
+              <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Starter Solo</span>
+              <div class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp 99rb<span class="text-xs font-normal text-slate-500">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Solo blogger & niche affiliate</p>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> <strong>30 Artikel</strong> / Bulan</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Kelola Hingga <strong>3 Blog</strong></li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Riset Keyword Otomatis</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Notifikasi Telegram</li>
+            </ul>
+          </div>
+          {% if is_authenticated %}
+          <a href="/dashboard" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold text-center transition shadow-md shadow-brand-500/25">Upgrade ke Starter</a>
+          {% else %}
+          <button onclick="openAuthModal('register')" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/25">Pilih Starter</button>
+          {% endif %}
+        </div>
+
+        <!-- Pro Publisher (Popular) -->
+        <div class="bg-gradient-to-b from-brand-50/70 to-white dark:from-brand-950/40 dark:to-slate-900 border-2 border-brand-500 rounded-3xl p-6 flex flex-col justify-between space-y-6 relative shadow-xl">
+          <span class="absolute -top-3.5 right-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">Paling Populer</span>
+          <div class="space-y-4">
+            <div>
+              <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro Publisher</span>
+              <div class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp 249rb<span class="text-xs font-normal text-slate-500">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Publisher adsense & scale-up</p>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> <strong>120 Artikel</strong> / Bulan</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Kelola Hingga <strong>10 Blog</strong></li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Autopilot Scheduler Harian</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Dukungan BYOK API Key</li>
+            </ul>
+          </div>
+          {% if is_authenticated %}
+          <a href="/dashboard" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-black text-center transition shadow-lg shadow-orange-500/25">Upgrade ke Pro</a>
+          {% else %}
+          <button onclick="openAuthModal('register')" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-black transition shadow-lg shadow-orange-500/25">Pilih Pro</button>
+          {% endif %}
+        </div>
+
+        <!-- Agency Network -->
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+          <div class="space-y-4">
+            <div>
+              <span class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Agency / Network</span>
+              <div class="text-3xl font-black text-slate-900 dark:text-white mt-1">Rp 699rb<span class="text-xs font-normal text-slate-500">/bln</span></div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Agensi SEO & media network</p>
+            </div>
+            <ul class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> <strong>500 Artikel</strong> / Bulan</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Kelola Hingga <strong>50 Blog</strong></li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Ekspor Backup 1-Klik</li>
+              <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Prioritas Worker Queue</li>
+            </ul>
+          </div>
+          {% if is_authenticated %}
+          <a href="/dashboard" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold text-center transition shadow-md shadow-purple-600/25">Upgrade ke Agency</a>
+          {% else %}
+          <button onclick="openAuthModal('register')" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-600/25">Pilih Agency</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="py-16 max-w-4xl mx-auto px-4 space-y-8">
+    <div class="text-center space-y-3">
+      <span class="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">FAQ</span>
+      <h2 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">Pertanyaan Sering Diajukan</h2>
+    </div>
+
+    <div class="space-y-4">
+      <details class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 group transition">
+        <summary class="font-bold text-sm text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
+          <span>Apakah artikel yang dihasilkan aman dari penalti Google Helpful Content?</span>
+          <span class="text-brand-600 dark:text-brand-400 font-bold transition group-open:rotate-180">&darr;</span>
+        </summary>
+        <p class="text-xs text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+          Ya. Sistem mengimplementasikan filter Negative Constraints ketat untuk mencegah filler AI, menyusun artikel dengan format modular berbobot, menyertakan tabel analisis, serta menginjeksi FAQPage Schema JSON-LD yang diakui Google Search Central.
+        </p>
+      </details>
+
+      <details class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 group transition">
+        <summary class="font-bold text-sm text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
+          <span>Apakah saya bisa mereview dan mengedit artikel sebelum terbit ke Blogger?</span>
+          <span class="text-brand-600 dark:text-brand-400 font-bold transition group-open:rotate-180">&darr;</span>
+        </summary>
+        <p class="text-xs text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+          Tentu saja. Anda memiliki kendali penuh: artikel dapat disimpan sebagai Draf Lokal untuk diedit di Visual Editor kami, dikirim sebagai Draf Online di Blogger, atau langsung dipublikasikan live.
+        </p>
+      </details>
+
+      <details class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 group transition">
+        <summary class="font-bold text-sm text-slate-900 dark:text-white cursor-pointer list-none flex items-center justify-between">
+          <span>Metode pembayaran apa saja yang didukung?</span>
+          <span class="text-brand-600 dark:text-brand-400 font-bold transition group-open:rotate-180">&darr;</span>
+        </summary>
+        <p class="text-xs text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+          Melalui gerbang Midtrans Snap, kami menerima seluruh pembayaran populer Indonesia: QRIS (GoPay, OVO, Dana, ShopeePay, LinkAja), Virtual Account bank besar (BCA, Mandiri, BRI, BNI, Permata), dan Kartu Kredit.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Final Footer CTA -->
+  <section class="py-16 bg-gradient-to-r from-brand-600 to-indigo-600 text-white text-center">
+    <div class="max-w-3xl mx-auto px-4 space-y-5">
+      <h2 class="text-3xl md:text-4xl font-black">Siap Menumbuhkan Trafik Blog Anda?</h2>
+      <p class="text-sm md:text-base text-brand-100 max-w-xl mx-auto">
+        Daftar sekarang dan nikmati 3 kredit artikel gratis tanpa perlu memasukkan kartu kredit.
+      </p>
+      <div class="pt-2">
+        {% if is_authenticated %}
+        <a href="/dashboard" class="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 rounded-2xl font-black text-sm shadow-xl transition inline-flex items-center gap-2">
+          <span>Masuk ke Dashboard</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+        {% else %}
+        <button onclick="openAuthModal('register')" class="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 rounded-2xl font-black text-sm shadow-xl transition inline-flex items-center gap-2">
+          <span>Mulai Uji Coba Gratis</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 py-8 px-4 bg-white dark:bg-[#070b14] text-xs text-slate-500 text-center">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>&copy; 2026 Blogger Auto-Pilot SaaS. Seluruh hak cipta dilindungi.</p>
+      <div class="flex items-center space-x-6">
+        <a href="#fitur" class="hover:text-slate-900 dark:hover:text-white transition">Fitur</a>
+        <a href="#harga" class="hover:text-slate-900 dark:hover:text-white transition">Harga</a>
+        <a href="#faq" class="hover:text-slate-900 dark:hover:text-white transition">Bantuan</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Light Auth Modal for Landing Page Visitors -->
+  <div id="landing-auth-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 id="auth-modal-title" class="text-lg font-black text-slate-900 dark:text-white">Masuk ke Akun</h3>
+          <p id="auth-modal-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Kelola blog dan autopilot artikel Anda</p>
+        </div>
+        <button onclick="closeAuthModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition" aria-label="Tutup">&times;</button>
+      </div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div id="field-fullname" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nama Lengkap</label>
+          <input type="text" id="auth-name" placeholder="Nama Anda" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Email</label>
+          <input type="email" id="auth-email" required placeholder="nama@domain.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Kata Sandi</label>
+          <input type="password" id="auth-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20">
+          Masuk
+        </button>
+      </form>
+
+      <div class="text-center pt-2 border-t border-slate-100 dark:border-slate-800">
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          <span id="auth-toggle-prompt">Belum punya akun?</span>
+          <button type="button" onclick="toggleAuthMode()" id="auth-toggle-btn" class="font-bold text-brand-600 dark:text-brand-400 hover:underline ml-1">
+            Daftar Gratis
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Management
+    function initTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    initTheme();
+
+    // Toast Notification Utility
+    function showToast(message, type = 'info', duration = 4000) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const el = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950 font-semibold',
+        info: 'bg-slate-900 text-white dark:bg-slate-800'
+      };
+      el.className = `p-3.5 rounded-xl text-xs font-medium shadow-xl pointer-events-auto transition transform translate-y-2 opacity-0 flex items-center justify-between gap-3 ${colors[type] || colors.info}`;
+      el.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white font-bold">&times;</button>`;
+      container.appendChild(el);
+      requestAnimationFrame(() => {
+        el.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        el.classList.add('opacity-0');
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+
+    // Auth Modal Logic
+    let currentAuthMode = 'login';
+    function openAuthModal(mode = 'login') {
+      currentAuthMode = mode;
+      const modal = document.getElementById('landing-auth-modal');
+      const title = document.getElementById('auth-modal-title');
+      const sub = document.getElementById('auth-modal-subtitle');
+      const nameField = document.getElementById('field-fullname');
+      const btn = document.getElementById('btn-auth-submit');
+      const prompt = document.getElementById('auth-toggle-prompt');
+      const toggleBtn = document.getElementById('auth-toggle-btn');
+
+      if (mode === 'register') {
+        title.innerText = 'Daftar Akun Baru';
+        sub.innerText = 'Dapatkan 3 kredit artikel gratis saat pendaftaran';
+        nameField.classList.remove('hidden');
+        btn.innerText = 'Daftar Sekarang & Coba Gratis';
+        prompt.innerText = 'Sudah punya akun?';
+        toggleBtn.innerText = 'Masuk di sini';
+      } else {
+        title.innerText = 'Masuk ke Akun';
+        sub.innerText = 'Kelola blog dan autopilot artikel Anda';
+        nameField.classList.add('hidden');
+        btn.innerText = 'Masuk ke Akun';
+        prompt.innerText = 'Belum punya akun?';
+        toggleBtn.innerText = 'Daftar Gratis';
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('landing-auth-modal').classList.add('hidden');
+    }
+
+    function toggleAuthMode() {
+      openAuthModal(currentAuthMode === 'login' ? 'register' : 'login');
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value.trim();
+      const fullName = document.getElementById('auth-name').value.trim();
+      const btn = document.getElementById('btn-auth-submit');
+
+      btn.disabled = true;
+      btn.innerText = 'Memproses...';
+
+      const url = currentAuthMode === 'register' ? '/api/saas/auth/register' : '/api/saas/auth/login';
+      const payload = { email, password };
+      if (currentAuthMode === 'register') payload.full_name = fullName;
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && (data.success || data.access_token)) {
+          showToast(currentAuthMode === 'register' ? 'Pendaftaran berhasil! Mengalihkan ke dashboard...' : 'Berhasil masuk! Mengalihkan...', 'success');
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 800);
+        } else {
+          showToast(data.detail || data.error || 'Autentikasi gagal. Periksa kembali email dan password Anda.', 'error');
+        }
+      } catch (err) {
+        showToast('Kesalahan koneksi: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = currentAuthMode === 'register' ? 'Daftar Sekarang & Coba Gratis' : 'Masuk ke Akun';
+      }
+    }
+  </script>
+</body>
+</html>
+

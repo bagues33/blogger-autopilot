@@ -2,7 +2,62 @@
     // Guided 3-Step Onboarding Stepper Wizard (P1-1)
     let currentWizardStep = 1;
 
+    function dismissOnboardingBanner() {
+      const banner = document.getElementById('onboarding-stepper-banner');
+      if (banner) banner.classList.add('hidden');
+      localStorage.setItem('ob_dismissed', '1');
+    }
+
+    function updateOnboardingStepper() {
+      const banner = document.getElementById('onboarding-stepper-banner');
+      if (!banner) return;
+      const isDismissed = localStorage.getItem('ob_dismissed') === '1';
+      
+      if ((!blogs || blogs.length === 0) && !isDismissed) {
+        banner.classList.remove('hidden');
+      }
+
+      // Update Step 1: Blogs connection
+      const s1Status = document.getElementById('ob-status-1');
+      if (s1Status) {
+        if (blogs && blogs.length > 0) {
+          s1Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30";
+          s1Status.innerText = "✓ " + blogs.length + " Terhubung";
+        } else {
+          s1Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30";
+          s1Status.innerText = "Belum Terhubung";
+        }
+      }
+
+      // Update Step 2: Keywords
+      const s2Status = document.getElementById('ob-status-2');
+      if (s2Status) {
+        if (keywords && keywords.length > 0) {
+          s2Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30";
+          s2Status.innerText = "✓ " + keywords.length + " Keyword";
+        } else {
+          s2Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500";
+          s2Status.innerText = "0 Keyword";
+        }
+      }
+
+      // Update Step 3: Articles
+      const s3Status = document.getElementById('ob-status-3');
+      if (s3Status) {
+        if (articles && articles.length > 0) {
+          s3Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30";
+          s3Status.innerText = "✓ " + articles.length + " Draf";
+        } else {
+          s3Status.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500";
+          s3Status.innerText = "Siap Buat";
+        }
+      }
+    }
+
     function openOnboardingWizard() {
+      const banner = document.getElementById('onboarding-stepper-banner');
+      if (banner) banner.classList.remove('hidden');
+      localStorage.removeItem('ob_dismissed');
       currentWizardStep = 1;
       goToWizardStep(1);
       document.body.classList.add('overflow-hidden');

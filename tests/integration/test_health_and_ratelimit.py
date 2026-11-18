@@ -14,6 +14,18 @@ def test_health_endpoints(client: TestClient):
         assert "database" in data
         assert data["database"]["status"] == "connected"
 
+def test_landing_and_dashboard_routes(client: TestClient):
+    # Unauthenticated visitor hitting root / gets landing page
+    res_root = client.get("/")
+    assert res_root.status_code == 200
+    assert "Blogger Auto-Pilot" in res_root.text
+    assert "Solusi Otomasi Konten Google Blogger" in res_root.text
+
+    # Accessing /dashboard returns the studio app
+    res_dash = client.get("/dashboard")
+    assert res_dash.status_code == 200
+    assert "Antrean Artikel & Approval" in res_dash.text or "Antrean Artikel" in res_dash.text
+
 def test_rate_limiter_anti_brute_force(client: TestClient):
     # Simulate rapid consecutive login attempts to trigger the 25/min rate limiter
     hit_429 = False

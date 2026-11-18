@@ -91,6 +91,22 @@ def api_health(db: Session = Depends(get_saas_db)):
 @app.get('/', response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_saas_db)):
     user = get_session_user(request, db)
+    show_landing = request.query_params.get('landing') == '1'
+    if not user or show_landing:
+        return templates.TemplateResponse(
+            request=request,
+            name='landing.html',
+            context={
+                'is_authenticated': user is not None,
+                'user': user
+            }
+        )
+    return dashboard_view(request, db)
+
+@app.get('/dashboard', response_class=HTMLResponse)
+@app.get('/app', response_class=HTMLResponse)
+def dashboard_view(request: Request, db: Session = Depends(get_saas_db)):
+    user = get_session_user(request, db)
     
     kb_content = (user.custom_kb if user and user.custom_kb else '')
     if not kb_content and os.path.exists(SEO_KB_PATH):
@@ -107,7 +123,8 @@ def index(request: Request, db: Session = Depends(get_saas_db)):
         name='index.html',
         context={
             'kb_content': kb_content,
-            'prompt_content': prompt_content
+            'prompt_content': prompt_content,
+            'user': user
         }
     )
 

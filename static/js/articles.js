@@ -14,6 +14,7 @@
         
         renderArticles();
         renderKeywords();
+        if (typeof updateOnboardingStepper === 'function') updateOnboardingStepper();
       } catch (err) {
         console.error('Error loading data:', err);
       }
@@ -80,10 +81,20 @@
 
       if (!articles || !articles.length) {
         list.innerHTML = `
-          <div class="text-center py-16 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-6">
-            <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 flex items-center justify-center mx-auto mb-3 font-bold text-lg">✍️</div>
-            <p class="text-slate-800 dark:text-slate-200 font-semibold text-sm">Belum ada antrean draf artikel</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Klik <b>Buat Draf AI</b> atau <b>Tulis Manual</b> untuk memulai publikasi konten baru.</p>
+          <div class="text-center py-12 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-6 space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto font-bold text-xl">✍️</div>
+            <div>
+              <p class="text-slate-800 dark:text-slate-200 font-bold text-sm">Belum ada antrean draf artikel</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Mulai produksi konten dengan meminta AI meracik draf otomatis atau buat artikel secara manual.</p>
+            </div>
+            <div class="flex items-center justify-center gap-3 pt-1 flex-wrap">
+              <button onclick="triggerAutoGenerate()" class="px-4 py-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-2 active:scale-95">
+                <span>⚡ Buat Draf AI Sekarang</span>
+              </button>
+              <button onclick="openNewArticleModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition active:scale-95">
+                <span>✍️ Tulis Manual</span>
+              </button>
+            </div>
           </div>
         `;
         return;
@@ -107,8 +118,11 @@
 
       if (!filtered.length) {
         list.innerHTML = `
-          <div class="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
-            <p class="text-slate-400 text-xs">Tidak ditemukan artikel yang cocok dengan filter atau kata kunci pencarian.</p>
+          <div class="text-center py-12 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-6 space-y-3">
+            <p class="text-slate-700 dark:text-slate-300 font-semibold text-xs">Tidak ditemukan artikel yang cocok dengan filter atau kata kunci pencarian.</p>
+            <button onclick="currentArticleFilter='all'; currentSearchQuery=''; const searchInp = document.getElementById('search-articles-input'); if (searchInp) searchInp.value=''; setArticleFilter('all');" class="text-xs text-brand-600 dark:text-brand-400 hover:underline font-bold">
+              ↺ Reset Filter & Cari Ulang
+            </button>
           </div>
         `;
         return;
@@ -658,35 +672,93 @@
             showToast('Terjadi kesalahan koneksi: ' + err.message, 'error');
             if (btnEl) {
               btnEl.disabled = false;
+              btnEl.classList.remove('opacity-75', 'cursor-not-allowed');
+              btnEl.innerHTML = originalHtml;
+            }
+          }
+        }
+      });
+    }
 
-      showToast(`Agent AI sedang meriset topik baru untuk ${bName} di background...`, 'info', 4000);
-      
+    async function triggerAutoGenerate() {
+      const btn = document.getElementById('btn-auto-generate');
+      const txt = document.getElementById('btn-auto-generate-text');
+      const bName = activeBlog ? activeBlog.name : 'Blogger';
+
+      // 1. Validasi Akun Blog Aktif
+      if (!activeBlog) {
+        showToast('Silakan pilih atau hubungkan blog Google Anda terlebih dahulu.', 'warning');
+        openAddBlogModal();
+        return;
+      }
+
+      // 2. Validasi Ketersediaan Keyword Berstatus 'planned'
+      const plannedKws = (keywords || []).filter(k => k.status === 'planned');
+      if (plannedKws.length === 0) {
+        showToast("Bank keyword masih kosong. Tambahkan keyword atau gunakan 'Ide Niche' terlebih dahulu!", 'warning');
+        openSuggestModal();
+        return;
+      }
+
+      // 3. Validasi Kuota Kredit
+      if (currentSubscription && currentSubscription.article_credits_used >= currentSubscription.article_credits_limit) {
+        showToast('Kuota kredit artikel Anda telah habis. Silakan upgrade paket langganan.', 'warning');
+        openUpgradeModal();
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-70');
+      }
+      if (txt) txt.innerText = '⏳ Sedang meriset...';
+
+      showToast(`Agent AI sedang meriset topik baru untuk ${bName}...`, 'info', 4000);
+
       try {
         const res = await fetch('/api/agent/generate-now', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          showToast('Permintaan diterima! Draf artikel akan otomatis muncul di antrean saat siap.', 'success', 5000);
-          const checkInterval = setInterval(async () => {
-            await loadData();
-          }, 10000);
+          showToast('Permintaan diterima! Draf artikel sedang diproduksi di background.', 'success', 5000);
+          let elapsedSeconds = 0;
+          const initialArticleCount = (articles || []).length;
           
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.classList.remove('opacity-70');
-            txt.innerText = 'Buat Draf AI';
-            clearInterval(checkInterval);
-          }, 120000);
+          const checkInterval = setInterval(async () => {
+            elapsedSeconds += 8;
+            await loadData();
+            // Cek apakah ada artikel baru yang masuk
+            if ((articles || []).length > initialArticleCount) {
+              showToast('Draf artikel baru berhasil dibuat dan masuk antrean!', 'success');
+              clearInterval(checkInterval);
+              if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+              }
+              if (txt) txt.innerText = '⚡ Buat Draf AI';
+            } else if (elapsedSeconds >= 90) {
+              clearInterval(checkInterval);
+              if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
+              }
+              if (txt) txt.innerText = '⚡ Buat Draf AI';
+            }
+          }, 8000);
         } else {
           showToast(data.error || 'Gagal memicu agent AI.', 'error', 6000);
-          btn.disabled = false;
-          btn.classList.remove('opacity-70');
-          txt.innerText = 'Buat Draf AI';
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+          }
+          if (txt) txt.innerText = '⚡ Buat Draf AI';
         }
       } catch (e) {
         showToast('Terjadi kesalahan: ' + e.message, 'error');
-        btn.disabled = false;
-        btn.classList.remove('opacity-70');
-        txt.innerText = 'Buat Draf AI';
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-70');
+        }
+        if (txt) txt.innerText = '⚡ Buat Draf AI';
       }
     }
 

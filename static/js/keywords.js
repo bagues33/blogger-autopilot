@@ -2,7 +2,23 @@
     function renderKeywords() {
       const list = document.getElementById('keywords-list');
       if (!keywords || !keywords.length) {
-        list.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Belum ada target keyword. Klik <b>⚡ Isi Ide SEO</b> atau <b>+ Tambah</b>.</div>`;
+        list.innerHTML = `
+          <div class="text-center py-8 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto font-bold">🎯</div>
+            <div>
+              <p class="text-slate-800 dark:text-slate-200 font-bold text-xs">Belum ada target keyword</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Isi target kata kunci agar Autopilot memiliki topik untuk ditulis.</p>
+            </div>
+            <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
+              <button onclick="openSuggestModal()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 dark:hover:bg-indigo-500/25 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95">
+                <span>✨ Ide Niche</span>
+              </button>
+              <button onclick="openBulkKeywordModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition active:scale-95">
+                <span>+ Impor Massal</span>
+              </button>
+            </div>
+          </div>
+        `;
         return;
       }
       list.innerHTML = keywords.map(k => `
