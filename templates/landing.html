@@ -610,7 +610,7 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (res.ok && (data.success || data.access_token)) {
+        if (res.ok && (data.success || data.token || data.access_token)) {
           showToast(currentAuthMode === 'register' ? 'Pendaftaran berhasil! Mengalihkan ke dashboard...' : 'Berhasil masuk! Mengalihkan...', 'success');
           setTimeout(() => {
             window.location.href = '/dashboard';

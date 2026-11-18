@@ -136,6 +136,10 @@
       document.getElementById('ai-suggest-niche').focus();
     }
 
+    function openSuggestModal() {
+      openAiSuggestModal();
+    }
+
     function closeAiSuggestModal() {
       document.getElementById('ai-suggest-modal').classList.add('hidden');
     }
