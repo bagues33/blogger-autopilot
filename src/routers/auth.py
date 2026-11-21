@@ -216,9 +216,9 @@ def api_google_login(request: Request, account_name: Optional[str] = 'Akun Googl
 @router.get('/api/auth/google/callback')
 async def api_google_callback(request: Request, code: Optional[str] = None, error: Optional[str] = None, state: Optional[str] = None):
     if error:
-        return RedirectResponse(f"/?auth_error={error}")
+        return RedirectResponse(f"/dashboard?auth_error={error}")
     if not code:
-        return RedirectResponse("/?auth_error=no_code_provided")
+        return RedirectResponse("/dashboard?auth_error=no_code_provided")
 
     cookie_state = request.cookies.get("bap_oauth_state")
     state_data = {}
@@ -247,7 +247,7 @@ async def api_google_callback(request: Request, code: Optional[str] = None, erro
                 pass
 
     if state and expected_state and state != expected_state:
-        return RedirectResponse("/?auth_error=state_mismatch")
+        return RedirectResponse("/dashboard?auth_error=state_mismatch")
 
     if not redirect_uri:
         base_url = str(request.base_url).rstrip('/')
@@ -335,7 +335,7 @@ async def api_google_callback(request: Request, code: Optional[str] = None, erro
     except Exception as e:
         print(f"Error auto-importing blogs: {e}")
 
-    resp = RedirectResponse(f"/?auth_success=1&imported={imported_count}")
+    resp = RedirectResponse(f"/dashboard?auth_success=1&imported={imported_count}")
     resp.delete_cookie("bap_oauth_state")
     if session_u:
         is_prod = os.environ.get('ENVIRONMENT') == 'production'
