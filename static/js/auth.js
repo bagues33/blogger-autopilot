@@ -28,25 +28,33 @@
           dropEmail.innerText = currentUser.email;
           menuAuthText.innerText = 'Keluar (Logout)';
 
-          const tier = (data.subscription?.plan_tier || 'free').toUpperCase();
+          const isExpired = Boolean(data.subscription?.is_expired);
+          const tier = (data.subscription?.effective_plan_tier || data.subscription?.plan_tier || 'free').toUpperCase();
           const used = data.subscription?.article_credits_used || 0;
           const limit = data.subscription?.article_credits_limit || 3;
           const remaining = Math.max(0, limit - used);
           const pct = Math.min(100, Math.round((used / limit) * 100));
 
-          pillName.innerText = tier;
-          pillRatio.innerText = `(${remaining} tersisa)`;
-          pillBar.style.width = `${pct}%`;
+          pillName.innerText = isExpired ? `${tier} (EXPIRED)` : tier;
+          pillRatio.innerText = isExpired ? '(Perlu Perpanjangan)' : `(${remaining} tersisa)`;
+          pillBar.style.width = `${isExpired ? 100 : pct}%`;
 
           const elStatCredits = document.getElementById('stat-credits-remaining');
           const elStatSub = document.getElementById('stat-credits-sub');
           if (elStatCredits) elStatCredits.innerText = `${remaining} Kredit`;
-          if (elStatSub) elStatSub.innerText = `${used} terpakai dari ${limit} limit`;
+          if (elStatSub) elStatSub.innerText = isExpired
+            ? 'Langganan berakhir — diperhitungkan sebagai paket FREE'
+            : `${used} terpakai dari ${limit} limit`;
           
-          if (pct >= 100) {
+          if (isExpired || pct >= 100) {
             pillBar.className = "bg-rose-500 h-full transition-all duration-300";
           } else {
             pillBar.className = "bg-gradient-to-r from-brand-500 to-indigo-500 h-full transition-all duration-300";
+          }
+
+          if (isExpired && !window._expiredWarningShown && typeof showToast === 'function') {
+            window._expiredWarningShown = true;
+            showToast('Masa aktif paket berbayar Anda telah berakhir. Perpanjang langganan agar fitur Autopilot & kuota tetap aktif.', 'warning', 7000);
           }
         } else {
           currentUser = null;
@@ -153,7 +161,9 @@
       const formReg = document.getElementById('form-register');
       const title = document.getElementById('auth-modal-title');
       const alertBox = document.getElementById('auth-error-alert');
+      const forgotBox = document.getElementById('form-forgot-container');
       alertBox.classList.add('hidden');
+      if (forgotBox) forgotBox.classList.add('hidden');
 
       if (tab === 'login') {
         tabLogin.className = "flex-1 py-3 text-xs font-bold text-brand-600 dark:text-brand-400 border-b-2 border-brand-500 transition";

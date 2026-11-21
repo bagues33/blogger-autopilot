@@ -443,10 +443,6 @@ def api_exchange_auth_code(req: AuthCodeReq, user: User = Depends(get_current_us
     if not os.path.exists(DEFAULT_CLIENT_SECRET):
         return {'success': False, 'error': f"File '{DEFAULT_CLIENT_SECRET}' belum dikonfigurasi di server."}
     try:
-        safe_filename = os.path.basename(req.token_filename) if req.token_filename else f"token_{user.id[:8]}.json"
-        out_path = os.path.join(TOKENS_DIR, safe_filename)
-        os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
-
         flow = InstalledAppFlow.from_client_secrets_file(
             DEFAULT_CLIENT_SECRET,
             SCOPES,
@@ -462,9 +458,8 @@ def api_exchange_auth_code(req: AuthCodeReq, user: User = Depends(get_current_us
 
         flow.fetch_token(code=code_input)
         creds = flow.credentials
-        with open(out_path, 'w', encoding='utf-8') as f:
-            f.write(creds.to_json())
+        encrypted_blob = encrypt_token_data(creds.to_json())
 
-        return {'success': True, 'token_file': out_path}
+        return {'success': True, 'encrypted_token': encrypted_blob}
     except Exception as e:
         return {'success': False, 'error': str(e)}

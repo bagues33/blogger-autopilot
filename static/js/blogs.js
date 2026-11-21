@@ -133,6 +133,7 @@
       document.getElementById('new-blog-account').value = '';
       document.getElementById('new-blog-niche').value = '';
       document.getElementById('token-upload-status').innerText = '';
+      generatedEncryptedToken = null;
       toggleTokenUpload(false);
       document.getElementById('add-blog-modal').classList.remove('hidden');
     }
@@ -149,7 +150,7 @@
       }
     }
 
-    let generatedTokenPath = null;
+    let generatedEncryptedToken = null;
 
     async function openOAuthLoginPopup() {
       try {
@@ -183,14 +184,14 @@
           body: JSON.stringify({ code: codeVal, token_filename: tokenName })
         });
         const data = await res.json();
-        if (data.success) {
-          generatedTokenPath = data.token_file;
+        if (res.ok && data.success && data.encrypted_token) {
+          generatedEncryptedToken = data.encrypted_token;
           statusEl.className = 'text-xs text-emerald-700 dark:text-emerald-400 font-semibold';
-          statusEl.innerText = '✓ Token berhasil dibuat dan terverifikasi!';
+          statusEl.innerText = '✓ Token berhasil dibuat, dienkripsi, dan terverifikasi!';
           document.getElementById('oauth-code-input-group').classList.add('hidden');
         } else {
           statusEl.className = 'text-xs text-rose-700 dark:text-rose-400 font-semibold';
-          statusEl.innerText = '✗ Gagal: ' + (data.error || 'Kode tidak valid');
+          statusEl.innerText = '✗ Gagal: ' + (data.detail || data.error || 'Kode tidak valid');
         }
       } catch (e) {
         statusEl.className = 'text-xs text-rose-700 dark:text-rose-400 font-semibold';
@@ -215,10 +216,11 @@
       btn.disabled = true;
       btn.innerText = 'Menyimpan...';
 
-      let tokenFile = null;
+      let encryptedToken = null;
+      let reuseTokenFromBlogId = null;
       if (tokenChoice === 'new') {
-        if (generatedTokenPath) {
-          tokenFile = generatedTokenPath;
+        if (generatedEncryptedToken) {
+          encryptedToken = generatedEncryptedToken;
         } else {
           const fileInput = document.getElementById('new-blog-token-file');
           if (!fileInput.files || fileInput.files.length === 0) {
@@ -235,10 +237,10 @@
               body: formData
             });
             const upData = await upRes.json();
-            if (!upData.success) {
-              throw new Error(upData.error || 'Gagal upload token');
+            if (!upRes.ok || !upData.success || !upData.encrypted_token) {
+              throw new Error(upData.detail || upData.error || 'Gagal upload token');
             }
-            tokenFile = upData.token_file;
+            encryptedToken = upData.encrypted_token;
           } catch (e) {
             showToast('Gagal mengunggah token: ' + e.message, 'error');
             btn.disabled = false;
@@ -247,7 +249,7 @@
           }
         }
       } else {
-        tokenFile = activeBlog ? activeBlog.token_file : 'token.json';
+        reuseTokenFromBlogId = activeBlog ? activeBlog.id : null;
       }
 
       try {
@@ -259,18 +261,20 @@
             name: name,
             url: url,
             account_name: account || 'Akun Google',
-            token_file: tokenFile,
+            encrypted_token: encryptedToken,
+            reuse_token_from_blog_id: reuseTokenFromBlogId,
             niche_description: niche
           })
         });
         const data = await res.json();
-        if (data.success) {
+        if (res.ok && data.success) {
+          generatedEncryptedToken = null;
           closeAddBlogModal();
           await loadBlogs();
           await selectBlog(id);
           showToast('Blog baru berhasil didaftarkan dan diaktifkan!', 'success');
         } else {
-          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+          showToast('Gagal: ' + (data.detail || data.error || 'Terjadi kesalahan sistem'), 'error');
         }
       } catch (e) {
         showToast('Terjadi kesalahan: ' + e.message, 'error');

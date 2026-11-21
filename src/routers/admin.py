@@ -28,7 +28,13 @@ from src.models.models import (
 from src.core.security import hash_password
 import src.services.payment as midtrans_service
 from src.services.audit import record_audit_log
-from src.core.dependencies import get_session_user, get_current_user, get_current_admin, check_feature_access
+from src.core.dependencies import (
+    get_session_user,
+    get_current_user,
+    get_current_admin,
+    check_feature_access,
+    is_subscription_expired
+)
 
 router = APIRouter(tags=['Admin'])
 
@@ -195,9 +201,10 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
     paying_tier_counts = {'starter': 0, 'pro': 0, 'agency': 0}
 
     for sub, u in active_subs:
-        t = sub.plan_tier if sub.plan_tier in tier_counts else 'free'
+        expired = is_subscription_expired(sub)
+        t = 'free' if expired else (sub.plan_tier if sub.plan_tier in tier_counts else 'free')
         tier_counts[t] += 1
-        if t in paying_tier_counts and u.role != 'admin':
+        if not expired and t in paying_tier_counts and u.role != 'admin':
             paying_tier_counts[t] += 1
 
     mrr = sum(

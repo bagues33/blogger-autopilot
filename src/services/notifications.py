@@ -139,8 +139,15 @@ class LiveNetworkNotificationAdapter(BaseNotificationAdapter):
             }
         )
 
+        class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+            """Re-validate every HTTP 3xx redirect target against SSRF rules."""
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                validate_safe_webhook_url(newurl)
+                return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+        opener = urllib.request.build_opener(_SafeRedirectHandler)
         try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with opener.open(req, timeout=10) as resp:
                 status = resp.status
                 return {"success": 200 <= status < 300, "status_code": status}
         except urllib.error.HTTPError as e:

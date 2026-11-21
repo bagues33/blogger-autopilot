@@ -51,6 +51,7 @@ class BlogAddReq(BaseModel):
     account_name: Optional[str] = 'Akun Utama'
     token_file: Optional[str] = None
     encrypted_token: Optional[str] = None
+    reuse_token_from_blog_id: Optional[str] = None
     niche_description: Optional[str] = ''
 
 class AutopilotSettingsReq(BaseModel):
@@ -73,7 +74,7 @@ def api_get_blogs(user: Optional[User] = Depends(get_optional_user), db: Session
             'name': b.name,
             'url': b.url,
             'account_name': b.account_name,
-            'token_file': b.token_file,
+            'has_token': bool(b.encrypted_token or b.token_file),
             'niche_description': b.niche_description,
             'is_active': b.is_active,
             'role': get_user_role_for_blog(user, b, db),
@@ -97,7 +98,7 @@ def api_select_blog(req: BlogSelectReq, user: User = Depends(get_current_user), 
                 b.is_active = 1 if b.id == req.blog_id else 0
         db.commit()
 
-    if user.email == 'admin@bagustech.id' and selected_blog and os.path.exists(CONFIG_FILE):
+    if user.role == 'admin' and os.getenv('ENVIRONMENT', 'development') != 'production' and selected_blog and os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'w') as f:
                 json.dump({
@@ -132,6 +133,16 @@ def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_cur
         safe_token_file = req.token_file
 
     safe_encrypted_token = req.encrypted_token if req.encrypted_token else None
+    if not safe_encrypted_token and req.reuse_token_from_blog_id:
+        source_blog = db.query(SaasBlog).filter(
+            SaasBlog.id == req.reuse_token_from_blog_id.strip(),
+            SaasBlog.user_id == user.id
+        ).first()
+        if source_blog:
+            if source_blog.encrypted_token:
+                safe_encrypted_token = source_blog.encrypted_token
+            elif user.role == 'admin' and source_blog.token_file:
+                safe_token_file = source_blog.token_file
     target_name = req.name.strip()
     target_url = req.url.strip() if req.url else ''
     target_account = req.account_name.strip() if req.account_name else 'Akun Google'

@@ -261,3 +261,86 @@ def test_legal_pages_and_self_service_password_reset(client: TestClient, tenant_
     assert r_login.status_code == 200
     assert r_login.json()["success"] is True
 
+
+def test_encrypted_token_upload_and_no_server_path_leak(tenant_factory, db_session):
+    from src.models.models import Blog
+
+    client_pro, user_pro = tenant_factory(plan="pro", name="Token Flow Owner")
+
+    # 1. Valid OAuth JSON upload returns encrypted_token (never a raw file path)
+    oauth_payload = b'{"token": "ya29.fake", "refresh_token": "1//fake", "client_id": "cid"}'
+    r_up = client_pro.post(
+        "/api/blogs/upload-token",
+        files={"file": ("token.json", oauth_payload, "application/json")}
+    )
+    assert r_up.status_code == 200
+    up_data = r_up.json()
+    assert up_data["success"] is True
+    assert up_data.get("encrypted_token")
+    assert "token_file" not in up_data
+
+    # 2. Save blog #1 with encrypted_token
+    r_add1 = client_pro.post("/api/blogs/add", json={
+        "id": "enc-blog-1",
+        "name": "Encrypted Blog 1",
+        "url": "https://enc1.blogspot.com",
+        "encrypted_token": up_data["encrypted_token"]
+    })
+    assert r_add1.status_code == 200
+
+    # 3. GET /api/blogs exposes has_token=True and never leaks token_file
+    r_list = client_pro.get("/api/blogs")
+    assert r_list.status_code == 200
+    blogs_resp = r_list.json()
+    b1 = next(b for b in blogs_resp if b["id"] == "enc-blog-1")
+    assert b1["has_token"] is True
+    assert "token_file" not in b1
+
+    # 4. Save blog #2 reusing own blog #1's encrypted_token safely server-side
+    r_add2 = client_pro.post("/api/blogs/add", json={
+        "id": "enc-blog-2",
+        "name": "Encrypted Blog 2",
+        "url": "https://enc2.blogspot.com",
+        "reuse_token_from_blog_id": "enc-blog-1"
+    })
+    assert r_add2.status_code == 200
+    saved_b2 = db_session.query(Blog).filter(Blog.id == "enc-blog-2", Blog.user_id == user_pro.id).first()
+    assert saved_b2 is not None
+    assert saved_b2.encrypted_token == up_data["encrypted_token"]
+
+    # 5. Another tenant CANNOT reuse user_pro's blog token via reuse_token_from_blog_id
+    client_other, user_other = tenant_factory(plan="free", name="Other Tenant")
+    r_steal = client_other.post("/api/blogs/add", json={
+        "id": "steal-blog",
+        "name": "Steal Blog",
+        "reuse_token_from_blog_id": "enc-blog-1"
+    })
+    assert r_steal.status_code == 200
+    stolen = db_session.query(Blog).filter(Blog.id == "steal-blog", Blog.user_id == user_other.id).first()
+    assert stolen is not None
+    assert stolen.encrypted_token is None
+
+
+def test_admin_mrr_excludes_expired_subscriptions(tenant_factory, db_session):
+    from datetime import datetime, timedelta, timezone
+
+    client_admin, user_admin = tenant_factory(plan="agency", name="MRR Admin")
+    user_admin.role = "admin"
+    db_session.commit()
+
+    # Baseline MRR
+    r_base = client_admin.get("/api/admin/metrics")
+    assert r_base.status_code == 200
+    base_mrr = r_base.json()["mrr_idr"]
+
+    # Create a Pro user whose subscription is expired (status still 'active' in DB before sweep)
+    _, user_exp = tenant_factory(plan="pro", name="Expired MRR User")
+    sub_exp = db_session.query(Subscription).filter(Subscription.user_id == user_exp.id).first()
+    sub_exp.current_period_end = datetime.now(timezone.utc) - timedelta(days=2)
+    db_session.commit()
+
+    r_after = client_admin.get("/api/admin/metrics")
+    assert r_after.status_code == 200
+    assert r_after.json()["mrr_idr"] == base_mrr
+
+
