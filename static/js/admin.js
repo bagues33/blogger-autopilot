@@ -163,6 +163,9 @@
                 <button onclick="adminResetPassword('${t.id}', '${t.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
                   Reset Pwd
                 </button>
+                <button onclick="adminToggleRole('${t.id}', '${t.email}', '${t.role}')" class="px-2 py-1 ${t.role === 'admin' ? 'bg-purple-100 hover:bg-purple-200 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-500/40' : 'bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'} text-xs font-semibold rounded-lg border transition" title="${t.role === 'admin' ? 'Cabut hak Superadmin' : 'Promosikan jadi Superadmin'}">
+                  ${t.role === 'admin' ? 'Cabut Admin' : '👑 Admin'}
+                </button>
                 <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-xs font-semibold rounded-lg border transition">
                   ${t.is_active ? 'Suspend' : 'Aktifkan'}
                 </button>
@@ -337,6 +340,37 @@
               showToast(data.message, 'success');
             } else {
               showToast('Gagal: ' + (data.error || data.detail || 'Terjadi kesalahan sistem'), 'error');
+            }
+          } catch (err) {
+            showToast('Error: ' + err.message, 'error');
+          }
+        }
+      });
+    }
+
+    function adminToggleRole(userId, email, currentRole) {
+      const targetRole = currentRole === 'admin' ? 'subscriber' : 'admin';
+      const actionLabel = targetRole === 'admin' ? 'mempromosikan menjadi Superadmin' : 'mencabut hak Superadmin';
+      showConfirm({
+        title: targetRole === 'admin' ? 'Promosikan ke Superadmin' : 'Cabut Hak Superadmin',
+        message: `Apakah Anda yakin ingin ${actionLabel} untuk akun: ${email}?`,
+        confirmText: targetRole === 'admin' ? 'Jadikan Superadmin' : 'Cabut Hak Admin',
+        cancelText: 'Batal',
+        isDestructive: targetRole !== 'admin',
+        icon: '👑',
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`/api/admin/tenants/${userId}/role`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ role: targetRole })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(data.message, 'success');
+              await loadAdminData();
+            } else {
+              showToast('Gagal: ' + (data.detail || data.error || 'Terjadi kesalahan sistem'), 'error');
             }
           } catch (err) {
             showToast('Error: ' + err.message, 'error');

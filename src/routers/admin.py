@@ -52,6 +52,9 @@ class AdminAddCreditsReq(BaseModel):
 class AdminResetPasswordReq(BaseModel):
     new_password: str
 
+class AdminSetRoleReq(BaseModel):
+    role: str # 'admin' or 'subscriber'
+
 # --- Tenant Data Backup & 1-Click Export ---
 
 @router.get('/api/tenant/export')
@@ -455,4 +458,43 @@ def api_admin_reset_user_password(user_id: str, req: AdminResetPasswordReq, requ
     return {
         'success': True,
         'message': f"Kata sandi untuk pengguna {target_user.email} berhasil direset."
+    }
+
+@router.post('/api/admin/tenants/{user_id}/role')
+def api_admin_set_user_role(user_id: str, req: AdminSetRoleReq, request: Request, db: Session = Depends(get_saas_db)):
+    admin = require_admin(request, db)
+
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Tenant tidak ditemukan.")
+
+    clean_role = req.role.lower().strip()
+    if clean_role not in ['admin', 'subscriber']:
+        raise HTTPException(status_code=400, detail="Peran tidak valid. Pilihan yang diizinkan: 'admin' atau 'subscriber'.")
+
+    if target_user.id == admin.id and clean_role != 'admin':
+        raise HTTPException(status_code=400, detail="Tidak dapat mencabut hak admin dari akun Anda sendiri.")
+
+    old_role = target_user.role
+    target_user.role = clean_role
+    db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="admin.role_changed",
+        user_id=admin.id,
+        entity_id=target_user.id,
+        metadata={
+            "target_email": target_user.email,
+            "old_role": old_role,
+            "new_role": clean_role
+        },
+        ip_address=request.client.host if request and request.client else None
+    )
+
+    label = "Superadmin" if clean_role == "admin" else "Subscriber"
+    return {
+        'success': True,
+        'role': clean_role,
+        'message': f"Peran pengguna {target_user.email} berhasil diubah menjadi {label}."
     }

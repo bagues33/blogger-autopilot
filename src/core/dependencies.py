@@ -143,4 +143,8 @@ def get_or_create_default_admin(db: Session) -> User:
             full_name='Admin Bagus Tech',
             plan_tier='pro'
         )
+    if admin and admin.role != 'admin':
+        admin.role = 'admin'
+        db.commit()
+        db.refresh(admin)
     return admin

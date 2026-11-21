@@ -87,3 +87,32 @@ def test_admin_mutations_audit_logs_and_mrr_exclusion(admin_client: TestClient, 
     assert "admin.credits_added" in events
     assert "admin.password_reset" in events
     assert "admin.status_toggled" in events
+
+def test_multi_admin_role_promotion_and_self_lockout_guard(admin_client: TestClient, tenant_factory):
+    client_staff, user_staff = tenant_factory(plan="free", role="subscriber", name="Ops Staff")
+
+    # Initially staff gets 403 on admin endpoints
+    assert client_staff.get("/api/admin/metrics").status_code == 403
+
+    # 1. Primary admin promotes staff to 'admin'
+    res_prom = admin_client.post(f"/api/admin/tenants/{user_staff.id}/role", json={"role": "admin"})
+    assert res_prom.status_code == 200
+    assert res_prom.json()["role"] == "admin"
+
+    # 2. Newly promoted admin CAN now access Admin Console!
+    assert client_staff.get("/api/admin/metrics").status_code == 200
+
+    # 3. Self-lockout guard: staff admin CANNOT demote themselves
+    res_self = client_staff.post(f"/api/admin/tenants/{user_staff.id}/role", json={"role": "subscriber"})
+    assert res_self.status_code == 400
+    assert "sendiri" in res_self.json()["detail"].lower()
+
+    # 4. Primary admin demotes staff back to 'subscriber' -> immediately loses admin access
+    res_dem = admin_client.post(f"/api/admin/tenants/{user_staff.id}/role", json={"role": "subscriber"})
+    assert res_dem.status_code == 200
+    assert res_dem.json()["role"] == "subscriber"
+    assert client_staff.get("/api/admin/metrics").status_code == 403
+
+    # 5. Verify role change logged in audit trail
+    events = {l["event_type"] for l in admin_client.get("/api/admin/audit-logs?limit=20").json()["logs"]}
+    assert "admin.role_changed" in events
