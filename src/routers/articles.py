@@ -399,14 +399,20 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
     }
 
 @router.post('/api/agent/generate-now')
-def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, blog_id: Optional[str] = None, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="generate")
 
     accessible_blogs = get_accessible_blogs(user, db)
     if not accessible_blogs:
         return JSONResponse(status_code=400, content={'success': False, 'error': 'Silakan hubungkan blog terlebih dahulu.'})
 
-    active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+    if blog_id:
+        active_b = next((b for b in accessible_blogs if b.id == blog_id), None)
+        if not active_b:
+            return JSONResponse(status_code=403, content={'success': False, 'error': 'Anda tidak memiliki izin akses ke blog ini.'})
+    else:
+        active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+
     if not has_blog_permission(user, active_b, Permission.ARTICLE_CREATE, db):
         return JSONResponse(status_code=403, content={'success': False, 'error': 'Anda tidak memiliki izin untuk memicu draf artikel di blog ini.'})
 
@@ -451,8 +457,7 @@ def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, 
                 }
             )
 
-    background_tasks.add_task(generate_article, tenant_id=blog_owner.id, blog_id=active_b.id)
-    return {'success': True, 'message': 'Agent dimulai di background'}
+    background_tasks.add_task(generate_article, tenant_id=blog_owner.id, blog_id=active_b.id, author_id=user.id)
     return {'success': True, 'message': 'Agent dimulai di background'}
 
 @router.post('/api/images/upload')

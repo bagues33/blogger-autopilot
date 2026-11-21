@@ -248,8 +248,14 @@ def get_printable_roi_report(
     cost_saved_idr = total_words * 150
     now_str = datetime.now().strftime("%d %B %Y, %H:%M WIB")
 
-    # White-Label Branding
-    is_whitelabel = bool(agency_name and agency_name.strip())
+    # White-Label Branding (Gated to Pro / Agency or team members on Pro/Agency blog)
+    can_whitelabel = check_feature_access(user, 'export_backup')
+    if not can_whitelabel and blog:
+        owner = get_blog_effective_owner(blog, db)
+        if owner:
+            can_whitelabel = check_feature_access(owner, 'export_backup')
+
+    is_whitelabel = can_whitelabel and bool(agency_name and agency_name.strip())
     brand_title = html_escape.escape(agency_name.strip()) if is_whitelabel else "⚡ Blogger Auto-Pilot SaaS"
     footer_text = (
         f"Laporan Kinerja Konten SEO — Disusun oleh {brand_title}."

@@ -340,7 +340,8 @@ def generate_article(
     blog_id: Optional[str] = None,
     keyword_id: Optional[int] = None,
     llm_adapter: Optional[BaseLLMAdapter] = None,
-    db: Optional[Session] = None
+    db: Optional[Session] = None,
+    author_id: Optional[str] = None
 ) -> ArticleGenerationResult:
     """
     Orchestrates end-to-end article drafting:
@@ -516,6 +517,7 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
 
         article = Article(
             user_id=user.id,
+            author_id=author_id or user.id,
             blog_id=blog.id,
             title=title,
             target_keyword=kw.keyword,

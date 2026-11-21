@@ -155,7 +155,10 @@
         if (a.status === 'draft' && canReview) {
           workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'pending_review')" title="Kirim ke editor untuk direview" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1"><span>🚀 Minta Review</span></button>`;
         } else if (a.status === 'pending_review' && canApprove) {
-          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'approved')" title="Setujui artikel untuk dipublikasikan" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1"><span>✓ Setujui</span></button>`;
+          workflowBtn = `
+            <button onclick="updateArticleStatus(${a.id}, 'draft')" title="Kembalikan draf ke penulis untuk revisi" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 rounded-lg text-xs font-semibold transition active:scale-95">↩️ Revisi</button>
+            <button onclick="updateArticleStatus(${a.id}, 'approved')" title="Setujui artikel untuk dipublikasikan" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1"><span>✓ Setujui</span></button>
+          `;
         }
 
         const authorBadge = a.author_name ? `<span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">✍️ ${a.author_name}</span>` : '';
@@ -257,6 +260,12 @@
       if (approveBtn) {
         if (a.status === 'pending_review' && canApprove) approveBtn.classList.remove('hidden');
         else approveBtn.classList.add('hidden');
+      }
+
+      const revBtn = document.getElementById('btn-request-revision');
+      if (revBtn) {
+        if (a.status === 'pending_review' && canApprove) revBtn.classList.remove('hidden');
+        else revBtn.classList.add('hidden');
       }
       
       switchModalView('preview');
@@ -559,6 +568,13 @@
       closeArticleModal();
     }
 
+    async function requestRevisionModalArticle() {
+      const id = document.getElementById('modal-article-id').value;
+      if (!id) return;
+      await updateArticleStatus(id, 'draft');
+      closeArticleModal();
+    }
+
 
     async function saveArticleDraft() {
       const id = document.getElementById('modal-article-id').value;
@@ -735,8 +751,9 @@
         return;
       }
 
-      // 3. Validasi Kuota Kredit
-      if (currentSubscription && currentSubscription.article_credits_used >= currentSubscription.article_credits_limit) {
+      // 3. Validasi Kuota Kredit (Hanya blokir lokal jika blog milik sendiri; blog agensi memakai Shared Credit Pool di backend)
+      const isOwnBlog = activeBlog.is_owner !== false;
+      if (isOwnBlog && currentSubscription && currentSubscription.article_credits_used >= currentSubscription.article_credits_limit) {
         showToast('Kuota kredit artikel Anda telah habis. Silakan upgrade paket langganan.', 'warning');
         openUpgradeModal();
         return;
@@ -751,7 +768,10 @@
       showToast(`Agent AI sedang meriset topik baru untuk ${bName}...`, 'info', 4000);
 
       try {
-        const res = await fetch('/api/agent/generate-now', { method: 'POST' });
+        const genUrl = activeBlog && activeBlog.id
+          ? `/api/agent/generate-now?blog_id=${encodeURIComponent(activeBlog.id)}`
+          : '/api/agent/generate-now';
+        const res = await fetch(genUrl, { method: 'POST' });
         const data = await res.json();
         if (data.success) {
           showToast('Permintaan diterima! Draf artikel sedang diproduksi di background.', 'success', 5000);

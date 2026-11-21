@@ -101,3 +101,4 @@ def ping_websub_for_blog(blog_url: Optional[str], post_url: Optional[str] = None
     if not feed_url:
         return {"success": False, "error": "URL blog belum dikonfigurasi"}
     return get_indexing_adapter().ping(feed_url=feed_url, post_url=post_url)
+

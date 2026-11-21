@@ -168,3 +168,94 @@ def test_shared_credit_pool_agency_quota_deduction(tenant_factory, db_session):
     # Writer's personal credits must remain UNTOUCHED
     db_session.refresh(sub_writer)
     assert sub_writer.article_credits_used == initial_writer_used
+
+
+def test_rbac_keywords_audit_logs_and_blog_isolation_regression(tenant_factory, db_session):
+    from src.models.models import AuditLog
+
+    client_owner, owner = tenant_factory(plan="agency", name="Agency Owner Reg")
+    client_writer, writer = tenant_factory(plan="free", name="Writer Reg")
+    client_editor, editor = tenant_factory(plan="free", name="Editor Reg")
+
+    b1 = f"blog_kw1_{uuid.uuid4().hex[:6]}"
+    b2 = f"blog_kw2_{uuid.uuid4().hex[:6]}"
+    client_owner.post("/api/blogs/add", json={"id": b1, "name": "Client Blog One"})
+    client_owner.post("/api/blogs/add", json={"id": b2, "name": "Client Blog Two"})
+    # Owner explicitly sets b1 as active
+    client_owner.post("/api/blogs/select", json={"blog_id": b1})
+
+    r_ws = client_owner.post("/api/workspaces", json={"name": "Audit & KW Agency"})
+    ws_id = r_ws.json()["workspace"]["id"]
+
+    # Assign ONLY b2 to Writer (and b2 to Editor)
+    client_owner.post(f"/api/workspaces/{ws_id}/members", json={
+        "email": writer.email,
+        "role": "writer",
+        "assigned_blog_ids": [b2]
+    })
+    client_owner.post(f"/api/workspaces/{ws_id}/members", json={
+        "email": editor.email,
+        "role": "editor",
+        "assigned_blog_ids": [b2]
+    })
+
+    # 1. Writer selects b2 -> MUST NOT overwrite Owner's is_active=1 on b1!
+    r_sel = client_writer.post("/api/blogs/select", json={"blog_id": b2})
+    assert r_sel.status_code == 200
+    owner_b1 = db_session.query(Blog).filter(Blog.id == b1).first()
+    db_session.refresh(owner_b1)
+    assert owner_b1.is_active == 1
+
+    # 2. Writer adds keyword to assigned blog b2 -> SUCCEEDS, owned by agency owner
+    r_kw_ok = client_writer.post("/api/keywords/add", json={
+        "keyword": "tips seo agensi terbaru",
+        "search_intent": "Commercial",
+        "blog_id": b2
+    })
+    assert r_kw_ok.status_code == 200
+
+    # Writer lists keywords on b2 -> sees it!
+    r_kw_list = client_writer.get(f"/api/keywords?blog_id={b2}")
+    assert r_kw_list.status_code == 200
+    assert any(k["keyword"] == "tips seo agensi terbaru" for k in r_kw_list.json())
+
+    # 3. Writer tries to add keyword to unassigned blog b1 -> 403 FORBIDDEN
+    r_kw_deny = client_writer.post("/api/keywords/add", json={
+        "keyword": "illegal keyword",
+        "blog_id": b1
+    })
+    assert r_kw_deny.status_code == 403
+
+    # 4. Members telemetry: Owner sees is_current_user_owner=True, Writer sees False + shared credits
+    r_m_owner = client_owner.get(f"/api/workspaces/{ws_id}/members").json()
+    assert r_m_owner["is_current_user_owner"] is True
+    assert r_m_owner["shared_credits_limit"] == 600
+
+    r_m_writer = client_writer.get(f"/api/workspaces/{ws_id}/members").json()
+    assert r_m_writer["is_current_user_owner"] is False
+
+    # 5. Update member blogs + audit logs verification
+    r_upd = client_owner.post(f"/api/workspaces/{ws_id}/members/{writer.id}/blogs", json={
+        "assigned_blog_ids": [b1, b2]
+    })
+    assert r_upd.status_code == 200
+
+    events = {
+        log.event_type for log in db_session.query(AuditLog).filter(AuditLog.workspace_id == ws_id).all()
+    }
+    assert "workspace.created" in events
+    assert "member.added" in events
+    assert "member.blogs_updated" in events
+
+    # 6. Editor revision flow: pending_review -> draft
+    r_art = client_writer.post("/api/articles/save", json={
+        "title": "Draf Perlu Revisi",
+        "content_html": "<p>Konten awal.</p>",
+        "blog_id": b2
+    })
+    art_id = r_art.json()["id"]
+    client_writer.post(f"/api/articles/{art_id}/status", json={"status": "pending_review"})
+    r_rev = client_editor.post(f"/api/articles/{art_id}/status", json={"status": "draft"})
+    assert r_rev.status_code == 200
+    assert r_rev.json()["status"] == "draft"
+

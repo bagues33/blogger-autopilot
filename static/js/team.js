@@ -1,7 +1,7 @@
 /**
  * Blogger Autopilot - Team & Granular Blog RBAC Management (Phase 3)
  * Handles workspace memberships, role assignments (Writer, Editor, Owner),
- * granular blog assignment checkboxes, and shared credit pool indicators.
+ * granular blog assignment editing, read-only member views, and dynamic shared credit pool telemetry.
  */
 
 (function () {
@@ -9,12 +9,13 @@
   let workspaceMembers = [];
   let availableBlogs = [];
   let isAgencyTier = false;
+  let isCurrentUserOwner = false;
 
   window.openTeamModal = async function () {
     const modal = document.getElementById('team-modal');
     if (!modal) return;
     modal.classList.remove('hidden');
-
+    switchTeamTab('members');
     await loadTeamData();
   };
 
@@ -58,13 +59,13 @@
   async function loadTeamData() {
     const activeView = document.getElementById('team-content-active');
     const lockedView = document.getElementById('team-content-locked');
+    const btnInvite = document.getElementById('team-tab-btn-invite');
+    const sharedCreditsEl = document.getElementById('team-shared-credits');
 
     try {
-      // 1. Fetch Workspaces
       const wsRes = await fetch('/api/workspaces', { credentials: 'same-origin' });
       if (!wsRes.ok) {
         if (wsRes.status === 403) {
-          // Locked view for non-agency
           if (activeView) activeView.classList.add('hidden');
           if (lockedView) lockedView.classList.remove('hidden');
           return;
@@ -75,11 +76,10 @@
       const wsData = await wsRes.json();
       const workspaces = wsData.workspaces || [];
 
-      // Check current subscription plan
       const userRes = await fetch('/api/auth/me', { credentials: 'same-origin' });
       if (userRes.ok) {
         const u = await userRes.json();
-        const plan = (u.plan || '').toLowerCase();
+        const plan = (u.plan || (u.subscription && u.subscription.plan_tier) || '').toLowerCase();
         isAgencyTier = plan === 'agency' || u.role === 'admin';
       }
 
@@ -92,7 +92,6 @@
       if (activeView) activeView.classList.remove('hidden');
       if (lockedView) lockedView.classList.add('hidden');
 
-      // If user has no workspace yet but is Agency, create default
       if (workspaces.length === 0 && isAgencyTier) {
         const createRes = await fetch('/api/workspaces', {
           method: 'POST',
@@ -110,24 +109,44 @@
 
       if (!activeWorkspaceId) return;
 
-      // 2. Fetch available blogs in workspace
-      try {
-        const blogsRes = await fetch(`/api/workspaces/${activeWorkspaceId}/available-blogs`, { credentials: 'same-origin' });
-        if (blogsRes.ok) {
-          const bData = await blogsRes.json();
-          availableBlogs = bData.blogs || [];
-        }
-      } catch (e) {
-        availableBlogs = [];
-      }
-
-      // 3. Fetch members
+      // Fetch members + shared credit pool telemetry
       const memRes = await fetch(`/api/workspaces/${activeWorkspaceId}/members`, { credentials: 'same-origin' });
       if (memRes.ok) {
         const mData = await memRes.json();
         workspaceMembers = mData.members || [];
-        renderMembersList();
+        isCurrentUserOwner = Boolean(mData.is_current_user_owner);
+
+        // Update dynamic shared credit pool display
+        if (sharedCreditsEl) {
+          const limit = mData.shared_credits_limit || 600;
+          const used = mData.shared_credits_used || 0;
+          const remaining = Math.max(0, limit - used);
+          sharedCreditsEl.innerText = `${remaining} / ${limit} Kredit`;
+        }
+
+        // Toggle invite tab visibility based on ownership
+        if (btnInvite) {
+          if (isCurrentUserOwner) btnInvite.classList.remove('hidden');
+          else btnInvite.classList.add('hidden');
+        }
       }
+
+      // Fetch available blogs only if current user is owner/admin
+      if (isCurrentUserOwner) {
+        try {
+          const blogsRes = await fetch(`/api/workspaces/${activeWorkspaceId}/available-blogs`, { credentials: 'same-origin' });
+          if (blogsRes.ok) {
+            const bData = await blogsRes.json();
+            availableBlogs = bData.blogs || [];
+          }
+        } catch (e) {
+          availableBlogs = [];
+        }
+      } else {
+        availableBlogs = [];
+      }
+
+      renderMembersList();
     } catch (err) {
       console.error('[TEAM] Error loading team data:', err);
       if (activeView) activeView.classList.add('hidden');
@@ -172,36 +191,89 @@
         blogTags = '<span class="text-xs text-rose-500 dark:text-rose-400 font-medium">Belum ada blog yang ditugaskan</span>';
       }
 
-      const removeBtn = !m.is_owner ? `
+      const assignedIds = new Set((m.assigned_blogs || []).map(b => b.id));
+      const canManageMember = isCurrentUserOwner && !m.is_owner;
+
+      const actionsHtml = canManageMember ? `
+        <button onclick="toggleEditMemberBlogs('${m.user_id}')" class="px-2.5 py-1 text-xs text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 rounded-lg transition font-medium border border-brand-200 dark:border-brand-500/30 active:scale-95" title="Ubah pembagian akses blog">
+          ✏️ Edit Blog
+        </button>
         <button onclick="removeTeamMember('${m.user_id}', '${(m.full_name || m.email).replace(/'/g, "\\'")}')" class="px-2.5 py-1 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition font-medium border border-rose-200 dark:border-rose-500/20 active:scale-95" title="Cabut akses anggota">
           Cabut Akses
         </button>
       ` : '';
 
+      const editPanelHtml = canManageMember ? `
+        <div id="edit-blogs-panel-${m.user_id}" class="hidden w-full mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+          <p class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pilih Blog yang Diizinkan untuk ${m.full_name || m.email}:</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto">
+            ${availableBlogs.map(b => `
+              <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                <input type="checkbox" name="edit-blog-${m.user_id}" value="${b.id}" ${assignedIds.has(b.id) ? 'checked' : ''} class="rounded text-brand-600 focus:ring-brand-500">
+                <span class="truncate font-medium">${b.name}</span>
+              </label>
+            `).join('')}
+          </div>
+          <div class="flex justify-end gap-2">
+            <button onclick="toggleEditMemberBlogs('${m.user_id}')" class="px-3 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Batal</button>
+            <button onclick="saveEditMemberBlogs('${m.user_id}')" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95">Simpan Akses</button>
+          </div>
+        </div>
+      ` : '';
+
       return `
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/50 dark:bg-[#070b14]/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white text-sm shrink-0">
-              ${(m.full_name || m.email || 'U')[0].toUpperCase()}
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/50 dark:bg-[#070b14]/50 flex flex-col gap-2 shadow-sm">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white text-sm shrink-0">
+                ${(m.full_name || m.email || 'U')[0].toUpperCase()}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-sm text-slate-900 dark:text-white">${m.full_name || m.email.split('@')[0]}</span>
+                  ${roleBadge}
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">${m.email}</p>
+                <div class="flex items-center gap-1.5 flex-wrap pt-1.5">
+                  ${blogTags}
+                </div>
+              </div>
             </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-sm text-slate-900 dark:text-white">${m.full_name || m.email.split('@')[0]}</span>
-                ${roleBadge}
-              </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">${m.email}</p>
-              <div class="flex items-center gap-1.5 flex-wrap pt-1.5">
-                ${blogTags}
-              </div>
+            <div class="shrink-0 flex items-center gap-2">
+              ${actionsHtml}
             </div>
           </div>
-          <div class="shrink-0 flex items-center gap-2">
-            ${removeBtn}
-          </div>
+          ${editPanelHtml}
         </div>
       `;
     }).join('');
   }
+
+  window.toggleEditMemberBlogs = function (userId) {
+    const panel = document.getElementById(`edit-blogs-panel-${userId}`);
+    if (panel) panel.classList.toggle('hidden');
+  };
+
+  window.saveEditMemberBlogs = async function (userId) {
+    if (!activeWorkspaceId) return;
+    const boxes = document.querySelectorAll(`input[name="edit-blog-${userId}"]:checked`);
+    const blogIds = Array.from(boxes).map(c => c.value);
+
+    try {
+      const res = await fetch(`/api/workspaces/${activeWorkspaceId}/members/${userId}/blogs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ assigned_blog_ids: blogIds })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Gagal memperbarui akses blog.');
+      if (typeof showToast === 'function') showToast('Pembagian akses blog berhasil diperbarui!', 'success');
+      await loadTeamData();
+    } catch (err) {
+      if (typeof showToast === 'function') showToast(err.message, 'error');
+    }
+  };
 
   function renderInviteBlogCheckboxes() {
     const cont = document.getElementById('invite-blogs-container');
@@ -317,4 +389,3 @@
     }
   };
 })();
-

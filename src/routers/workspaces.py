@@ -1,7 +1,7 @@
 """
 Workspace & Team RBAC Router for Blogger Auto-Pilot SaaS
 Supports organizational team collaboration, client management, granular blog assignments,
-and role-based permissions: Owner, Admin, Editor, Writer, Viewer.
+shared credit pool telemetry, audit logging, and role-based permissions: Owner, Admin, Editor, Writer, Viewer.
 """
 
 from typing import Optional, List
@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from src.core.database import get_saas_db
 from src.models.models import User, Workspace, WorkspaceMembership, WorkspaceBlogAssignment, Blog
 from src.core.dependencies import get_current_user, check_feature_access
-from src.core.rbac import ROLE_PERMISSIONS, Permission
+from src.services.audit import record_audit_log
 
 router = APIRouter(prefix="/api/workspaces", tags=["Workspaces & RBAC"])
 
@@ -66,7 +66,7 @@ def api_get_workspaces(user: User = Depends(get_current_user), db: Session = Dep
     return {"success": True, "workspaces": result}
 
 @router.post("")
-def api_create_workspace(req: WorkspaceCreateReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+def api_create_workspace(req: WorkspaceCreateReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     if not check_feature_access(user, 'workspaces'):
         raise HTTPException(
             status_code=403,
@@ -84,6 +84,16 @@ def api_create_workspace(req: WorkspaceCreateReq, user: User = Depends(get_curre
     db.add(ws)
     db.commit()
     db.refresh(ws)
+
+    record_audit_log(
+        db=db,
+        event_type="workspace.created",
+        user_id=user.id,
+        workspace_id=ws.id,
+        entity_id=ws.id,
+        metadata={"name": ws.name},
+        ip_address=request.client.host if request and request.client else None
+    )
 
     return {
         "success": True,
@@ -128,14 +138,19 @@ def api_get_workspace_members(workspace_id: str, user: User = Depends(get_curren
     members = []
     # Add owner
     owner_user = db.query(User).filter(User.id == ws.owner_id).first()
+    shared_used = 0
+    shared_limit = 600
     if owner_user:
+        if owner_user.subscription:
+            shared_used = owner_user.subscription.article_credits_used
+            shared_limit = owner_user.subscription.article_credits_limit
         members.append({
             "user_id": owner_user.id,
             "email": owner_user.email,
             "full_name": owner_user.full_name or owner_user.email.split('@')[0],
             "role": "owner",
             "is_owner": True,
-            "assigned_blogs": [] # Owner has access to all blogs
+            "assigned_blogs": []
         })
 
     # Add other members
@@ -156,10 +171,17 @@ def api_get_workspace_members(workspace_id: str, user: User = Depends(get_curren
                 "assigned_blogs": assigned
             })
 
-    return {"success": True, "workspace_name": ws.name, "members": members}
+    return {
+        "success": True,
+        "workspace_name": ws.name,
+        "is_current_user_owner": bool(is_owner or user.role == 'admin'),
+        "shared_credits_used": shared_used,
+        "shared_credits_limit": shared_limit,
+        "members": members
+    }
 
 @router.post("/{workspace_id}/members")
-def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+def api_add_workspace_member(workspace_id: str, req: MemberAddReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
@@ -204,16 +226,13 @@ def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = 
         db.flush()
         m_obj = new_m
 
-    # Handle assigned blogs if provided
+    assigned_ids = []
     if req.assigned_blog_ids is not None:
-        # Clear existing
         db.query(WorkspaceBlogAssignment).filter(
             WorkspaceBlogAssignment.membership_id == m_obj.id
         ).delete()
 
-        # Re-assign
         for b_id in req.assigned_blog_ids:
-            # Verify blog belongs to workspace owner
             valid_b = db.query(Blog).filter(Blog.id == b_id, Blog.user_id == ws.owner_id).first()
             if valid_b:
                 assign = WorkspaceBlogAssignment(
@@ -221,12 +240,24 @@ def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = 
                     blog_id=valid_b.id
                 )
                 db.add(assign)
+                assigned_ids.append(valid_b.id)
 
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="member.added",
+        user_id=user.id,
+        workspace_id=ws.id,
+        entity_id=target_user.id,
+        metadata={"email": clean_email, "role": clean_role, "assigned_blogs": assigned_ids},
+        ip_address=request.client.host if request and request.client else None
+    )
+
     return {"success": True, "message": f"Anggota {clean_email} berhasil ditambahkan dengan peran '{clean_role}'."}
 
 @router.post("/{workspace_id}/members/{member_user_id}/blogs")
-def api_update_member_blogs(workspace_id: str, member_user_id: str, req: MemberBlogsUpdateReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+def api_update_member_blogs(workspace_id: str, member_user_id: str, req: MemberBlogsUpdateReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
@@ -242,12 +273,11 @@ def api_update_member_blogs(workspace_id: str, member_user_id: str, req: MemberB
     if not membership:
         raise HTTPException(status_code=404, detail="Anggota tidak ditemukan di workspace ini.")
 
-    # Clear existing
     db.query(WorkspaceBlogAssignment).filter(
         WorkspaceBlogAssignment.membership_id == membership.id
     ).delete()
 
-    # Re-assign valid blogs
+    assigned_ids = []
     for b_id in req.assigned_blog_ids:
         valid_b = db.query(Blog).filter(Blog.id == b_id, Blog.user_id == ws.owner_id).first()
         if valid_b:
@@ -256,12 +286,24 @@ def api_update_member_blogs(workspace_id: str, member_user_id: str, req: MemberB
                 blog_id=valid_b.id
             )
             db.add(assign)
+            assigned_ids.append(valid_b.id)
 
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="member.blogs_updated",
+        user_id=user.id,
+        workspace_id=ws.id,
+        entity_id=member_user_id,
+        metadata={"assigned_blogs": assigned_ids},
+        ip_address=request.client.host if request and request.client else None
+    )
+
     return {"success": True, "message": "Pembagian blog anggota berhasil diperbarui."}
 
 @router.delete("/{workspace_id}/members/{member_user_id}")
-def api_remove_workspace_member(workspace_id: str, member_user_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+def api_remove_workspace_member(workspace_id: str, member_user_id: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
@@ -277,6 +319,18 @@ def api_remove_workspace_member(workspace_id: str, member_user_id: str, user: Us
     if not membership:
         raise HTTPException(status_code=404, detail="Anggota tidak ditemukan di workspace ini.")
 
+    removed_role = membership.role
     db.delete(membership)
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="member.removed",
+        user_id=user.id,
+        workspace_id=ws.id,
+        entity_id=member_user_id,
+        metadata={"removed_role": removed_role},
+        ip_address=request.client.host if request and request.client else None
+    )
+
     return {"success": True, "message": "Anggota berhasil dihapus dari workspace."}

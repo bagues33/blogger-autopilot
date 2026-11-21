@@ -86,9 +86,13 @@ def api_select_blog(req: BlogSelectReq, user: User = Depends(get_current_user), 
     if not selected_blog:
         raise HTTPException(status_code=403, detail="Anda tidak memiliki akses ke blog ini.")
 
-    for b in accessible_blogs:
-        b.is_active = 1 if b.id == req.blog_id else 0
-    db.commit()
+    # Only mutate persisted is_active on blogs owned directly by the user
+    # (prevents team members from overwriting the Agency Owner's active blog selection)
+    if selected_blog.user_id == user.id:
+        for b in accessible_blogs:
+            if b.user_id == user.id:
+                b.is_active = 1 if b.id == req.blog_id else 0
+        db.commit()
 
     if user.email == 'admin@bagustech.id' and selected_blog and os.path.exists(CONFIG_FILE):
         try:

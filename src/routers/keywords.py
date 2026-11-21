@@ -1,6 +1,7 @@
 """
 Keyword Management Router for Blogger Auto-Pilot SaaS
-Handles keyword retrieval, manual addition, bulk imports, auto-generation, and deletion.
+Handles keyword retrieval, manual addition, bulk imports, auto-generation, and deletion
+with full multi-tenant RBAC and granular blog assignment scoping.
 """
 
 import os
@@ -13,8 +14,14 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
-from src.models.models import Blog as SaasBlog, Keyword as SaasKeyword
+from src.models.models import User, Blog as SaasBlog, Keyword as SaasKeyword
 from src.core.dependencies import get_session_user, get_current_user, get_optional_user
+from src.core.rbac import (
+    get_accessible_blogs,
+    has_blog_permission,
+    get_blog_effective_owner,
+    Permission
+)
 from src.services.audit import record_audit_log
 
 router = APIRouter(tags=['Keywords'])
@@ -35,22 +42,49 @@ class KeywordSuggestReq(BaseModel):
     niche_seed: str
     blog_id: Optional[str] = None
 
+# --- Helper ---
+
+def _resolve_target_blog(user: User, blog_id: Optional[str], db: Session, required_perm: Permission = Permission.ARTICLE_CREATE) -> SaasBlog:
+    accessible_blogs = get_accessible_blogs(user, db)
+    if not accessible_blogs:
+        raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
+
+    if blog_id:
+        target = next((b for b in accessible_blogs if b.id == blog_id), None)
+        if not target:
+            raise HTTPException(status_code=403, detail="Anda tidak memiliki izin akses ke blog ini.")
+    else:
+        target = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+
+    if not has_blog_permission(user, target, required_perm, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk mengelola keyword pada blog ini.")
+
+    return target
+
 # --- Endpoints ---
 
 @router.get('/api/keywords')
 def api_get_keywords(request: Request, blog_id: Optional[str] = None, user: Optional[User] = Depends(get_optional_user), db: Session = Depends(get_saas_db)):
     if not user:
         return []
-    
-    query = db.query(SaasKeyword).filter(SaasKeyword.user_id == user.id)
-    if blog_id:
-        query = query.filter(SaasKeyword.blog_id == blog_id)
-    else:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if active_b:
-            query = query.filter(SaasKeyword.blog_id == active_b.id)
 
-    kws = query.order_by(SaasKeyword.created_at.desc()).all()
+    accessible_blogs = get_accessible_blogs(user, db)
+    if not accessible_blogs:
+        return []
+
+    accessible_ids = [b.id for b in accessible_blogs]
+
+    if blog_id:
+        if blog_id not in accessible_ids:
+            return []
+        target_blog_id = blog_id
+    else:
+        active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+        target_blog_id = active_b.id
+
+    kws = db.query(SaasKeyword).filter(
+        SaasKeyword.blog_id == target_blog_id
+    ).order_by(SaasKeyword.created_at.desc()).all()
 
     return [
         {
@@ -65,24 +99,23 @@ def api_get_keywords(request: Request, blog_id: Optional[str] = None, user: Opti
 
 @router.post('/api/keywords/add')
 def api_add_keyword(req: KeywordAddReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    b_id = req.blog_id
-    if not b_id:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if not active_b:
-            raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
-        b_id = active_b.id
+    blog = _resolve_target_blog(user, req.blog_id, db, Permission.ARTICLE_CREATE)
+    blog_owner = get_blog_effective_owner(blog, db) or user
+
+    clean_kw = req.keyword.strip()
+    if not clean_kw:
+        raise HTTPException(status_code=400, detail="Keyword tidak boleh kosong.")
 
     existing = db.query(SaasKeyword).filter(
-        SaasKeyword.user_id == user.id,
-        SaasKeyword.blog_id == b_id,
-        SaasKeyword.keyword == req.keyword.strip()
+        SaasKeyword.blog_id == blog.id,
+        SaasKeyword.keyword == clean_kw
     ).first()
 
     if not existing:
         sk = SaasKeyword(
-            user_id=user.id,
-            blog_id=b_id,
-            keyword=req.keyword.strip(),
+            user_id=blog_owner.id,
+            blog_id=blog.id,
+            keyword=clean_kw,
             search_intent=req.search_intent or 'Informational',
             status='planned'
         )
@@ -93,21 +126,22 @@ def api_add_keyword(req: KeywordAddReq, request: Request, user: User = Depends(g
 
 @router.post('/api/keywords/{kw_id}/delete')
 def api_delete_keyword(kw_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    kw = db.query(SaasKeyword).filter(SaasKeyword.id == kw_id, SaasKeyword.user_id == user.id).first()
-    if kw:
-        db.delete(kw)
-        db.commit()
+    kw = db.query(SaasKeyword).filter(SaasKeyword.id == kw_id).first()
+    if not kw:
+        return {'success': True}
 
+    blog = kw.blog
+    if blog and not has_blog_permission(user, blog, Permission.ARTICLE_EDIT, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk menghapus keyword ini.")
+
+    db.delete(kw)
+    db.commit()
     return {'success': True}
 
 @router.post('/api/keywords/auto-generate')
 def api_auto_generate_keywords(blog_id: Optional[str] = None, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    b_id = blog_id
-    if not b_id:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if not active_b:
-            raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
-        b_id = active_b.id
+    blog = _resolve_target_blog(user, blog_id, db, Permission.ARTICLE_CREATE)
+    blog_owner = get_blog_effective_owner(blog, db) or user
 
     high_quality_keywords = [
         ('rekomendasi ai coding assistant gratis untuk vs code', 'Informational'),
@@ -117,46 +151,42 @@ def api_auto_generate_keywords(blog_id: Optional[str] = None, user: User = Depen
         ('panduan optimasi loading website skor 100', 'Informational'),
         ('tools ai produktivitas terbaik untuk freelancer tech', 'Informational')
     ]
+    added = 0
     for kw, intent in high_quality_keywords:
         existing = db.query(SaasKeyword).filter(
-            SaasKeyword.user_id == user.id,
-            SaasKeyword.blog_id == b_id,
+            SaasKeyword.blog_id == blog.id,
             SaasKeyword.keyword == kw
         ).first()
         if not existing:
             sk = SaasKeyword(
-                user_id=user.id,
-                blog_id=b_id,
+                user_id=blog_owner.id,
+                blog_id=blog.id,
                 keyword=kw,
                 search_intent=intent,
                 status='planned'
             )
             db.add(sk)
+            added += 1
     db.commit()
 
-    return {'success': True}
+    return {'success': True, 'added_count': added}
 
 @router.post('/api/keywords/bulk-add')
 def api_bulk_add_keywords(req: KeywordBulkAddReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    b_id = req.blog_id
-    if not b_id:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if not active_b:
-            raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
-        b_id = active_b.id
+    blog = _resolve_target_blog(user, req.blog_id, db, Permission.ARTICLE_CREATE)
+    blog_owner = get_blog_effective_owner(blog, db) or user
 
     lines = [line.strip() for line in req.keywords_text.splitlines() if line.strip()]
     added = 0
     for kw in lines:
         existing = db.query(SaasKeyword).filter(
-            SaasKeyword.user_id == user.id,
-            SaasKeyword.blog_id == b_id,
+            SaasKeyword.blog_id == blog.id,
             SaasKeyword.keyword == kw
         ).first()
         if not existing:
             sk = SaasKeyword(
-                user_id=user.id,
-                blog_id=b_id,
+                user_id=blog_owner.id,
+                blog_id=blog.id,
                 keyword=kw,
                 search_intent=req.search_intent or 'Informational',
                 status='planned'
@@ -232,23 +262,18 @@ def fetch_ai_keywords_from_llm(niche: str, user) -> list:
 
 @router.post('/api/keywords/ai-suggest')
 def api_suggest_keywords(req: KeywordSuggestReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    b_id = req.blog_id
-    if not b_id:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if not active_b:
-            raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
-        b_id = active_b.id
+    blog = _resolve_target_blog(user, req.blog_id, db, Permission.ARTICLE_CREATE)
+    blog_owner = get_blog_effective_owner(blog, db) or user
 
     niche = req.niche_seed.strip()
-    
-    # 1. Attempt dynamic LLM generation
-    llm_keywords = fetch_ai_keywords_from_llm(niche, user)
+
+    # 1. Attempt dynamic LLM generation (using blog owner's BYOK if available)
+    llm_keywords = fetch_ai_keywords_from_llm(niche, blog_owner)
     used_llm = bool(llm_keywords)
 
     if used_llm:
         generated_keywords = llm_keywords
     else:
-        # Fallback to enhanced high-intent niche templates
         generated_keywords = [
             (f"cara mudah {niche} untuk pemula", "Informational"),
             (f"panduan lengkap {niche} terbaru 2026", "Informational"),
@@ -263,14 +288,13 @@ def api_suggest_keywords(req: KeywordSuggestReq, request: Request, user: User = 
     added = 0
     for kw, intent in generated_keywords:
         existing = db.query(SaasKeyword).filter(
-            SaasKeyword.user_id == user.id,
-            SaasKeyword.blog_id == b_id,
+            SaasKeyword.blog_id == blog.id,
             SaasKeyword.keyword == kw
         ).first()
         if not existing:
             sk = SaasKeyword(
-                user_id=user.id,
-                blog_id=b_id,
+                user_id=blog_owner.id,
+                blog_id=blog.id,
                 keyword=kw,
                 search_intent=intent,
                 status='planned'
@@ -283,6 +307,7 @@ def api_suggest_keywords(req: KeywordSuggestReq, request: Request, user: User = 
         db=db,
         event_type="keywords.suggested",
         user_id=user.id,
+        entity_id=blog.id,
         metadata={"niche": niche, "added_count": added, "dynamic_ai": used_llm},
         ip_address=request.client.host if request.client else None
     )

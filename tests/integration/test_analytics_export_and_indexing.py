@@ -18,6 +18,12 @@ def test_analytics_roi_breakdowns_and_csv_export(tenant_factory, db_session):
     r_csv_free = client_free.get(f"/api/analytics/export-csv?blog_id={blog_free}")
     assert r_csv_free.status_code == 403
 
+    # Free user attempting white-label branding falls back to default Blogger Auto-Pilot branding
+    r_rep_free = client_free.get(f"/api/analytics/report?blog_id={blog_free}&agency_name=Free+Spoof+Agency")
+    assert r_rep_free.status_code == 200
+    assert "Free Spoof Agency" not in r_rep_free.text
+    assert "Blogger Auto-Pilot SaaS" in r_rep_free.text
+
     # 2. Agency user gets full analytics + CSV Export + White-Label Report
     client_ag, user_ag = tenant_factory(plan="agency", name="Nusantara Digital Agency")
     blog_id = f"blog_ag_{uuid.uuid4().hex[:6]}"
@@ -109,3 +115,4 @@ def test_websub_instant_indexing_on_live_publish(tenant_factory):
     assert data["websub_pinged"] is True
     assert len(idx_mock.pings) == 1
     assert idx_mock.pings[0]["feed_url"] == "https://technews.blogspot.com/feeds/posts/default"
+
