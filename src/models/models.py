@@ -36,7 +36,7 @@ class User(Base):
     subscription = relationship('Subscription', back_populates='user', uselist=False, cascade='all, delete-orphan')
     notification_setting = relationship('NotificationSetting', back_populates='user', uselist=False, cascade='all, delete-orphan')
     blogs = relationship('Blog', back_populates='user', cascade='all, delete-orphan')
-    articles = relationship('Article', back_populates='user', cascade='all, delete-orphan')
+    articles = relationship('Article', foreign_keys='Article.user_id', back_populates='user', cascade='all, delete-orphan')
     keywords = relationship('Keyword', back_populates='user', cascade='all, delete-orphan')
 
 class Subscription(Base):
@@ -94,11 +94,13 @@ class Article(Base):
     status = Column(String(50), default='draft', nullable=False) # draft, blogger_draft, published
     blogger_post_id = Column(String(100), nullable=True)
     blogger_url = Column(String(500), nullable=True)
+    author_id = Column(String(36), ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    user = relationship('User', back_populates='articles')
+    user = relationship('User', foreign_keys=[user_id], back_populates='articles')
     blog = relationship('Blog', back_populates='articles')
+    author = relationship('User', foreign_keys=[author_id])
 
     __table_args__ = (
         Index('idx_articles_user_status', 'user_id', 'status'),
@@ -163,9 +165,25 @@ class WorkspaceMembership(Base):
 
     workspace = relationship('Workspace', back_populates='memberships')
     user = relationship('User', backref='workspace_memberships')
+    blog_assignments = relationship('WorkspaceBlogAssignment', back_populates='membership', cascade='all, delete-orphan')
 
     __table_args__ = (
         Index('uq_workspace_user', 'workspace_id', 'user_id', unique=True),
+    )
+
+class WorkspaceBlogAssignment(Base):
+    __tablename__ = 'workspace_blog_assignments'
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    membership_id = Column(String(36), ForeignKey('workspace_memberships.id', ondelete='CASCADE'), nullable=False, index=True)
+    blog_id = Column(String(100), ForeignKey('blogs.id', ondelete='CASCADE'), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    membership = relationship('WorkspaceMembership', back_populates='blog_assignments')
+    blog = relationship('Blog', backref='workspace_assignments')
+
+    __table_args__ = (
+        Index('uq_membership_blog', 'membership_id', 'blog_id', unique=True),
     )
 
 class AuditLog(Base):

@@ -17,6 +17,12 @@ from src.models.models import Blog as SaasBlog, Article as SaasArticle
 from src.services.payment import PLAN_TIERS
 from src.core.rate_limiter import check_rate_limit
 from src.services.audit import record_audit_log
+from src.core.rbac import (
+    get_accessible_blogs,
+    get_user_role_for_blog,
+    has_blog_permission,
+    Permission
+)
 from src.core.dependencies import (
     get_session_user,
     get_current_user,
@@ -56,7 +62,7 @@ class AutopilotSettingsReq(BaseModel):
 def api_get_blogs(user: Optional[User] = Depends(get_optional_user), db: Session = Depends(get_saas_db)):
     if not user:
         return []
-    blogs = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).order_by(SaasBlog.created_at.asc()).all()
+    blogs = get_accessible_blogs(user, db)
 
     return [
         {
@@ -66,19 +72,22 @@ def api_get_blogs(user: Optional[User] = Depends(get_optional_user), db: Session
             'account_name': b.account_name,
             'token_file': b.token_file,
             'niche_description': b.niche_description,
-            'is_active': b.is_active
+            'is_active': b.is_active,
+            'role': get_user_role_for_blog(user, b, db),
+            'is_owner': (b.user_id == user.id)
         }
         for b in blogs
     ]
 
 @router.post('/api/blogs/select')
 def api_select_blog(req: BlogSelectReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    user_blogs = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).all()
-    selected_blog = None
-    for b in user_blogs:
+    accessible_blogs = get_accessible_blogs(user, db)
+    selected_blog = next((b for b in accessible_blogs if b.id == req.blog_id), None)
+    if not selected_blog:
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki akses ke blog ini.")
+
+    for b in accessible_blogs:
         b.is_active = 1 if b.id == req.blog_id else 0
-        if b.id == req.blog_id:
-            selected_blog = b
     db.commit()
 
     if user.email == 'admin@bagustech.id' and selected_blog and os.path.exists(CONFIG_FILE):
@@ -148,11 +157,14 @@ def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_cur
 
 @router.post('/api/blogs/{blog_id}/delete')
 def api_delete_blog(blog_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id, SaasBlog.user_id == user.id).first()
+    blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")
 
-    user_blog_count = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).count()
+    if not has_blog_permission(user, blog, Permission.BLOG_DELETE, db):
+        raise HTTPException(status_code=403, detail="Hanya pemilik blog yang dapat menghapus blog ini.")
+
+    user_blog_count = db.query(SaasBlog).filter(SaasBlog.user_id == blog.user_id).count()
     if user_blog_count <= 1:
         return {'success': False, 'error': 'Tidak dapat menghapus blog satu-satunya.'}
 
@@ -184,9 +196,11 @@ def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, use
             status_code=403,
             detail="Fitur Autopilot Scheduler mandiri memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
         )
-    blog = db.query(SaasBlog).filter(SaasBlog.id == req.blog_id, SaasBlog.user_id == user.id).first()
+    blog = db.query(SaasBlog).filter(SaasBlog.id == req.blog_id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")
+    if not has_blog_permission(user, blog, Permission.BLOG_CONFIGURE, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk mengonfigurasi autopilot blog ini.")
 
     # Persist in database
     blog.autopilot_enabled = bool(req.autopilot_enabled)
@@ -255,9 +269,11 @@ def api_get_autopilot_settings(blog_id: str, request: Request, db: Session = Dep
 @router.post('/api/blogs/{blog_id}/sync-blogger-posts')
 def api_sync_blogger_posts(blog_id: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="sync")
-    blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id, SaasBlog.user_id == user.id).first()
+    blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")
+    if not has_blog_permission(user, blog, Permission.ARTICLE_VIEW, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin akses ke blog ini.")
 
     encrypted_token = blog.encrypted_token
     token_file = blog.token_file
@@ -278,7 +294,6 @@ def api_sync_blogger_posts(blog_id: str, request: Request, user: User = Depends(
     imported_count = 0
 
     existing_arts = db.query(SaasArticle).filter(
-        SaasArticle.user_id == user.id,
         SaasArticle.blog_id == blog.id
     ).all()
 

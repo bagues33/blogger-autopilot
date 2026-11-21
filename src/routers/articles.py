@@ -21,6 +21,13 @@ from src.services.notifications import dispatch_notification
 from src.services.content_generator import generate_article
 from src.services.audit import record_audit_log
 from src.core.rate_limiter import check_rate_limit
+from src.core.rbac import (
+    get_accessible_blogs,
+    get_user_role_for_blog,
+    has_blog_permission,
+    get_blog_effective_owner,
+    Permission
+)
 from src.core.dependencies import get_session_user, get_current_user, get_optional_user, check_feature_access, BASE_DIR
 
 router = APIRouter(tags=['Articles'])
@@ -48,19 +55,32 @@ class ArticleStatusReq(BaseModel):
 def api_get_articles(request: Request, blog_id: Optional[str] = None, user: Optional[User] = Depends(get_optional_user), db: Session = Depends(get_saas_db)):
     if not user:
         return []
-    
-    query = db.query(SaasArticle).filter(SaasArticle.user_id == user.id)
+
+    accessible_blogs = get_accessible_blogs(user, db)
+    if not accessible_blogs:
+        return []
+
+    accessible_blog_ids = [b.id for b in accessible_blogs]
+
+    query = db.query(SaasArticle).filter(SaasArticle.blog_id.in_(accessible_blog_ids))
     if blog_id:
+        if blog_id not in accessible_blog_ids:
+            return []
         query = query.filter(SaasArticle.blog_id == blog_id)
     else:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if active_b:
-            query = query.filter(SaasArticle.blog_id == active_b.id)
+        active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+        query = query.filter(SaasArticle.blog_id == active_b.id)
 
     arts = query.order_by(SaasArticle.created_at.desc()).all()
+    blogs_map = {b.id: b for b in accessible_blogs}
 
-    return [
-        {
+    result = []
+    for a in arts:
+        blog_obj = blogs_map.get(a.blog_id) or a.blog
+        role = get_user_role_for_blog(user, blog_obj, db)
+        author_name = (a.author.full_name or a.author.email) if a.author else None
+
+        result.append({
             'id': a.id,
             'title': a.title,
             'target_keyword': a.target_keyword,
@@ -72,20 +92,39 @@ def api_get_articles(request: Request, blog_id: Optional[str] = None, user: Opti
             'blogger_url': a.blogger_url,
             'created_at': a.created_at.isoformat() if a.created_at else None,
             'updated_at': a.updated_at.isoformat() if a.updated_at else None,
-            'blog_id': a.blog_id
-        }
-        for a in arts
-    ]
+            'blog_id': a.blog_id,
+            'author_id': a.author_id,
+            'author_name': author_name,
+            'role': role,
+            'can_edit': has_blog_permission(user, blog_obj, Permission.ARTICLE_EDIT, db),
+            'can_review': has_blog_permission(user, blog_obj, Permission.ARTICLE_REVIEW, db),
+            'can_approve': has_blog_permission(user, blog_obj, Permission.ARTICLE_APPROVE, db),
+            'can_publish': has_blog_permission(user, blog_obj, Permission.ARTICLE_PUBLISH, db),
+        })
+
+    return result
 
 @router.post('/api/articles')
 @router.post('/api/articles/save')
 def api_save_article(req: ArticleSaveReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    accessible_blogs = get_accessible_blogs(user, db)
+    if not accessible_blogs:
+        raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
+
     target_blog_id = req.blog_id
     if not target_blog_id:
-        active_b = db.query(SaasBlog).filter(SaasBlog.user_id == user.id, SaasBlog.is_active == 1).first() or db.query(SaasBlog).filter(SaasBlog.user_id == user.id).first()
-        if not active_b:
-            raise HTTPException(status_code=400, detail="Silakan tambahkan atau hubungkan blog terlebih dahulu.")
+        active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
         target_blog_id = active_b.id
+
+    blog = next((b for b in accessible_blogs if b.id == target_blog_id), None)
+    if not blog:
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin akses ke blog ini.")
+
+    needed_perm = Permission.ARTICLE_EDIT if req.id else Permission.ARTICLE_CREATE
+    if not has_blog_permission(user, blog, needed_perm, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk menyimpan artikel di blog ini.")
+
+    blog_owner = get_blog_effective_owner(blog, db) or user
 
     # Auto-inject Google E-E-A-T Schema JSON-LD if missing
     try:
@@ -99,18 +138,20 @@ def api_save_article(req: ArticleSaveReq, request: Request, user: User = Depends
         final_content = req.content_html
 
     if req.id:
-        art = db.query(SaasArticle).filter(SaasArticle.id == req.id, SaasArticle.user_id == user.id).first()
+        art = db.query(SaasArticle).filter(SaasArticle.id == req.id).first()
         if art:
+            if not has_blog_permission(user, art.blog, Permission.ARTICLE_EDIT, db):
+                raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk mengedit artikel ini.")
             art.title = req.title
             art.target_keyword = req.target_keyword
             art.meta_description = req.meta_description
             art.content_html = final_content
             art.labels = req.labels
-            from datetime import datetime, timezone
             art.updated_at = datetime.now(timezone.utc)
     else:
         art = SaasArticle(
-            user_id=user.id,
+            user_id=blog_owner.id,
+            author_id=user.id,
             blog_id=target_blog_id,
             title=req.title,
             target_keyword=req.target_keyword,
@@ -123,7 +164,7 @@ def api_save_article(req: ArticleSaveReq, request: Request, user: User = Depends
 
     if req.target_keyword:
         kw = db.query(SaasKeyword).filter(
-            SaasKeyword.user_id == user.id,
+            SaasKeyword.blog_id == target_blog_id,
             SaasKeyword.keyword == req.target_keyword.strip(),
             SaasKeyword.status == 'planned'
         ).first()
@@ -143,10 +184,28 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
     elif is_draft is not None:
         target_draft = is_draft
 
-    art = db.query(SaasArticle).filter(SaasArticle.id == article_id, SaasArticle.user_id == user.id).first()
-    
+    art = db.query(SaasArticle).filter(SaasArticle.id == article_id).first()
     if not art:
         raise HTTPException(status_code=404, detail='Article not found')
+
+    blog = art.blog
+    if not blog:
+        raise HTTPException(status_code=404, detail='Blog not found')
+
+    # RBAC Check: Writer cannot publish live directly
+    if not target_draft:
+        if not has_blog_permission(user, blog, Permission.ARTICLE_PUBLISH, db):
+            raise HTTPException(
+                status_code=403,
+                detail="Penulis (Writer) tidak memiliki izin untuk mempublikasikan artikel secara langsung ke Blogger. Silakan ajukan draf untuk direview oleh Editor atau Owner."
+            )
+    else:
+        # Kirim draft ke Blogger: butuh ARTICLE_PUBLISH atau ARTICLE_APPROVE
+        if not has_blog_permission(user, blog, Permission.ARTICLE_PUBLISH, db) and not has_blog_permission(user, blog, Permission.ARTICLE_APPROVE, db):
+            raise HTTPException(
+                status_code=403,
+                detail="Hanya Editor atau Owner yang dapat mengirim draf ke Blogger."
+            )
 
     art_title = art.title
     art_content = art.content_html
@@ -156,7 +215,6 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
     existing_post_id = art.blogger_post_id
     art_url = art.blogger_url
 
-    blog = db.query(SaasBlog).filter(SaasBlog.id == art_blog_id, SaasBlog.user_id == user.id).first()
     encrypted_token = blog.encrypted_token if blog else None
     token_file = blog.token_file if blog else None
 
@@ -208,7 +266,7 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
         art.blogger_url = blogger_url
         if art_keyword:
             kw = db.query(SaasKeyword).filter(
-                SaasKeyword.user_id == user.id,
+                SaasKeyword.blog_id == art_blog_id,
                 SaasKeyword.keyword == art_keyword.strip()
             ).first()
             if kw:
@@ -218,7 +276,7 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
         # Dispatch notification
         try:
             dispatch_notification(
-                user_id=user.id,
+                user_id=art.user_id,
                 event_type="article_published" if not target_draft else "draft_created",
                 data={
                     "title": art_title,
@@ -259,8 +317,10 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
 
 @router.post('/api/articles/{article_id}/delete')
 def api_delete_article(article_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    art = db.query(SaasArticle).filter(SaasArticle.id == article_id, SaasArticle.user_id == user.id).first()
+    art = db.query(SaasArticle).filter(SaasArticle.id == article_id).first()
     if art:
+        if not has_blog_permission(user, art.blog, Permission.ARTICLE_DELETE, db):
+            raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk menghapus artikel ini.")
         art_title = art.title
         db.delete(art)
         db.commit()
@@ -277,7 +337,7 @@ def api_delete_article(article_id: int, request: Request, user: User = Depends(g
 
 @router.post('/api/articles/{article_id}/status')
 def api_update_article_status(article_id: int, req: ArticleStatusReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    art = db.query(SaasArticle).filter(SaasArticle.id == article_id, SaasArticle.user_id == user.id).first()
+    art = db.query(SaasArticle).filter(SaasArticle.id == article_id).first()
     if not art:
         raise HTTPException(status_code=404, detail='Artikel tidak ditemukan.')
 
@@ -285,6 +345,13 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
     target_status = req.status.lower().strip()
     if target_status not in allowed:
         raise HTTPException(status_code=400, detail=f"Status tidak valid. Pilihan: {', '.join(allowed)}")
+
+    if target_status == 'approved':
+        if not has_blog_permission(user, art.blog, Permission.ARTICLE_APPROVE, db):
+            raise HTTPException(status_code=403, detail="Hanya Editor atau Owner yang dapat menyetujui draf artikel.")
+    elif target_status == 'pending_review':
+        if not has_blog_permission(user, art.blog, Permission.ARTICLE_REVIEW, db):
+            raise HTTPException(status_code=403, detail="Anda tidak memiliki izin untuk mengajukan review artikel.")
 
     old_status = art.status
     art.status = target_status
@@ -313,40 +380,58 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
 @router.post('/api/agent/generate-now')
 def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="generate")
-    
+
+    accessible_blogs = get_accessible_blogs(user, db)
+    if not accessible_blogs:
+        return JSONResponse(status_code=400, content={'success': False, 'error': 'Silakan hubungkan blog terlebih dahulu.'})
+
+    active_b = next((b for b in accessible_blogs if b.is_active == 1), accessible_blogs[0])
+    if not has_blog_permission(user, active_b, Permission.ARTICLE_CREATE, db):
+        return JSONResponse(status_code=403, content={'success': False, 'error': 'Anda tidak memiliki izin untuk memicu draf artikel di blog ini.'})
+
+    # Shared Credit Pool: Resolve quota billing owner
+    blog_owner = get_blog_effective_owner(active_b, db) or user
+
     # Check tenant quota (BYOK only exempts Pro, Agency, or Admin)
-    can_byok = check_feature_access(user, 'byok')
+    can_byok = check_feature_access(blog_owner, 'byok')
     is_byok = can_byok and bool(
-        getattr(user, 'custom_gemini_key', None) or
-        getattr(user, 'custom_openai_key', None) or
-        getattr(user, 'custom_groq_key', None)
+        getattr(blog_owner, 'custom_gemini_key', None) or
+        getattr(blog_owner, 'custom_openai_key', None) or
+        getattr(blog_owner, 'custom_groq_key', None)
     )
-    if user and user.subscription and not is_byok:
-        sub = user.subscription
+    if blog_owner and blog_owner.subscription and not is_byok:
+        sub = blog_owner.subscription
         if sub.article_credits_used >= sub.article_credits_limit:
             return JSONResponse(
                 status_code=403,
                 content={
                     'success': False,
-                    'error': f"Kuota kredit artikel Anda telah habis ({sub.article_credits_used}/{sub.article_credits_limit}). Silakan upgrade ke paket Starter atau Pro di dashboard."
+                    'error': f"Kuota kredit artikel agensi bulan ini telah habis ({sub.article_credits_used}/{sub.article_credits_limit}). Silakan hubungi pemilik agensi untuk penambahan kuota."
                 }
             )
 
-    # Check planned keywords availability
+    # Check planned keywords availability for this blog
     kw_count = db.query(SaasKeyword).filter(
-        SaasKeyword.user_id == user.id,
+        SaasKeyword.blog_id == active_b.id,
         SaasKeyword.status == 'planned'
     ).count()
     if kw_count == 0:
-        return JSONResponse(
-            status_code=400,
-            content={
-                'success': False,
-                'error': "Bank keyword Anda masih kosong. Tambahkan minimal 1 keyword dengan status 'planned' atau gunakan fitur 'Ide Niche' terlebih dahulu."
-            }
-        )
+        # Fallback to any user keyword
+        kw_count = db.query(SaasKeyword).filter(
+            SaasKeyword.user_id == blog_owner.id,
+            SaasKeyword.status == 'planned'
+        ).count()
+        if kw_count == 0:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    'success': False,
+                    'error': "Bank keyword blog ini masih kosong. Tambahkan minimal 1 keyword dengan status 'planned' atau gunakan fitur 'Ide Niche' terlebih dahulu."
+                }
+            )
 
-    background_tasks.add_task(generate_article, tenant_id=user.id)
+    background_tasks.add_task(generate_article, tenant_id=blog_owner.id, blog_id=active_b.id)
+    return {'success': True, 'message': 'Agent dimulai di background'}
     return {'success': True, 'message': 'Agent dimulai di background'}
 
 @router.post('/api/images/upload')

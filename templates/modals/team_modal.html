@@ -1,0 +1,150 @@
+<!-- Modal: Kelola Tim & Hak Akses Blog Klien (Phase 3: Agency Tier) -->
+<div id="team-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 md:p-6 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+  <div class="bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center font-bold text-lg" aria-hidden="true">
+          👥
+        </div>
+        <div>
+          <h3 id="team-modal-title" class="font-bold text-slate-900 dark:text-white text-base leading-tight">Kolaborasi Tim & Akses Blog</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Bagi akses blog klien ke copywriter & editor dengan kuota bersama (Shared Credit Pool)</p>
+        </div>
+      </div>
+      <button onclick="closeTeamModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition" aria-label="Tutup Modal">&times;</button>
+    </div>
+
+    <!-- Modal Content: Tab Buttons (Agency Active View) -->
+    <div id="team-content-active" class="flex-1 flex flex-col overflow-hidden">
+      <div class="px-6 pt-4 pb-2 border-b border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#0b1120] flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs" role="tablist">
+          <button id="team-tab-btn-members" onclick="switchTeamTab('members')" class="px-3.5 py-1.5 rounded-lg font-bold bg-brand-600 text-white shadow-sm transition" role="tab" aria-selected="true">
+            Daftar Anggota (<span id="team-member-count">0</span>)
+          </button>
+          <button id="team-tab-btn-invite" onclick="switchTeamTab('invite')" class="px-3.5 py-1.5 rounded-lg font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition" role="tab" aria-selected="false">
+            + Undang Anggota Baru
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Shared Pool: <strong class="text-slate-700 dark:text-slate-300 font-semibold" id="team-shared-credits">600 Kredit</strong></span>
+        </div>
+      </div>
+
+      <!-- Tab 1: Members List -->
+      <div id="team-tab-members" class="flex-1 overflow-y-auto p-6 space-y-4">
+        <div id="team-members-list" class="space-y-3">
+          <div class="text-center py-8 text-slate-400 text-xs">Memuat data anggota tim...</div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Invite Member -->
+      <div id="team-tab-invite" class="hidden flex-1 overflow-y-auto p-6 space-y-5">
+        <div>
+          <label for="invite-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Alamat Email Pengguna</label>
+          <input type="email" id="invite-email" placeholder="contoh: penulis@agensi.id" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 transition">
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Calon anggota wajib sudah mendaftar akun di Blogger Autopilot.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Pilih Peran & Tanggung Jawab (Role)</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <label class="border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 bg-slate-50/50 dark:bg-[#070b14]/50 hover:border-brand-500 cursor-pointer transition flex items-start gap-3">
+              <input type="radio" name="invite-role" value="writer" checked class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <span class="font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <span>✍️ Writer (Penulis)</span>
+                  <span class="text-[10px] bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-500/30">Review Wajib</span>
+                </span>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 text-[11px] leading-relaxed">Riset topik, generate AI draft, dan menyunting konten pada blog yang ditugaskan. Dilarang mempublikasikan langsung ke Blogger sebelum disetujui Editor.</p>
+              </div>
+            </label>
+
+            <label class="border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 bg-slate-50/50 dark:bg-[#070b14]/50 hover:border-brand-500 cursor-pointer transition flex items-start gap-3">
+              <input type="radio" name="invite-role" value="editor" class="mt-0.5 text-brand-600 focus:ring-brand-500">
+              <div>
+                <span class="font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <span>🛡️ Editor (Penyunting)</span>
+                  <span class="text-[10px] bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/30">Approver</span>
+                </span>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 text-[11px] leading-relaxed">Meninjau draf dari tim penulis, memberikan persetujuan (approval), dan mempublikasikan langsung secara live ke Blogger.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tugaskan Blog yang Boleh Diakses</label>
+            <button type="button" onclick="toggleAllInviteBlogs(this)" class="text-xs text-brand-600 dark:text-brand-400 hover:underline font-semibold">Pilih Semua</button>
+          </div>
+          <div id="invite-blogs-container" class="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#070b14]/50 space-y-2 max-h-44 overflow-y-auto">
+            <div class="text-xs text-slate-400">Memuat daftar blog yang tersedia...</div>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Anggota tim hanya dapat melihat dan mengerjakan blog yang dicentang di atas.</p>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2.5">
+          <button type="button" onclick="switchTeamTab('members')" class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">Batal</button>
+          <button type="button" id="btn-submit-invite" onclick="submitTeamInvite()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-2">
+            <span>🚀 Kirim Undangan & Beri Akses</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Content: Locked State (Free/Starter/Pro Upsell Hook) -->
+    <div id="team-content-locked" class="hidden p-8 text-center space-y-5">
+      <div class="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto text-3xl font-bold shadow-sm">
+        🔒
+      </div>
+      <div class="space-y-1.5 max-w-md mx-auto">
+        <h4 class="text-lg font-black text-slate-900 dark:text-white">Kolaborasi Tim & Multi-Penulis</h4>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Fitur pembagian tugas blog klien dan gerbang persetujuan editorial eksklusif untuk pengguna paket <strong>Agency & Media Network (Rp 799.000/bln)</strong>.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto text-left text-xs pt-1">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-2.5">
+          <span class="text-emerald-500 font-bold shrink-0">✓</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-200 block">Granular Blog Assignment</strong>
+            <span class="text-slate-500 dark:text-slate-400 text-[11px]">Bagi blog per copywriter tanpa berbagi akses akun utama.</span>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-2.5">
+          <span class="text-emerald-500 font-bold shrink-0">✓</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-200 block">Editorial Approval Gate</strong>
+            <span class="text-slate-500 dark:text-slate-400 text-[11px]">Penulis hanya buat draf; Editor & Owner berhak publish live.</span>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-2.5">
+          <span class="text-emerald-500 font-bold shrink-0">✓</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-200 block">Shared Credit Pool</strong>
+            <span class="text-slate-500 dark:text-slate-400 text-[11px]">Tim memakai kuota 600 artikel AI agensi tanpa biaya per user.</span>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex items-start gap-2.5">
+          <span class="text-emerald-500 font-bold shrink-0">✓</span>
+          <div>
+            <strong class="text-slate-800 dark:text-slate-200 block">Hingga 50 Blog Blogger</strong>
+            <span class="text-slate-500 dark:text-slate-400 text-[11px]">Kelola portofolio klien agensi dalam 1 dashboard terpadu.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 flex items-center justify-center gap-3">
+        <button onclick="closeTeamModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Nanti Saja</button>
+        <button onclick="closeTeamModal(); openUpgradeModal();" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-purple-500/20 active:scale-95 flex items-center gap-2">
+          <span>⚡ Upgrade ke Paket Agency (Rp 799k)</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

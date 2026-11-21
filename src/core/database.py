@@ -4,7 +4,7 @@ Supports Managed PostgreSQL (Supabase / AWS RDS) with seamless local SQLite fall
 """
 
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from src.models.models import Base
 
@@ -82,8 +82,20 @@ def init_saas_db():
         except Exception as e:
             print(f"Notice: Alembic auto-upgrade warning ({e}), falling back to metadata.create_all")
 
-    if not migrated_via_alembic:
-        Base.metadata.create_all(bind=engine)
+    # Ensure all tables in metadata exist (creates missing tables safely)
+    Base.metadata.create_all(bind=engine)
+
+    # SQLite auto-migration helper for newly added columns
+    if is_sqlite:
+        try:
+            with engine.connect() as conn:
+                res = conn.execute(text("PRAGMA table_info(articles)")).fetchall()
+                col_names = [r[1] for r in res]
+                if col_names and 'author_id' not in col_names:
+                    conn.execute(text("ALTER TABLE articles ADD COLUMN author_id VARCHAR(36)"))
+                    conn.commit()
+        except Exception as e:
+            print(f"Notice: SQLite column check warning ({e})")
 
     print(f"SaaS Database initialized with tables: {list(Base.metadata.tables.keys())}")
     print(f"Target DB: {'SQLite (Local)' if is_sqlite else 'PostgreSQL (Supabase/Remote)'}")

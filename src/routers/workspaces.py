@@ -1,7 +1,7 @@
 """
 Workspace & Team RBAC Router for Blogger Auto-Pilot SaaS
-Supports organizational team collaboration, client management, and role-based permissions:
-Owner, Admin, Editor, Writer, Viewer.
+Supports organizational team collaboration, client management, granular blog assignments,
+and role-based permissions: Owner, Admin, Editor, Writer, Viewer.
 """
 
 from typing import Optional, List
@@ -10,8 +10,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
-from src.models.models import User, Workspace, WorkspaceMembership
+from src.models.models import User, Workspace, WorkspaceMembership, WorkspaceBlogAssignment, Blog
 from src.core.dependencies import get_current_user, check_feature_access
+from src.core.rbac import ROLE_PERMISSIONS, Permission
 
 router = APIRouter(prefix="/api/workspaces", tags=["Workspaces & RBAC"])
 
@@ -21,18 +22,21 @@ class WorkspaceCreateReq(BaseModel):
 class MemberAddReq(BaseModel):
     email: str
     role: str = "writer" # admin, editor, writer, viewer
+    assigned_blog_ids: Optional[List[str]] = None
 
 class MemberUpdateRoleReq(BaseModel):
     role: str
 
+class MemberBlogsUpdateReq(BaseModel):
+    assigned_blog_ids: List[str]
+
 @router.get("")
 def api_get_workspaces(user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    
     # Workspaces owned
     owned = db.query(Workspace).filter(Workspace.owner_id == user.id).all()
     # Memberships
     memberships = db.query(WorkspaceMembership).filter(WorkspaceMembership.user_id == user.id).all()
-    
+
     result = []
     seen_ids = set()
 
@@ -91,13 +95,27 @@ def api_create_workspace(req: WorkspaceCreateReq, user: User = Depends(get_curre
         }
     }
 
+@router.get("/{workspace_id}/available-blogs")
+def api_get_workspace_available_blogs(workspace_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not ws:
+        raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
+
+    if ws.owner_id != user.id and user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Hanya pemilik workspace yang dapat melihat daftar blog.")
+
+    blogs = db.query(Blog).filter(Blog.user_id == ws.owner_id).all()
+    return {
+        "success": True,
+        "blogs": [{"id": b.id, "name": b.name, "url": b.url} for b in blogs]
+    }
+
 @router.get("/{workspace_id}/members")
 def api_get_workspace_members(workspace_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
     if not ws:
         raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
 
-    # Check membership
     is_owner = (ws.owner_id == user.id)
     membership = db.query(WorkspaceMembership).filter(
         WorkspaceMembership.workspace_id == workspace_id,
@@ -116,18 +134,26 @@ def api_get_workspace_members(workspace_id: str, user: User = Depends(get_curren
             "email": owner_user.email,
             "full_name": owner_user.full_name or owner_user.email.split('@')[0],
             "role": "owner",
-            "is_owner": True
+            "is_owner": True,
+            "assigned_blogs": [] # Owner has access to all blogs
         })
 
     # Add other members
     for m in ws.memberships:
         if m.user_id != ws.owner_id and m.user:
+            assigned = []
+            for a in m.blog_assignments:
+                if a.blog:
+                    assigned.append({"id": a.blog.id, "name": a.blog.name})
+
             members.append({
                 "user_id": m.user.id,
+                "membership_id": m.id,
                 "email": m.user.email,
                 "full_name": m.user.full_name or m.user.email.split('@')[0],
                 "role": m.role,
-                "is_owner": False
+                "is_owner": False,
+                "assigned_blogs": assigned
             })
 
     return {"success": True, "workspace_name": ws.name, "members": members}
@@ -167,6 +193,7 @@ def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = 
 
     if existing_m:
         existing_m.role = clean_role
+        m_obj = existing_m
     else:
         new_m = WorkspaceMembership(
             workspace_id=workspace_id,
@@ -174,9 +201,64 @@ def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = 
             role=clean_role
         )
         db.add(new_m)
+        db.flush()
+        m_obj = new_m
+
+    # Handle assigned blogs if provided
+    if req.assigned_blog_ids is not None:
+        # Clear existing
+        db.query(WorkspaceBlogAssignment).filter(
+            WorkspaceBlogAssignment.membership_id == m_obj.id
+        ).delete()
+
+        # Re-assign
+        for b_id in req.assigned_blog_ids:
+            # Verify blog belongs to workspace owner
+            valid_b = db.query(Blog).filter(Blog.id == b_id, Blog.user_id == ws.owner_id).first()
+            if valid_b:
+                assign = WorkspaceBlogAssignment(
+                    membership_id=m_obj.id,
+                    blog_id=valid_b.id
+                )
+                db.add(assign)
 
     db.commit()
     return {"success": True, "message": f"Anggota {clean_email} berhasil ditambahkan dengan peran '{clean_role}'."}
+
+@router.post("/{workspace_id}/members/{member_user_id}/blogs")
+def api_update_member_blogs(workspace_id: str, member_user_id: str, req: MemberBlogsUpdateReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not ws:
+        raise HTTPException(status_code=404, detail="Workspace tidak ditemukan.")
+
+    if ws.owner_id != user.id and user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Hanya pemilik workspace yang dapat mengubah pembagian blog.")
+
+    membership = db.query(WorkspaceMembership).filter(
+        WorkspaceMembership.workspace_id == workspace_id,
+        WorkspaceMembership.user_id == member_user_id
+    ).first()
+
+    if not membership:
+        raise HTTPException(status_code=404, detail="Anggota tidak ditemukan di workspace ini.")
+
+    # Clear existing
+    db.query(WorkspaceBlogAssignment).filter(
+        WorkspaceBlogAssignment.membership_id == membership.id
+    ).delete()
+
+    # Re-assign valid blogs
+    for b_id in req.assigned_blog_ids:
+        valid_b = db.query(Blog).filter(Blog.id == b_id, Blog.user_id == ws.owner_id).first()
+        if valid_b:
+            assign = WorkspaceBlogAssignment(
+                membership_id=membership.id,
+                blog_id=valid_b.id
+            )
+            db.add(assign)
+
+    db.commit()
+    return {"success": True, "message": "Pembagian blog anggota berhasil diperbarui."}
 
 @router.delete("/{workspace_id}/members/{member_user_id}")
 def api_remove_workspace_member(workspace_id: str, member_user_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):

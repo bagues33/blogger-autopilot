@@ -147,18 +147,40 @@
           badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Draft Lokal</span>`;
         }
 
+        const canPublish = a.can_publish !== false;
+        const canApprove = a.can_approve !== false;
+        const canReview = a.can_review !== false;
+
         let workflowBtn = '';
-        if (a.status === 'draft') {
-          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'pending_review')" title="Kirim ke editor untuk direview" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 rounded-lg text-xs font-semibold transition active:scale-95">Minta Review</button>`;
-        } else if (a.status === 'pending_review') {
-          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'approved')" title="Setujui artikel untuk dipublikasikan" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 rounded-lg text-xs font-semibold transition active:scale-95">✓ Setujui</button>`;
+        if (a.status === 'draft' && canReview) {
+          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'pending_review')" title="Kirim ke editor untuk direview" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1"><span>🚀 Minta Review</span></button>`;
+        } else if (a.status === 'pending_review' && canApprove) {
+          workflowBtn = `<button onclick="updateArticleStatus(${a.id}, 'approved')" title="Setujui artikel untuk dipublikasikan" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95 flex items-center gap-1"><span>✓ Setujui</span></button>`;
         }
+
+        const authorBadge = a.author_name ? `<span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">✍️ ${a.author_name}</span>` : '';
+
+        const publishButtons = canPublish ? `
+          <button onclick="quickPublish(${a.id}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span>Draft</span>
+          </button>
+          <button onclick="quickPublish(${a.id}, false, this)" title="${isPublished ? 'Perbarui Postingan yang sudah tayang di Blogger' : 'Publikasikan Live ke Blogger'}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>${isPublished ? 'Update Live' : 'Publish Live'}</span>
+          </button>
+        ` : `
+          <span class="text-[11px] text-slate-400 italic px-1" title="Hanya Editor dan Owner yang berwenang menerbitkan live">Review Gate Aktif</span>
+        `;
         
         return `
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/80 dark:bg-[#070b14]/70 hover:border-slate-300 dark:hover:border-slate-700/80 transition duration-150 flex flex-col justify-between gap-3 shadow-sm">
             <div class="space-y-2">
               <div class="flex items-center justify-between flex-wrap gap-2">
-                ${badge}
+                <div class="flex items-center gap-2 flex-wrap">
+                  ${badge}
+                  ${authorBadge}
+                </div>
                 <span class="text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-slate-900/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">KW: ${a.target_keyword || '-'}</span>
               </div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm md:text-base leading-snug hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${a.title}</h3>
@@ -170,14 +192,7 @@
               <div class="flex items-center gap-2 flex-wrap">
                 ${workflowBtn}
                 <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
-                <button onclick="quickPublish(${a.id}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                  <span>Draft</span>
-                </button>
-                <button onclick="quickPublish(${a.id}, false, this)" title="${isPublished ? 'Perbarui Postingan yang sudah tayang di Blogger' : 'Publikasikan Live ke Blogger'}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                  <span>${isPublished ? 'Update Live' : 'Publish Live'}</span>
-                </button>
+                ${publishButtons}
               </div>
             </div>
           </div>
@@ -201,28 +216,46 @@
       
       const isPublished = a.status === 'published';
       const hasBloggerId = Boolean(a.blogger_post_id);
+      const canPublish = a.can_publish !== false;
+      const canApprove = a.can_approve !== false;
+      const canReview = a.can_review !== false;
 
       const draftBtn = document.getElementById('btn-draft-action');
       if (draftBtn) {
-        draftBtn.classList.remove('hidden');
-        draftBtn.querySelector('span').innerText = hasBloggerId ? 'Update Draft Blogger' : 'Kirim Draft ke Blogger';
+        if (canPublish || canApprove) {
+          draftBtn.classList.remove('hidden');
+          draftBtn.querySelector('span').innerText = hasBloggerId ? 'Update Draft Blogger' : 'Kirim Draft ke Blogger';
+        } else {
+          draftBtn.classList.add('hidden');
+        }
       }
 
       const publishBtn = document.getElementById('btn-publish-action');
       if (publishBtn) {
-        publishBtn.classList.remove('hidden');
-        publishBtn.querySelector('span').innerText = isPublished ? 'Perbarui Post Live' : 'Publish Live ke Blogger';
+        if (canPublish) {
+          publishBtn.classList.remove('hidden');
+          publishBtn.querySelector('span').innerText = isPublished ? 'Perbarui Post Live' : 'Publish Live ke Blogger';
+        } else {
+          publishBtn.classList.add('hidden');
+        }
       }
 
       const reqReviewBtn = document.getElementById('btn-request-review');
       if (reqReviewBtn) {
-        if (a.status === 'draft') reqReviewBtn.classList.remove('hidden');
-        else reqReviewBtn.classList.add('hidden');
+        if (a.status === 'draft' && canReview) {
+          reqReviewBtn.classList.remove('hidden');
+          if (!canPublish) {
+            reqReviewBtn.className = 'px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition active:scale-95';
+            reqReviewBtn.innerHTML = '<span>🚀 Ajukan Review ke Editor</span>';
+          }
+        } else {
+          reqReviewBtn.classList.add('hidden');
+        }
       }
 
       const approveBtn = document.getElementById('btn-approve-article');
       if (approveBtn) {
-        if (a.status === 'pending_review') approveBtn.classList.remove('hidden');
+        if (a.status === 'pending_review' && canApprove) approveBtn.classList.remove('hidden');
         else approveBtn.classList.add('hidden');
       }
       

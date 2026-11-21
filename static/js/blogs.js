@@ -60,19 +60,28 @@
       if (itemsList) {
         itemsList.innerHTML = blogs.map(b => {
           const isActive = b.id === activeBlog.id;
+          const roleBadge = b.role && b.role !== 'owner' ? `
+            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${b.role === 'editor' ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30' : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30'}">
+              ${b.role}
+            </span>
+          ` : '';
+
+          const canDelete = b.is_owner || b.role === 'owner' || b.role === 'admin';
+
           return `
             <div class="flex items-center justify-between p-2 rounded-xl transition ${isActive ? 'bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800/80'}">
               <button onclick="selectBlog('${b.id}')" class="flex-1 text-left min-w-0 pr-2">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
                   <span class="font-bold text-xs text-slate-900 dark:text-white truncate">${b.name}</span>
+                  ${roleBadge}
                   ${isActive ? '<span class="text-xs bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 px-1.5 py-0.5 rounded font-semibold">Aktif</span>' : ''}
                 </div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
                   ${b.account_name || 'Akun'} &bull; ID: ${b.id}
                 </div>
               </button>
-              ${blogs.length > 1 && !isActive ? `
+              ${blogs.length > 1 && !isActive && canDelete ? `
                 <button onclick="deleteBlog('${b.id}', '${b.name}')" title="Hapus blog ini" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-red-500/10 transition text-xs font-bold shrink-0">&times;</button>
               ` : ''}
             </div>
