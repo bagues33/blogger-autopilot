@@ -33,7 +33,12 @@
       }
       if (params.get('auth_success')) {
         const count = params.get('imported') || '0';
-        showToast(`Berhasil menghubungkan akun Google! ${count} blog otomatis terdeteksi & terdaftar di dashboard.`, 'success');
+        const skipped = parseInt(params.get('skipped_limit') || '0', 10);
+        if (skipped > 0) {
+          showToast(`Berhasil menghubungkan ${count} blog Google! ${skipped} blog tambahan dilewati karena batas paket Anda. Upgrade paket untuk menghubungkan semua blog.`, 'warning', 7000);
+        } else {
+          showToast(`Berhasil menghubungkan akun Google! ${count} blog otomatis terdeteksi & terdaftar di dashboard.`, 'success');
+        }
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (params.get('auth_error')) {
         showToast('Gagal otorisasi Google: ' + params.get('auth_error'), 'error');

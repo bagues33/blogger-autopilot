@@ -419,6 +419,17 @@ def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, 
     # Shared Credit Pool: Resolve quota billing owner
     blog_owner = get_blog_effective_owner(active_b, db) or user
 
+    # Check subscription expiry on billing owner
+    from src.core.dependencies import is_subscription_expired
+    if blog_owner and blog_owner.role != 'admin' and blog_owner.subscription and is_subscription_expired(blog_owner.subscription):
+        return JSONResponse(
+            status_code=403,
+            content={
+                'success': False,
+                'error': "Masa aktif langganan berbayar telah berakhir. Silakan perpanjang paket untuk melanjutkan produksi artikel."
+            }
+        )
+
     # Check tenant quota (BYOK only exempts Pro, Agency, or Admin)
     can_byok = check_feature_access(blog_owner, 'byok')
     is_byok = can_byok and bool(

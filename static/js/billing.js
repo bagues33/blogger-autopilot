@@ -60,8 +60,12 @@
               console.log('Customer closed popup');
             }
           });
-        } else {
-          // If demo mock key is used or direct simulation
+        } else if (!data.is_mock && data.redirect_url) {
+          // Safe production fallback when Snap JS is blocked by ad-blocker or slow network
+          showToast('Mengalihkan ke halaman pembayaran aman Midtrans...', 'info');
+          window.location.href = data.redirect_url;
+        } else if (data.is_mock) {
+          // Local sandbox/demo mock adapter only
           showConfirm({
             title: `Simulasi Pembayaran (${data.plan_name})`,
             message: `Order ID: ${data.order_id} | Jumlah: Rp ${Number(data.amount).toLocaleString('id-ID')}. Konfirmasi aktivasi paket langganan ini?`,
@@ -73,6 +77,8 @@
               await simulateDemoPayment(planTier);
             }
           });
+        } else {
+          showToast('Popup Midtrans gagal dimuat. Silakan muat ulang halaman dan coba lagi.', 'error');
         }
       } catch (err) {
         showToast('Error Midtrans: ' + err.message, 'error');

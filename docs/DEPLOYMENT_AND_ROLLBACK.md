@@ -20,7 +20,7 @@ Salin `.env.production.example` menjadi `.env` di server produksi dan pastikan s
 | `MIDTRANS_IS_PRODUCTION` | `true` beserta `MIDTRANS_SERVER_KEY` & `MIDTRANS_CLIENT_KEY` live |
 | `GEMINI_API_KEY` / `GROQ_API_KEY` | Minimal 1 kunci LLM aktif (disarankan keduanya untuk fallback) |
 | `CLOUDINARY_URL` | Kunci Cloudinary untuk CDN gambar publik HTTPS permanen |
-| `GOOGLE_CLIENT_SECRETS_FILE` | Path ke `client_secret.json` dengan Authorized Redirect URI `https://app.namadomainanda.com/api/google/oauth/callback` |
+| `GOOGLE_CLIENT_SECRETS_FILE` | Path ke `client_secret.json` dengan Authorized Redirect URI `https://app.namadomainanda.com/api/auth/google/callback` |
 
 ---
 
@@ -70,7 +70,7 @@ sudo certbot --nginx -d app.namadomainanda.com
 
 ### E. Konfigurasi Webhook & OAuth Eksternal
 1. **Midtrans Production Dashboard:** Set *Payment Notification URL* ke `https://app.namadomainanda.com/api/billing/midtrans/webhook`.
-2. **Google Cloud Console (OAuth Consent Screen):** Ubah status dari *Testing* ke **In Production** dan daftarkan `https://app.namadomainanda.com/api/google/oauth/callback` pada Authorized Redirect URIs.
+2. **Google Cloud Console (OAuth Consent Screen):** Ubah status dari *Testing* ke **In Production** dan daftarkan `https://app.namadomainanda.com/api/auth/google/callback` pada Authorized Redirect URIs.
 
 ---
 
@@ -102,3 +102,4 @@ git checkout <COMMIT_HASH_STABIL>
 docker compose up -d --build
 curl -fsS http://127.0.0.1:8090/health
 ```
+

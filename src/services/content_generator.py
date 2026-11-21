@@ -367,6 +367,13 @@ def generate_article(
                 )
 
         sub = user.subscription
+        from src.core.dependencies import is_subscription_expired
+        if sub and user.role != 'admin' and is_subscription_expired(sub):
+            return ArticleGenerationResult(
+                success=False,
+                error="Masa aktif langganan berbayar Anda telah berakhir. Silakan perpanjang paket Anda di menu Upgrade."
+            )
+
         can_byok = check_feature_access(user, 'byok')
         is_byok = can_byok and bool(
             getattr(user, 'custom_gemini_key', None) or
@@ -387,8 +394,8 @@ def generate_article(
             blog = db.query(Blog).filter(Blog.user_id == user.id, Blog.is_active == 1).first()
         if not blog:
             blog = db.query(Blog).filter(Blog.user_id == user.id).first()
-        if not blog:
-            # Local fallback for admin onboarding
+        if not blog and user.role == 'admin':
+            # Local fallback strictly for admin onboarding only
             blog = db.query(Blog).filter(Blog.is_active == 1).first() or db.query(Blog).first()
 
         if not blog:

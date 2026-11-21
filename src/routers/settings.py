@@ -13,7 +13,7 @@ from pypdf import PdfReader
 
 from src.core.database import get_saas_db
 from src.models.models import NotificationSetting
-from src.services.notifications import send_telegram_message, send_webhook_event
+from src.services.notifications import send_telegram_message, send_webhook_event, validate_safe_webhook_url
 from src.services.audit import record_audit_log
 from src.core.dependencies import (
     get_session_user,
@@ -157,6 +157,12 @@ def api_get_notification_settings(user: User = Depends(get_current_user), db: Se
 
 @router.post('/api/notifications/settings')
 def api_save_notification_settings(req: NotificationSettingsReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if req.webhook_url:
+        try:
+            req.webhook_url = validate_safe_webhook_url(req.webhook_url)
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
+
     setting = db.query(NotificationSetting).filter(NotificationSetting.user_id == user.id).first()
     
     if not setting:
@@ -203,8 +209,12 @@ def api_test_notification(req: NotificationTestReq, user: User = Depends(get_cur
         results['telegram'] = send_telegram_message(req.telegram_bot_token, req.telegram_chat_id, test_msg)
         
     if req.webhook_url:
+        try:
+            safe_url = validate_safe_webhook_url(req.webhook_url)
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
         results['webhook'] = send_webhook_event(
-            req.webhook_url,
+            safe_url,
             "test_notification",
             {"message": "Tes webhook berhasil dari Blogger Auto-Pilot SaaS!"}
         )

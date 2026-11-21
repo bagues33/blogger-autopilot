@@ -94,6 +94,14 @@ def run_scheduler_cycle(max_per_cycle: int = 5, force: bool = False, dry_run: bo
             if not user or not user.is_active:
                 continue
 
+            from src.core.dependencies import is_subscription_expired
+            if user.role != 'admin' and is_subscription_expired(sub):
+                logger.info(f"User {user.email} subscription period ended ({sub.current_period_end}). Skipping autopilot.")
+                if not dry_run and sub.status == 'active':
+                    sub.status = 'expired'
+                    db.commit()
+                continue
+
             # Query all active user blogs up to their plan limit
             max_blogs = {'free': 1, 'starter': 3, 'pro': 10, 'agency': 50}.get(sub.plan_tier, 1)
             user_blogs = (

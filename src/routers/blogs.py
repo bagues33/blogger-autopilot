@@ -16,6 +16,7 @@ from src.core.database import get_saas_db
 from src.models.models import Blog as SaasBlog, Article as SaasArticle
 from src.services.payment import PLAN_TIERS
 from src.core.rate_limiter import check_rate_limit
+from src.core.crypto import encrypt_token_data
 from src.services.audit import record_audit_log
 from src.core.rbac import (
     get_accessible_blogs,
@@ -28,6 +29,7 @@ from src.core.dependencies import (
     get_current_user,
     get_optional_user,
     check_feature_access,
+    get_effective_plan_tier,
     BASE_DIR,
     DEFAULT_CLIENT_SECRET,
     DEFAULT_TOKEN_FILE,
@@ -48,6 +50,7 @@ class BlogAddReq(BaseModel):
     url: Optional[str] = ''
     account_name: Optional[str] = 'Akun Utama'
     token_file: Optional[str] = None
+    encrypted_token: Optional[str] = None
     niche_description: Optional[str] = ''
 
 class AutopilotSettingsReq(BaseModel):
@@ -110,28 +113,38 @@ def api_select_blog(req: BlogSelectReq, user: User = Depends(get_current_user), 
 @router.post('/api/blogs')
 @router.post('/api/blogs/add')
 def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
-    plan = user.subscription.plan_tier if user.subscription else 'free'
+    plan = get_effective_plan_tier(user)
     max_blogs = PLAN_TIERS.get(plan, {}).get('blogs', 1)
+    target_id = req.id.strip()
+
+    existing = db.query(SaasBlog).filter(SaasBlog.id == target_id, SaasBlog.user_id == user.id).first()
     current_count = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).count()
-    if current_count >= max_blogs:
+    if not existing and current_count >= max_blogs:
         raise HTTPException(
             status_code=400,
             detail=f"Batas maksimal ({max_blogs} blog) untuk paket {plan.upper()} telah tercapai. Silakan upgrade paket langganan Anda."
         )
 
-    token = req.token_file or DEFAULT_TOKEN_FILE
-    target_id = req.id.strip()
+    # Prevent Cross-Tenant Token Path Hijack:
+    # Non-admin users cannot point a blog to arbitrary server file paths or global token.json
+    safe_token_file = None
+    if user.role == 'admin' and req.token_file:
+        safe_token_file = req.token_file
+
+    safe_encrypted_token = req.encrypted_token if req.encrypted_token else None
     target_name = req.name.strip()
     target_url = req.url.strip() if req.url else ''
     target_account = req.account_name.strip() if req.account_name else 'Akun Google'
     target_niche = req.niche_description.strip() if req.niche_description else ''
-    
-    existing = db.query(SaasBlog).filter(SaasBlog.id == target_id, SaasBlog.user_id == user.id).first()
+
     if existing:
         existing.name = target_name
         existing.url = target_url
         existing.account_name = target_account or 'Akun Google'
-        existing.token_file = token
+        if safe_token_file:
+            existing.token_file = safe_token_file
+        if safe_encrypted_token:
+            existing.encrypted_token = safe_encrypted_token
         existing.niche_description = target_niche
     else:
         new_b = SaasBlog(
@@ -140,7 +153,8 @@ def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_cur
             name=target_name,
             url=target_url,
             account_name=target_account or 'Akun Google',
-            token_file=token,
+            token_file=safe_token_file,
+            encrypted_token=safe_encrypted_token,
             client_secret_file=DEFAULT_CLIENT_SECRET,
             niche_description=target_niche,
             is_active=1 if current_count == 0 else 0
@@ -184,14 +198,22 @@ def api_delete_blog(blog_id: str, user: User = Depends(get_current_user), db: Se
 
 @router.post('/api/blogs/upload-token')
 async def api_upload_blog_token(file: UploadFile = File(...), user: User = Depends(get_current_user)):
-    tokens_dir = TOKENS_DIR
-    os.makedirs(tokens_dir, exist_ok=True)
-    filename = f"token_{uuid.uuid4().hex[:8]}.json"
-    save_path = os.path.join(tokens_dir, filename)
     content = await file.read()
-    with open(save_path, 'wb') as f:
-        f.write(content)
-    return {'success': True, 'token_file': save_path, 'filename': filename}
+    if len(content) > 100 * 1024:
+        raise HTTPException(status_code=400, detail="Ukuran file token maksimal 100KB.")
+    try:
+        parsed = json.loads(content.decode('utf-8'))
+        if not isinstance(parsed, dict) or not (parsed.get('refresh_token') or parsed.get('token')):
+            raise ValueError("Missing OAuth token fields")
+    except Exception:
+        raise HTTPException(status_code=400, detail="File harus berupa JSON kredensial Google OAuth yang valid.")
+
+    encrypted_blob = encrypt_token_data(parsed)
+    return {
+        'success': True,
+        'encrypted_token': encrypted_blob,
+        'filename': os.path.basename(file.filename or 'token.json')
+    }
 
 @router.post('/api/blogs/autopilot-settings')
 def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
@@ -245,29 +267,19 @@ def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, use
     return {'success': True, 'message': 'Pengaturan autopilot berhasil disimpan.'}
 
 @router.get('/api/blogs/{blog_id}/autopilot-settings')
-def api_get_autopilot_settings(blog_id: str, request: Request, db: Session = Depends(get_saas_db)):
+def api_get_autopilot_settings(blog_id: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     blog = db.query(SaasBlog).filter(SaasBlog.id == blog_id).first()
-    if blog:
-        return {
-            'blog_id': blog.id,
-            'autopilot_enabled': bool(blog.autopilot_enabled),
-            'publish_mode': blog.publish_mode or 'blogger_draft',
-            'schedule': blog.schedule_frequency or 'daily',
-            'last_run_at': blog.last_run_at.isoformat() if blog.last_run_at else None
-        }
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")
+    if not has_blog_permission(user, blog, Permission.ARTICLE_VIEW, db):
+        raise HTTPException(status_code=403, detail="Anda tidak memiliki izin akses ke pengaturan blog ini.")
 
-    settings_file = os.path.join(BASE_DIR, 'settings', f"autopilot_{blog_id}.json")
-    if os.path.exists(settings_file):
-        try:
-            with open(settings_file, 'r') as f:
-                return json.load(f)
-        except Exception:
-            pass
     return {
-        'blog_id': blog_id,
-        'autopilot_enabled': True,
-        'publish_mode': 'blogger_draft',
-        'schedule': 'daily'
+        'blog_id': blog.id,
+        'autopilot_enabled': bool(blog.autopilot_enabled),
+        'publish_mode': blog.publish_mode or 'blogger_draft',
+        'schedule': blog.schedule_frequency or 'daily',
+        'last_run_at': blog.last_run_at.isoformat() if blog.last_run_at else None
     }
 
 @router.post('/api/blogs/{blog_id}/sync-blogger-posts')

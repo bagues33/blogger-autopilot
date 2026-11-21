@@ -336,3 +336,29 @@
       }
     }
 
+    async function downloadTenantBackup() {
+      try {
+        showToast('Menyiapkan file backup JSON akun Anda...', 'info', 2500);
+        const res = await fetch('/api/tenant/export', { credentials: 'same-origin' });
+        if (res.status === 403) {
+          const errData = await res.json().catch(() => ({}));
+          showToast(errData.detail || 'Fitur Backup Data 1-Klik memerlukan paket Pro atau Agency.', 'warning', 5000);
+          if (typeof openUpgradeModal === 'function') openUpgradeModal();
+          return;
+        }
+        if (!res.ok) throw new Error('Gagal mengunduh backup data.');
+        const blob = await res.blob();
+        const dlUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = `blogger_autopilot_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(dlUrl);
+        showToast('Backup seluruh data (blog, artikel, keyword) berhasil diunduh!', 'success');
+      } catch (err) {
+        showToast('Gagal backup: ' + err.message, 'error');
+      }
+    }
+

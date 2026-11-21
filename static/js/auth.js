@@ -243,6 +243,62 @@
       }
     }
 
+    function toggleForgotPasswordView(show) {
+      const loginForm = document.getElementById('form-login');
+      const regForm = document.getElementById('form-register');
+      const forgotBox = document.getElementById('form-forgot-container');
+      const alertBox = document.getElementById('auth-error-alert');
+      if (alertBox) alertBox.classList.add('hidden');
+      if (show) {
+        if (loginForm) loginForm.classList.add('hidden');
+        if (regForm) regForm.classList.add('hidden');
+        if (forgotBox) forgotBox.classList.remove('hidden');
+      } else {
+        if (forgotBox) forgotBox.classList.add('hidden');
+        if (loginForm) loginForm.classList.remove('hidden');
+      }
+    }
+
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const email = (document.getElementById('forgot-email') || {}).value || '';
+      try {
+        const res = await fetch('/api/saas/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim() })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Gagal memproses permintaan.');
+        showToast(data.message, 'info', 6000);
+        if (data.dev_reset_token) {
+          const tokEl = document.getElementById('reset-token-input');
+          if (tokEl) tokEl.value = data.dev_reset_token;
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function handleResetPasswordConfirm(e) {
+      e.preventDefault();
+      const token = (document.getElementById('reset-token-input') || {}).value || '';
+      const newPassword = (document.getElementById('reset-new-password') || {}).value || '';
+      try {
+        const res = await fetch('/api/saas/auth/reset-password-confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token.trim(), new_password: newPassword.trim() })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Token tidak valid atau kedaluwarsa.');
+        showToast(data.message, 'success');
+        toggleForgotPasswordView(false);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
     function logoutSaas() {
       showConfirm({
         title: 'Keluar dari Akun',

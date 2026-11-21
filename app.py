@@ -168,6 +168,32 @@ def dashboard_view(request: Request, db: Session = Depends(get_saas_db)):
         }
     )
 
+# --- Public Legal & Compliance Routes (Required for Google OAuth & Midtrans Approval) ---
+
+@app.get('/privacy', response_class=HTMLResponse, tags=['Health'])
+def legal_privacy(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name='legal.html',
+        context={'page_title': 'Kebijakan Privasi (Privacy Policy)', 'active_doc': 'privacy'}
+    )
+
+@app.get('/terms', response_class=HTMLResponse, tags=['Health'])
+def legal_terms(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name='legal.html',
+        context={'page_title': 'Syarat & Ketentuan Layanan', 'active_doc': 'terms'}
+    )
+
+@app.get('/refund', response_class=HTMLResponse, tags=['Health'])
+def legal_refund(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name='legal.html',
+        context={'page_title': 'Kebijakan Pengembalian Dana (Refund)', 'active_doc': 'refund'}
+    )
+
 # --- Mount Domain Routers ---
 app.include_router(auth.router)
 app.include_router(billing.router)

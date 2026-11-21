@@ -6,12 +6,60 @@ Zero-dependency implementation using Python urllib.
 
 import os
 import json
+import socket
+import ipaddress
 import logging
 import urllib.request
 import urllib.error
+import urllib.parse
 from typing import Optional, Dict, Any
 
 logger = logging.getLogger("NotificationService")
+
+def validate_safe_webhook_url(webhook_url: str) -> str:
+    """
+    Validates that a user-supplied webhook URL targets a public internet HTTP(S) endpoint
+    and blocks SSRF attempts against loopback, private LAN, and cloud metadata IPs.
+    """
+    clean = (webhook_url or "").strip()
+    if not clean:
+        return ""
+    parsed = urllib.parse.urlparse(clean)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("Webhook URL harus menggunakan protokol http:// atau https://.")
+    host = (parsed.hostname or "").strip().lower()
+    if not host:
+        raise ValueError("Webhook URL tidak memiliki nama host yang valid.")
+
+    blocked_hosts = {"localhost", "localhost.localdomain", "metadata.google.internal", "metadata"}
+    if host in blocked_hosts or host.endswith(".local") or host.endswith(".internal"):
+        raise ValueError("Webhook URL ke host internal/lokal diblokir demi keamanan (anti-SSRF).")
+
+    # Check if host is a direct IP literal
+    try:
+        ip = ipaddress.ip_address(host)
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            raise ValueError("Webhook URL ke alamat IP privat/loopback/metadata diblokir demi keamanan (anti-SSRF).")
+        return clean
+    except ValueError as ve:
+        if "diblokir" in str(ve):
+            raise
+
+    # Resolve DNS and verify none of the resolved IPs are internal/private/link-local
+    try:
+        infos = socket.getaddrinfo(host, None)
+        for info in infos:
+            addr = info[4][0]
+            ip = ipaddress.ip_address(addr)
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+                raise ValueError("Webhook URL mengarah ke IP internal/privat dan diblokir demi keamanan (anti-SSRF).")
+    except ValueError:
+        raise
+    except Exception:
+        # Allow mock/unresolvable domains in offline test suites; live send will handle connection failure
+        pass
+
+    return clean
 
 # Fallback server-wide environment defaults
 DEFAULT_TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -70,6 +118,10 @@ class LiveNetworkNotificationAdapter(BaseNotificationAdapter):
     def send_webhook(self, webhook_url: str, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         if not webhook_url:
             return {"success": False, "error": "Webhook URL is missing"}
+        try:
+            webhook_url = validate_safe_webhook_url(webhook_url)
+        except ValueError as ve:
+            return {"success": False, "error": str(ve)}
 
         body = {
             "event": event_type,

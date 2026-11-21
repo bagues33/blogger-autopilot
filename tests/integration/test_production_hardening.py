@@ -136,3 +136,128 @@ def test_production_fail_fast_secrets(monkeypatch):
     # Valid strong encryption key passes
     monkeypatch.setenv("ENCRYPTION_SECRET_KEY", "z1x2c3v4b5n6m7a8s9d0f1g2h3j4k5l6")
     assert len(get_encryption_key()) > 32
+
+
+def test_oauth_account_takeover_and_csrf_blocked(client: TestClient):
+    # 1. Unauthenticated caller cannot initiate Google OAuth login
+    r_login = client.get("/api/auth/google/login?account_name=victim@company.com", follow_redirects=False)
+    assert r_login.status_code == 401
+
+    # 2. Callback without valid state cookie MUST fail cleanly and NEVER mint saas_token
+    r_cb = client.get("/api/auth/google/callback?code=fake_code", follow_redirects=False)
+    assert r_cb.status_code in (302, 307)
+    assert "auth_error=invalid_state" in r_cb.headers.get("location", "")
+    assert "saas_token" not in r_cb.cookies
+
+
+def test_blog_auth_token_isolation_and_upload_validation(client: TestClient, tenant_factory, db_session):
+    from src.models.models import Blog
+
+    # 1. Unauthenticated autopilot-settings MUST be rejected
+    assert client.get("/api/blogs/some_blog_id/autopilot-settings").status_code == 401
+
+    client_u, user = tenant_factory(plan="free", name="Blog Security Tester")
+    b_id = f"blog_sec_{user.id[:6]}"
+
+    # 2. Non-admin trying to inject arbitrary server token_file path MUST NOT persist it
+    r_add = client_u.post("/api/blogs/add", json={
+        "id": b_id,
+        "name": "Secure Blog",
+        "token_file": "/etc/passwd"
+    })
+    assert r_add.status_code == 200
+    saved = db_session.query(Blog).filter(Blog.id == b_id).first()
+    assert saved is not None
+    assert saved.token_file is None
+
+    # 3. Invalid non-JSON token upload MUST be rejected with 400
+    r_bad_up = client_u.post(
+        "/api/blogs/upload-token",
+        files={"file": ("evil.txt", b"not a valid oauth json", "text/plain")}
+    )
+    assert r_bad_up.status_code == 400
+
+
+def test_ssrf_webhook_urls_blocked(tenant_factory):
+    client_u, _ = tenant_factory(plan="starter", name="SSRF Tester")
+
+    for evil_url in [
+        "http://127.0.0.1:8090/api/admin/metrics",
+        "http://localhost:8090/health",
+        "http://169.254.169.254/latest/meta-data/",
+        "http://10.0.0.1/internal",
+        "file:///etc/passwd"
+    ]:
+        r_save = client_u.post("/api/notifications/settings", json={"webhook_url": evil_url})
+        assert r_save.status_code == 400, f"Expected 400 for SSRF URL {evil_url}, got {r_save.status_code}"
+
+        r_test = client_u.post("/api/notifications/test", json={"webhook_url": evil_url})
+        assert r_test.status_code == 400, f"Expected 400 for SSRF test URL {evil_url}, got {r_test.status_code}"
+
+
+def test_subscription_expiry_enforced_across_features(tenant_factory, db_session):
+    from datetime import datetime, timedelta, timezone
+    from src.core.dependencies import get_effective_plan_tier
+
+    client_pro, user_pro = tenant_factory(plan="pro", name="Expired Pro User")
+
+    # Force subscription current_period_end to yesterday
+    sub = db_session.query(Subscription).filter(Subscription.user_id == user_pro.id).first()
+    sub.current_period_end = datetime.now(timezone.utc) - timedelta(days=1)
+    db_session.commit()
+    db_session.refresh(user_pro)
+
+    assert get_effective_plan_tier(user_pro) == "free"
+
+    # /api/saas/auth/me reports expired status
+    r_me = client_pro.get("/api/saas/auth/me")
+    assert r_me.status_code == 200
+    assert r_me.json()["subscription"]["is_expired"] is True
+    assert r_me.json()["subscription"]["effective_plan_tier"] == "free"
+
+    # Pro features (BYOK & CSV export) MUST now be blocked with 403!
+    r_byok = client_pro.post("/api/settings/byok", json={"custom_gemini_key": "AIzaExpiredTest"})
+    assert r_byok.status_code == 403
+
+    r_csv = client_pro.get("/api/analytics/export-csv")
+    assert r_csv.status_code == 403
+
+
+def test_legal_pages_and_self_service_password_reset(client: TestClient, tenant_factory):
+    limiter.requests.clear()
+
+    # 1. Legal pages required for Google OAuth & Midtrans compliance
+    r_priv = client.get("/privacy")
+    assert r_priv.status_code == 200
+    assert "Google API Services User Data Policy" in r_priv.text
+
+    r_terms = client.get("/terms")
+    assert r_terms.status_code == 200
+    assert "Syarat & Ketentuan" in r_terms.text
+
+    r_ref = client.get("/refund")
+    assert r_ref.status_code == 200
+    assert "Refund" in r_ref.text
+
+    # 2. Self-service forgot-password + reset-password-confirm flow
+    _, user = tenant_factory(plan="free", name="Forgot PW User")
+    r_forgot = client.post("/api/saas/auth/forgot-password", json={"email": user.email})
+    assert r_forgot.status_code == 200
+    reset_tok = r_forgot.json().get("dev_reset_token")
+    assert reset_tok is not None
+
+    r_confirm = client.post("/api/saas/auth/reset-password-confirm", json={
+        "token": reset_tok,
+        "new_password": "BrandNewPassword2026!"
+    })
+    assert r_confirm.status_code == 200
+    assert r_confirm.json()["success"] is True
+
+    # User can now login with new password
+    r_login = client.post("/api/saas/auth/login", json={
+        "email": user.email,
+        "password": "BrandNewPassword2026!"
+    })
+    assert r_login.status_code == 200
+    assert r_login.json()["success"] is True
+

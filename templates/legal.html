@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }} — Blogger Autopilot SaaS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-[#070b14] text-slate-800 dark:text-slate-200 min-h-screen flex flex-col antialiased">
+  <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1120] sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 font-extrabold text-slate-900 dark:text-white tracking-tight">
+        <span class="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center text-sm">⚡</span>
+        <span>Blogger Autopilot</span>
+      </a>
+      <nav class="flex items-center gap-4 text-xs font-semibold">
+        <a href="/privacy" class="{% if active_doc == 'privacy' %}text-sky-600 dark:text-sky-400{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">Kebijakan Privasi</a>
+        <a href="/terms" class="{% if active_doc == 'terms' %}text-sky-600 dark:text-sky-400{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">Syarat & Ketentuan</a>
+        <a href="/refund" class="{% if active_doc == 'refund' %}text-sky-600 dark:text-sky-400{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">Kebijakan Refund</a>
+        <a href="/" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">&larr; Kembali</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-5 py-10">
+    <article class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-10 shadow-sm space-y-6">
+      <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
+        <span class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Dokumen Legal & Kepatuhan</span>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ page_title }}</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Terakhir diperbarui: November 2026 &bull; Berlaku untuk seluruh pengguna Blogger Autopilot SaaS</p>
+      </div>
+
+      {% if active_doc == 'privacy' %}
+      <section class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        <h2 class="text-base font-bold text-slate-900 dark:text-white">1. Data yang Kami Kumpulkan</h2>
+        <p>Kami mengumpulkan data minimum yang diperlukan untuk mengoperasikan layanan otomasi konten Blogger Anda: alamat email, nama lengkap, daftar blog Google Blogger yang Anda otorisasikan secara eksplisit, draf artikel, bank keyword, serta catatan aktivitas sistem (Audit Log).</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">2. Penggunaan Google API & Kepatuhan Limited Use</h2>
+        <p>Blogger Autopilot menggunakan <strong>Google Blogger API v3</strong> (scope <code>https://www.googleapis.com/auth/blogger</code>) secara eksklusif untuk membaca daftar blog Anda, menyinkronkan postingan, serta membuat atau memperbarui draf/postingan atas instruksi Anda.</p>
+        <p>Penggunaan dan transfer informasi yang diterima dari Google API oleh Blogger Autopilot mematuhi <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" class="text-sky-600 dark:text-sky-400 underline">Google API Services User Data Policy</a>, termasuk persyaratan <em>Limited Use</em>. Kami <strong>tidak pernah</strong> menjual data Google Anda, tidak menayangkan iklan berbasis data Google Anda, dan tidak mengizinkan pihak ketiga mengakses token OAuth Anda.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">3. Enkripsi & Keamanan Kredensial</h2>
+        <p>Seluruh OAuth Refresh Token Google disimpan dalam bentuk terenkripsi (simetris AES/Fernet) di database terisolasi per penyewa (multi-tenant). Kata sandi akun di-hash menggunakan <code>bcrypt</code>. Anda dapat mencabut akses Google kapan saja melalui halaman <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" class="text-sky-600 dark:text-sky-400 underline">Keamanan Akun Google</a> atau menghapus blog dari dashboard.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">4. Pembayaran & Pihak Ketiga</h2>
+        <p>Pembayaran langganan Rupiah (QRIS, Virtual Account Bank, E-Wallet) diproses melalui mitra payment gateway resmi <strong>Midtrans</strong>. Kami tidak menyimpan nomor kartu kredit atau PIN e-wallet Anda di server kami.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">5. Hak Penghapusan Data & Kontak</h2>
+        <p>Anda berhak mengekspor data Anda (Backup 1-Klik) maupun meminta penghapusan akun beserta seluruh data terkait dengan menghubungi tim dukungan kami di <a href="mailto:support@bloggerautopilot.id" class="text-sky-600 dark:text-sky-400 underline">support@bloggerautopilot.id</a>.</p>
+      </section>
+
+      {% elif active_doc == 'terms' %}
+      <section class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        <h2 class="text-base font-bold text-slate-900 dark:text-white">1. Ruang Lingkup Layanan</h2>
+        <p>Blogger Autopilot adalah perangkat lunak SaaS (Software-as-a-Service) untuk membantu riset keyword, penyusunan draf artikel SEO dengan AI, manajemen kolaborasi tim editorial, serta penerbitan ke Google Blogger.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">2. Akun, Paket Langganan & Masa Berlaku</h2>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>Paket berbayar (<strong>Starter Rp 149.000/bln</strong>, <strong>Pro Rp 349.000/bln</strong>, <strong>Agency Rp 799.000/bln</strong>) berlaku selama <strong>30 hari kalender</strong> sejak pembayaran terkonfirmasi oleh Midtrans.</li>
+          <li>Apabila masa berlangganan 30 hari berakhir dan belum diperpanjang, fitur premium (Autopilot, BYOK, Multi-Workspace, Ekspor CSV/Backup) akan otomatis dibatasi kembali ke batas paket Free tanpa menghapus artikel eksisting Anda.</li>
+          <li>Kuota kredit artikel yang tidak terpakai pada satu periode tidak diakumulasikan ke periode berikutnya.</li>
+        </ul>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">3. Tanggung Jawab Konten & Penggunaan Wajar</h2>
+        <p>Pengguna bertanggung jawab penuh atas keakuratan, legalitas, dan kepatuhan konten yang diterbitkan ke Google Blogger terhadap kebijakan Google AdSense, hak cipta, dan peraturan perundang-undangan yang berlaku di Republik Indonesia. Dilarang menggunakan platform untuk konten melanggar hukum, judi online, phishing, atau spam massal berbahaya.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">4. Penangguhan Akun</h2>
+        <p>Kami berhak menangguhkan akun yang terbukti menyalahgunakan sistem, mencoba mengeksploitasi celah keamanan, atau melanggar ketentuan penggunaan wajar.</p>
+      </section>
+
+      {% else %}
+      <section class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        <h2 class="text-base font-bold text-slate-900 dark:text-white">1. Uji Coba Gratis Sebelum Membayar</h2>
+        <p>Setiap akun baru mendapatkan paket <strong>Free Community (3 kredit artikel AI gratis & 1 blog terhubung)</strong> tanpa kartu kredit agar Anda dapat menguji kualitas artikel dan integrasi Blogger terlebih dahulu sebelum melakukan upgrade.</p>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">2. Ketentuan Pengembalian Dana (Refund)</h2>
+        <ul class="list-disc pl-5 space-y-1.5">
+          <li>Pengajuan refund penuh (100%) dapat dilakukan dalam waktu maksimal <strong>3×24 jam (3 hari)</strong> sejak transaksi sukses <strong>apabila kuota kredit berbayar belum digunakan lebih dari 10%</strong> dan terdapat kendala teknis dari sisi platform yang gagal kami selesaikan dalam 48 jam.</li>
+          <li>Refund juga diberikan otomatis untuk transaksi ganda (<em>double charge</em>) akibat gangguan jaringan pembayaran.</li>
+          <li>Refund tidak berlaku apabila kuota artikel AI telah dikonsumsi signifikan atau akun ditangguhkan akibat pelanggaran Syarat & Ketentuan.</li>
+        </ul>
+
+        <h2 class="text-base font-bold text-slate-900 dark:text-white pt-2">3. Cara Pengajuan & Pembatalan</h2>
+        <p>Karena pembayaran menggunakan QRIS / Virtual Account satu kali per siklus 30 hari (tidak memotong saldo otomatis tanpa persetujuan), Anda dapat berhenti berlangganan kapan saja cukup dengan tidak memperpanjang tagihan bulan berikutnya. Untuk pengajuan refund atau kendala transaksi Midtrans, kirimkan <strong>Order ID</strong> dan email akun Anda ke <a href="mailto:support@bloggerautopilot.id" class="text-sky-600 dark:text-sky-400 underline">support@bloggerautopilot.id</a> (proses maksimal 3–7 hari kerja bank).</p>
+      </section>
+      {% endif %}
+
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <span>Layanan Pelanggan: <strong class="text-slate-700 dark:text-slate-300">support@bloggerautopilot.id</strong></span>
+        <span>&copy; 2026 Blogger Autopilot SaaS</span>
+      </div>
+    </article>
+  </main>
+</body>
+</html>

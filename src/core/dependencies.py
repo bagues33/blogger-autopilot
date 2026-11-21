@@ -5,6 +5,7 @@ Provides reusable session authentication, tenant resolution, and configuration c
 
 import os
 import json
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import Request, HTTPException, Depends
 from sqlalchemy.orm import Session
@@ -112,20 +113,54 @@ PLAN_FEATURES = {
     }
 }
 
+def is_subscription_expired(sub) -> bool:
+    """
+    Checks whether a paid subscription has expired based on status or current_period_end.
+    Free tier does not expire; naive timestamps from SQLite are normalized to UTC.
+    """
+    if not sub:
+        return False
+    tier = (sub.plan_tier or 'free').lower()
+    if tier == 'free':
+        return False
+    if sub.status not in ('active', 'trialing'):
+        return True
+    if sub.current_period_end is not None:
+        end_dt = sub.current_period_end
+        if end_dt.tzinfo is None:
+            end_dt = end_dt.replace(tzinfo=timezone.utc)
+        if end_dt < datetime.now(timezone.utc):
+            return True
+    return False
+
+def get_effective_plan_tier(user: Optional[User]) -> str:
+    """
+    Returns the tenant's active effective plan tier.
+    Paid plans whose period has ended or whose status is no longer active automatically
+    downgrade to 'free' until renewed.
+    """
+    if not user:
+        return 'free'
+    if getattr(user, 'role', None) == 'admin':
+        return 'agency'
+    sub = getattr(user, 'subscription', None)
+    if not sub or not sub.plan_tier:
+        return 'free'
+    if is_subscription_expired(sub):
+        return 'free'
+    return sub.plan_tier.lower()
+
 def check_feature_access(user: Optional[User], feature_name: str) -> bool:
     """
     Validates whether a tenant has access to an advanced/premium feature.
-    Superadmins always bypass all tier gating.
+    Enforces subscription expiration; Superadmins always bypass all tier gating.
     """
     if not user:
         return False
     if getattr(user, 'role', None) == 'admin':
         return True
-    
-    tier = 'free'
-    if getattr(user, 'subscription', None) and user.subscription.plan_tier:
-        tier = user.subscription.plan_tier.lower()
-        
+
+    tier = get_effective_plan_tier(user)
     tier_config = PLAN_FEATURES.get(tier, PLAN_FEATURES['free'])
     return bool(tier_config.get(feature_name, False))
 
