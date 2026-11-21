@@ -79,13 +79,13 @@ def test_payment_in_memory_adapter():
     res = create_snap_transaction(user=mock_user, plan_tier="starter")
     assert res["success"] is True
     assert "MOCK_SNAP_TOKEN" in res["token"]
-    assert res["amount"] == 99000
+    assert res["amount"] == 149000
 
     # 2. Verify signature
     is_valid = verify_signature(
         order_id=res["order_id"],
         status_code="200",
-        gross_amount="99000",
+        gross_amount="149000",
         signature_key="MOCK_SIGNATURE"
     )
     assert is_valid is True

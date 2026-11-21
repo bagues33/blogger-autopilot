@@ -36,28 +36,28 @@ PLAN_TIERS = {
         'price': 0,
         'credits': 3,
         'blogs': 1,
-        'features': ['3 Artikel AI / bulan', '1 Blog Terhubung', 'Auto-sync Blogger', 'Standar WebP']
+        'features': ['3 Artikel AI Gratis', '1 Blog Terhubung', 'Auto-sync Blogger', 'Standar WebP']
     },
     'starter': {
         'name': 'Starter Solo Creator',
-        'price': 99000,
-        'credits': 30,
+        'price': 149000,
+        'credits': 50,
         'blogs': 3,
-        'features': ['30 Artikel AI / bulan', '3 Blog Terhubung', 'Cloudinary CDN Full Speed', 'E-E-A-T FAQ Schema', 'Priority Worker']
+        'features': ['50 Artikel AI SEO / bulan', '3 Blog Terhubung', 'Cloudinary CDN Full Speed', 'E-E-A-T FAQ Schema', 'Priority Worker']
     },
     'pro': {
         'name': 'Pro Publisher Autopilot',
-        'price': 249000,
-        'credits': 120,
+        'price': 349000,
+        'credits': 200,
         'blogs': 10,
-        'features': ['120 Artikel AI / bulan', '10 Blog Terhubung', 'Cloudinary CDN Full Speed', 'E-E-A-T FAQ Schema', 'Full Automation Cron', 'Support Prioritas']
+        'features': ['200 Artikel AI SEO / bulan', '10 Blog Terhubung', 'Autopilot Scheduler Fleksibel', 'Knowledge Base Niche', 'Cloudinary CDN Full Speed', 'E-E-A-T FAQ Schema', 'Support Prioritas']
     },
     'agency': {
         'name': 'Agency & Media Network',
-        'price': 699000,
-        'credits': 500,
+        'price': 799000,
+        'credits': 600,
         'blogs': 50,
-        'features': ['500 Artikel AI / bulan', '50 Blog Terhubung', 'Dedicated Proxy / Worker', 'Multi-tenant Agency Dashboard', 'Custom SEO Prompts']
+        'features': ['600 Artikel AI SEO / bulan', '50 Blog Terhubung', 'BYOK API Key Support', 'Dedicated Worker Queue', 'Multi-tenant Agency Dashboard', 'Custom SEO Prompts']
     }
 }
 

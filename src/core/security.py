@@ -125,9 +125,9 @@ def register_new_tenant_user(
     # Credit limits based on tier
     credits_map = {
         'free': 3,
-        'starter': 30,
-        'pro': 120,
-        'agency': 500
+        'starter': 50,
+        'pro': 200,
+        'agency': 600
     }
     credits = credits_map.get(plan_tier, 3)
 

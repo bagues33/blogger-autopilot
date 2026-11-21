@@ -107,7 +107,7 @@ def run_diagnostics():
         # Test SHA512 Signature verification
         order_test = "BAP-TEST-001"
         status_test = "200"
-        gross_test = "99000"
+        gross_test = "149000"
         raw_hash = hashlib.sha512(f"{order_test}{status_test}{gross_test}{MIDTRANS_SERVER_KEY}".encode('utf-8')).hexdigest()
         sig_ok = verify_signature(order_test, status_test, gross_test, raw_hash)
         print(f"{cross_mark(sig_ok)} SHA-512 Webhook Signature Engine: {'Verified' if sig_ok else 'Failed'}")

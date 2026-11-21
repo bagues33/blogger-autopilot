@@ -61,7 +61,7 @@ def run_tests():
             print(f"  - {tier.upper()}: Rp {p['price']:,} ({p['credits']} kredit, {p['blogs']} blog)")
         assert 'starter' in plans_data['plans']
         assert 'pro' in plans_data['plans']
-        assert plans_data['plans']['starter']['price'] == 99000
+        assert plans_data['plans']['starter']['price'] == 149000
 
     # 5. Test Midtrans Snap Token Generation
     snap_payload = {"plan_tier": "starter"}
@@ -97,7 +97,7 @@ def run_tests():
         me_after = json.loads(res.read().decode())
         print(f"✓ Subscription after payment: Tier={me_after['subscription']['plan_tier']}, Limit={me_after['subscription']['article_credits_limit']} credits")
         assert me_after['subscription']['plan_tier'] == 'starter'
-        assert me_after['subscription']['article_credits_limit'] == 30
+        assert me_after['subscription']['article_credits_limit'] == 50
 
     # 8. Test Logout
     req = urllib.request.Request(f"{BASE_URL}/api/saas/auth/logout", method='POST')

@@ -43,7 +43,7 @@ def seed():
                 user_id=admin.id,
                 plan_tier="agency",
                 status="active",
-                article_credits_limit=500,
+                article_credits_limit=600,
                 article_credits_used=12,
                 current_period_start=datetime.now(timezone.utc),
                 current_period_end=datetime.now(timezone.utc) + timedelta(days=365)
@@ -57,7 +57,7 @@ def seed():
                 notify_on_credit_low=True
             )
             db.add(admin_notify)
-            print(f"✓ Created Superadmin: {admin_email} (Agency Plan, 500 credits)")
+            print(f"✓ Created Superadmin: {admin_email} (Agency Plan, 600 credits)")
 
         # 2. Solo Creator (Starter Plan)
         creator_email = "creator.nusantara@gmail.com"
@@ -77,7 +77,7 @@ def seed():
                 user_id=creator.id,
                 plan_tier="starter",
                 status="active",
-                article_credits_limit=30,
+                article_credits_limit=50,
                 article_credits_used=5,
                 current_period_start=datetime.now(timezone.utc),
                 current_period_end=datetime.now(timezone.utc) + timedelta(days=30)

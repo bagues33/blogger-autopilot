@@ -35,7 +35,7 @@ def test_tenant_isolation():
         # Simulate Midtrans payment webhook for User A to 'pro'
         order_id = f"BAP-{user_a.id[:8]}-PRO-999999"
         status_code = '200'
-        gross_amount = '249000'
+        gross_amount = '349000'
         sig = hashlib.sha512(f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}".encode()).hexdigest()
         webhook_event = {
             'order_id': order_id,
@@ -55,9 +55,9 @@ def test_tenant_isolation():
         db.refresh(sub_a)
         db.refresh(sub_b)
 
-        # User A MUST be upgraded to pro (120 credits)
+        # User A MUST be upgraded to pro (200 credits)
         assert sub_a.plan_tier == 'pro', f"Expected User A to be pro, got {sub_a.plan_tier}"
-        assert sub_a.article_credits_limit == 120, f"Expected 120 credits, got {sub_a.article_credits_limit}"
+        assert sub_a.article_credits_limit == 200, f"Expected 200 credits, got {sub_a.article_credits_limit}"
 
         # User B MUST NOT be modified at all (still free with 3 credits)
         assert sub_b.plan_tier == 'free', f"Expected User B to be free, got {sub_b.plan_tier}"
@@ -76,7 +76,7 @@ def test_tenant_isolation():
         # Credits used MUST remain 5, NOT reset to 0!
         assert sub_a.article_credits_used == 5, f"Expected credits_used=5 preserved, got {sub_a.article_credits_used}"
 
-        print("✓ Multi-tenant isolation verified: User A was upgraded to PRO (120 credits), User B remained on FREE (3 credits).")
+        print("✓ Multi-tenant isolation verified: User A was upgraded to PRO (200 credits), User B remained on FREE (3 credits).")
         print("✓ Midtrans webhook targeting verified: 0 leakages.")
         print("✓ Midtrans webhook idempotency verified: Duplicate webhook did not reset usage.")
     finally:

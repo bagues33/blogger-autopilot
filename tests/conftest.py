@@ -7,6 +7,7 @@ from app import app
 from src.core.database import SessionLocal, init_saas_db
 from src.core.security import hash_password, create_access_token
 from src.models.models import User, Subscription
+from src.services.payment import PLAN_TIERS
 from src.core.dependencies import get_or_create_default_admin
 
 @pytest.fixture(scope="session", autouse=True)
@@ -64,7 +65,7 @@ def tenant_factory(db_session: Session):
         db_session.commit()
         db_session.refresh(user)
 
-        credits = 3 if plan == "free" else (120 if plan == "pro" else 500)
+        credits = PLAN_TIERS.get(plan, {}).get("credits", 3)
         sub = Subscription(
             user_id=user.id,
             plan_tier=plan,

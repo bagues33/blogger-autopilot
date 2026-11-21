@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
 from src.models.models import Blog as SaasBlog, Article as SaasArticle
+from src.services.payment import PLAN_TIERS
 from src.core.rate_limiter import check_rate_limit
 from src.services.audit import record_audit_log
 from src.core.dependencies import (
@@ -96,7 +97,7 @@ def api_select_blog(req: BlogSelectReq, user: User = Depends(get_current_user), 
 @router.post('/api/blogs/add')
 def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     plan = user.subscription.plan_tier if user.subscription else 'free'
-    max_blogs = {'free': 1, 'starter': 3, 'pro': 10, 'agency': 50}.get(plan, 1)
+    max_blogs = PLAN_TIERS.get(plan, {}).get('blogs', 1)
     current_count = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).count()
     if current_count >= max_blogs:
         raise HTTPException(

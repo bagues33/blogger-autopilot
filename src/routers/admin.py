@@ -160,10 +160,9 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
         t = s.plan_tier if s.plan_tier in tier_counts else 'free'
         tier_counts[t] += 1
 
-    mrr = (
-        tier_counts['starter'] * 99000 +
-        tier_counts['pro'] * 249000 +
-        tier_counts['agency'] * 699000
+    mrr = sum(
+        tier_counts[t] * midtrans_service.PLAN_TIERS.get(t, {}).get('price', 0)
+        for t in ['starter', 'pro', 'agency']
     )
 
     total_blogs = db.query(SaasBlog).count()

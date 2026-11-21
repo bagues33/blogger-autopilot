@@ -111,7 +111,7 @@ def test_midtrans_webhook_isolation(db_session: Session, tenant_factory):
     # Simulate Midtrans settlement for Tenant A to upgrade to 'pro'
     order_id = f"BAP-{user_a.id[:8]}-PRO-999999"
     status_code = "200"
-    gross_amount = "249000"
+    gross_amount = "349000"
     sig = hashlib.sha512(f"{order_id}{status_code}{gross_amount}{MIDTRANS_SERVER_KEY}".encode()).hexdigest()
 
     mock_payload = {
@@ -128,10 +128,10 @@ def test_midtrans_webhook_isolation(db_session: Session, tenant_factory):
     res = handle_midtrans_webhook(mock_payload, db=db_session)
     assert res["success"] is True
 
-    # User A subscription MUST now be PRO with 120 credits
+    # User A subscription MUST now be PRO with 200 credits
     sub_a = db_session.query(Subscription).filter(Subscription.user_id == user_a.id).first()
     assert sub_a.plan_tier == "pro"
-    assert sub_a.article_credits_limit == 120
+    assert sub_a.article_credits_limit == 200
 
     # User B subscription MUST remain FREE with 3 credits
     sub_b = db_session.query(Subscription).filter(Subscription.user_id == user_b.id).first()

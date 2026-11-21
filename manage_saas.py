@@ -22,10 +22,9 @@ def get_stats():
             tier = s.plan_tier if s.plan_tier in tier_counts else 'free'
             tier_counts[tier] += 1
             
-        mrr = (
-            tier_counts['starter'] * 99000 +
-            tier_counts['pro'] * 249000 +
-            tier_counts['agency'] * 699000
+        mrr = sum(
+            tier_counts[t] * PLAN_TIERS.get(t, {}).get('price', 0)
+            for t in ['starter', 'pro', 'agency']
         )
         total_blogs = db.query(Blog).count()
         total_arts = db.query(Article).count()
@@ -36,9 +35,9 @@ def get_stats():
         print("=====================================================")
         print(f"Total Registered Tenants : {total_users}")
         print(f"  • Free Community       : {tier_counts['free']}")
-        print(f"  • Starter Solo (99k)   : {tier_counts['starter']}")
-        print(f"  • Pro Publisher (249k) : {tier_counts['pro']}")
-        print(f"  • Agency Network (699k): {tier_counts['agency']}")
+        print(f"  • Starter Solo ({PLAN_TIERS['starter']['price']//1000}k)  : {tier_counts['starter']}")
+        print(f"  • Pro Publisher ({PLAN_TIERS['pro']['price']//1000}k) : {tier_counts['pro']}")
+        print(f"  • Agency Network ({PLAN_TIERS['agency']['price']//1000}k): {tier_counts['agency']}")
         print(f"Estimated MRR (IDR)      : Rp {mrr:,.0f}")
         print("-----------------------------------------------------")
         print(f"Total Connected Blogs    : {total_blogs}")
