@@ -36,7 +36,7 @@ def require_admin(request: Request, db: Session):
     user = get_session_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Sesi telah berakhir atau belum login. Silakan login sebagai administrator.")
-    if user.role != 'admin' and user.email != 'admin@bagustech.id':
+    if user.role != 'admin':
         raise HTTPException(status_code=403, detail="Akses ditolak: Hanya untuk Administrator SaaS.")
     return user
 

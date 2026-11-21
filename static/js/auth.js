@@ -71,7 +71,7 @@
         }
 
         // Show Admin Console button (Desktop & Mobile) if user has admin privileges
-        const isAdminUser = Boolean(data.user && (data.user.role === 'admin' || data.user.email === 'admin@bagustech.id'));
+        const isAdminUser = Boolean(data.user && data.user.role === 'admin');
         const adminBtn = document.getElementById('btn-admin-console');
         const mobileAdminBtn = document.getElementById('mobile-btn-admin-console');
         if (adminBtn) {

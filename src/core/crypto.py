@@ -9,11 +9,25 @@ import base64
 import hashlib
 from cryptography.fernet import Fernet
 
+_DEV_CRYPTO_FALLBACK = 'blogger-autopilot-dev-secret-key-32bytes!'
+_CRYPTO_PLACEHOLDERS = ('ganti_dengan', 'dev-secret', 'change_me', 'placeholder', 'your_secret')
+
 def get_encryption_key() -> bytes:
     raw_key = os.environ.get('ENCRYPTION_SECRET_KEY', '').strip()
+    is_prod = os.environ.get('ENVIRONMENT', '').strip().lower() == 'production'
+    if is_prod:
+        if (
+            not raw_key
+            or len(raw_key) < 24
+            or raw_key == _DEV_CRYPTO_FALLBACK
+            or any(m in raw_key.lower() for m in _CRYPTO_PLACEHOLDERS)
+        ):
+            raise RuntimeError(
+                "CRITICAL SECURITY ERROR: ENCRYPTION_SECRET_KEY wajib diisi dengan string acak minimal 24 karakter saat ENVIRONMENT=production!"
+            )
     if not raw_key:
         # Fallback predictable dev key (for local dev only)
-        raw_key = 'blogger-autopilot-dev-secret-key-32bytes!'
+        raw_key = _DEV_CRYPTO_FALLBACK
     
     # Ensure key is exactly 32 url-safe base64-encoded bytes for Fernet
     digest = hashlib.sha256(raw_key.encode('utf-8')).digest()

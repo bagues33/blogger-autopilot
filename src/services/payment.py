@@ -259,7 +259,19 @@ def handle_midtrans_webhook(event_data: Dict[str, Any], db: Session) -> Dict[str
     # Reference: https://docs.midtrans.com/en/after-payment/http-notification
     if transaction_status in ['capture', 'settlement'] and fraud_status in ['accept', '']:
         target_plan = PLAN_TIERS.get(plan_tier, PLAN_TIERS['starter'])
-        
+
+        # Validate gross_amount matches or exceeds target plan price (prevents amount tampering)
+        if gross_amount not in (None, ''):
+            try:
+                paid_amt = int(float(str(gross_amount)))
+                if paid_amt < int(target_plan['price']):
+                    return {
+                        'success': False,
+                        'error': f"Nominal pembayaran ({paid_amt}) lebih kecil dari harga paket {plan_tier} ({target_plan['price']})."
+                    }
+            except (ValueError, TypeError):
+                return {'success': False, 'error': 'Format gross_amount tidak valid.'}
+
         # Idempotency guard: prevent duplicate webhook deliveries from resetting credit usage or shifting periods
         if sub.midtrans_order_id == order_id and sub.status == 'active' and sub.plan_tier == plan_tier:
             return {
@@ -286,14 +298,26 @@ def handle_midtrans_webhook(event_data: Dict[str, Any], db: Session) -> Dict[str
         }
 
     elif transaction_status == 'pending':
-        sub.status = 'pending_payment'
-        sub.midtrans_order_id = order_id
-        db.commit()
+        # Do not overwrite an active paid subscription when user initiates a new upgrade checkout
+        if sub.status != 'active' or sub.plan_tier == 'free':
+            sub.status = 'pending_payment'
+            sub.midtrans_order_id = order_id
+            db.commit()
         return {'success': True, 'status': 'pending'}
 
     elif transaction_status in ['deny', 'expire', 'cancel']:
-        sub.status = 'expired'
-        db.commit()
-        return {'success': True, 'status': 'expired'}
+        # Out-of-order / abandoned checkout guard:
+        # Never expire an active paid subscription if this expiry belongs to a different or abandoned order
+        if sub.status == 'active' and sub.midtrans_order_id != order_id:
+            return {
+                'success': True,
+                'status': 'ignored_active_subscription',
+                'message': f"Order {order_id} kedaluwarsa, tetapi langganan aktif pengguna tetap dipertahankan."
+            }
+        if sub.status != 'active':
+            sub.status = 'expired'
+            db.commit()
+            return {'success': True, 'status': 'expired'}
+        return {'success': True, 'status': 'ignored_active_subscription'}
 
     return {'success': True, 'status': transaction_status}

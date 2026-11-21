@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-suite:
-    name: Run Multi-Tenant SaaS End-to-End Test Suites
+    name: Run Multi-Tenant SaaS Automated Tests & Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +21,11 @@ jobs:
         python-version: "3.11"
         cache: 'pip'
 
+    - name: Set up Node.js 20 (Client JS Syntax Check)
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
     - name: Install System Dependencies
       run: |
         sudo apt-get update
@@ -31,27 +36,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Initialize SaaS Database Schema
+    - name: Run Alembic Database Migrations
       run: |
-        python db_saas.py
+        alembic upgrade head
 
-    - name: Execute Full Multi-Tenant & Midtrans Billing Tests
+    - name: Validate Frontend JavaScript Syntax
       run: |
-        # Launch Uvicorn server in background for HTTP tests
-        uvicorn app:app --host 127.0.0.1 --port 8090 &
-        sleep 3
-        curl -f http://127.0.0.1:8090/health
+        for f in static/js/*.js; do node --check "$f" || exit 1; done
 
-    - name: Run End-to-End Automated Test Suites
+    - name: Run Full Pytest Unit & Integration Suite
       run: |
-        python test_saas_full_flow.py
-        python test_tenant_isolation.py
-        python test_multitenant_crud.py
-        python test_new_saas_features.py
-        python test_sync_and_notifications.py
-        python test_admin_console.py
-        python test_rate_limiter_and_health.py
+        pytest tests/ -v
 
     - name: Run Production Readiness Diagnostics
       run: |
-        python check_saas_readiness.py
+        python scripts/check_saas_readiness.py

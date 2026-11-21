@@ -66,3 +66,4 @@ def downgrade() -> None:
         op.drop_index('ix_workspace_blog_assignments_membership_id', table_name='workspace_blog_assignments')
         op.drop_index('ix_workspace_blog_assignments_blog_id', table_name='workspace_blog_assignments')
         op.drop_table('workspace_blog_assignments')
+

@@ -15,10 +15,26 @@ from sqlalchemy.orm import Session
 from src.models.models import User, Subscription
 from src.core.database import get_saas_db
 
+_DEV_JWT_FALLBACK = 'blogger-autopilot-saas-jwt-secret-key-32bytes-min!'
+_PLACEHOLDER_MARKERS = ('ganti_dengan', 'dev-secret', 'change_me', 'placeholder', 'your_secret')
+
+def is_production_env() -> bool:
+    return os.environ.get('ENVIRONMENT', '').strip().lower() == 'production'
+
+def _is_weak_or_placeholder(secret: str) -> bool:
+    if not secret or len(secret) < 24:
+        return True
+    low = secret.lower()
+    return any(m in low for m in _PLACEHOLDER_MARKERS) or secret == _DEV_JWT_FALLBACK
+
 def get_jwt_secret() -> str:
     raw_secret = os.environ.get('JWT_SECRET_KEY', '').strip()
+    if is_production_env() and _is_weak_or_placeholder(raw_secret):
+        raise RuntimeError(
+            "CRITICAL SECURITY ERROR: JWT_SECRET_KEY wajib diisi dengan string acak minimal 24 karakter saat ENVIRONMENT=production!"
+        )
     if not raw_secret:
-        raw_secret = 'blogger-autopilot-saas-jwt-secret-key-32bytes-min!'
+        raw_secret = _DEV_JWT_FALLBACK
     # Ensure minimum 32 bytes for secure HMAC-SHA256
     return hashlib.sha256(raw_secret.encode('utf-8')).hexdigest()
 

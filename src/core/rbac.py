@@ -101,7 +101,7 @@ def get_user_role_for_blog(user: User, blog: Blog, db: Session) -> str:
         return "owner"
 
     # 2. SaaS Superadmin
-    if user.role == "admin" or user.email == "admin@bagustech.id":
+    if user.role == "admin":
         return "admin"
 
     # 3. Check workspace memberships under the blog's owner
@@ -155,7 +155,7 @@ def get_accessible_blogs(user: User, db: Session) -> List[Blog]:
         return []
 
     # If superadmin, return all blogs
-    if user.role == "admin" or user.email == "admin@bagustech.id":
+    if user.role == "admin":
         return db.query(Blog).order_by(Blog.created_at.asc()).all()
 
     # 1. Directly owned blogs

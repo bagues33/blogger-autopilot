@@ -63,10 +63,10 @@ def get_optional_user(request: Request, db: Session = Depends(get_saas_db)) -> O
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     """
     Strict FastAPI dependency for admin-only endpoints.
-    Requires user to have role == 'admin' or email == 'admin@bagustech.id'.
+    Requires user to have role == 'admin'.
     Raises HTTP 403 Forbidden if not authorized.
     """
-    if current_user.role != 'admin' and current_user.email != 'admin@bagustech.id':
+    if current_user.role != 'admin':
         raise HTTPException(
             status_code=403,
             detail="Akses ditolak: Hanya untuk Administrator SaaS."
@@ -119,7 +119,7 @@ def check_feature_access(user: Optional[User], feature_name: str) -> bool:
     """
     if not user:
         return False
-    if getattr(user, 'role', None) == 'admin' or getattr(user, 'email', None) == 'admin@bagustech.id':
+    if getattr(user, 'role', None) == 'admin':
         return True
     
     tier = 'free'

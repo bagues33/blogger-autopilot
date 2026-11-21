@@ -76,11 +76,12 @@
       const wsData = await wsRes.json();
       const workspaces = wsData.workspaces || [];
 
-      const userRes = await fetch('/api/auth/me', { credentials: 'same-origin' });
+      const userRes = await fetch('/api/saas/auth/me', { credentials: 'same-origin' });
       if (userRes.ok) {
         const u = await userRes.json();
-        const plan = (u.plan || (u.subscription && u.subscription.plan_tier) || '').toLowerCase();
-        isAgencyTier = plan === 'agency' || u.role === 'admin';
+        const plan = ((u.subscription && u.subscription.plan_tier) || u.plan || '').toLowerCase();
+        const role = ((u.user && u.user.role) || u.role || '').toLowerCase();
+        isAgencyTier = plan === 'agency' || role === 'admin';
       }
 
       if (!isAgencyTier && workspaces.length === 0) {

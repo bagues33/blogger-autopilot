@@ -100,6 +100,12 @@ def api_saas_login(req: LoginReq, request: Request, response: Response, db: Sess
     if not user or not verify_password(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Email atau kata sandi tidak valid.")
 
+    if not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Akun Anda sedang dinonaktifkan (suspend). Silakan hubungi administrator."
+        )
+
     token = create_access_token({'sub': user.id, 'email': user.email})
     is_prod = os.environ.get('ENVIRONMENT') == 'production' or os.environ.get('SECURE_COOKIES', '').lower() in ('true', '1')
     response.set_cookie(

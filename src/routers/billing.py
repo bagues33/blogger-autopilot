@@ -47,7 +47,11 @@ async def api_midtrans_webhook(request: Request, db: Session = Depends(get_saas_
     try:
         body = await request.json()
         res = midtrans_service.handle_midtrans_webhook(body, db)
+        if not res.get('success') and 'signature' in (res.get('error') or '').lower():
+            raise HTTPException(status_code=403, detail=res.get('error'))
         return res
+    except HTTPException:
+        raise
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -57,7 +61,7 @@ def api_upgrade_demo(req: UpgradeDemoReq, user: User = Depends(get_current_user)
     
     # In production, strictly restrict demo upgrades to administrators
     is_prod = os.environ.get('ENVIRONMENT') == 'production' or midtrans_service.MIDTRANS_IS_PRODUCTION
-    if is_prod and user.role != 'admin' and user.email != 'admin@bagustech.id':
+    if is_prod and user.role != 'admin':
         raise HTTPException(
             status_code=403,
             detail="Simulasi demo dinonaktifkan di lingkungan produksi. Silakan lakukan pembayaran resmi melalui Midtrans."

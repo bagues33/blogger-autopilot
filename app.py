@@ -7,6 +7,7 @@ and router composition across domain contexts.
 import os
 import time
 from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -53,6 +54,45 @@ app = FastAPI(
     version="2.0.0",
     openapi_tags=tags_metadata
 )
+
+# Production fail-fast validation for cryptographic secrets
+if os.environ.get('ENVIRONMENT', '').strip().lower() == 'production':
+    from src.core.security import get_jwt_secret
+    from src.core.crypto import get_encryption_key
+    get_jwt_secret()
+    get_encryption_key()
+
+# CORS policy: strict allowlist from env in production, localhost allowed in dev
+_raw_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '').strip()
+_app_base = os.environ.get('APP_BASE_URL', '').strip().rstrip('/')
+_allowed_origins = [o.strip().rstrip('/') for o in _raw_origins.split(',') if o.strip()]
+if _app_base and _app_base not in _allowed_origins:
+    _allowed_origins.append(_app_base)
+if os.environ.get('ENVIRONMENT', '').strip().lower() != 'production':
+    for _dev_orig in ['http://localhost:8090', 'http://127.0.0.1:8090']:
+        if _dev_orig not in _allowed_origins:
+            _allowed_origins.append(_dev_orig)
+
+if _allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_allowed_origins,
+        allow_credentials=True,
+        allow_methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allow_headers=['Authorization', 'Content-Type', 'X-Cron-Key'],
+    )
+
+# Standard HTTP Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if os.environ.get('ENVIRONMENT', '').strip().lower() == 'production':
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
 
 # Static file mounts & Jinja2 Templates
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
