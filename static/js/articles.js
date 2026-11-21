@@ -631,12 +631,13 @@
                 `;
               }
               setTimeout(() => {
-                showToast(`Artikel ${actionText} sebagai ${modeText}.`, 'success');
+                const pingNote = result.websub_pinged ? ' ⚡ Google WebSub Ping terkirim!' : '';
+                showToast(`Artikel ${actionText} sebagai ${modeText}.${pingNote}`, 'success');
                 closeArticleModal();
                 loadData();
               }, 250);
             } else {
-              showToast('Gagal ke Blogger: ' + (result.error || 'Terjadi kesalahan sistem'), 'error');
+              showToast('Gagal ke Blogger: ' + (result.detail || result.error || 'Terjadi kesalahan sistem'), 'error');
               if (btn) {
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-not-allowed');
@@ -691,10 +692,11 @@
             const result = await res.json();
             if (result.success) {
               if (btnEl) btnEl.innerText = 'Selesai!';
-              showToast(`Artikel berhasil ${result.action === 'updated' ? 'diperbarui' : 'disimpan'} di Blogger.`, 'success');
+              const pingNote = result.websub_pinged ? ' ⚡ Google WebSub Ping terkirim!' : '';
+              showToast(`Artikel berhasil ${result.action === 'updated' ? 'diperbarui' : 'disimpan'} di Blogger.${pingNote}`, 'success');
               await loadData();
             } else {
-              showToast('Gagal: ' + (result.error || 'Terjadi kesalahan sistem'), 'error');
+              showToast('Gagal: ' + (result.detail || result.error || 'Terjadi kesalahan sistem'), 'error');
               if (btnEl) {
                 btnEl.disabled = false;
                 btnEl.classList.remove('opacity-75', 'cursor-not-allowed');

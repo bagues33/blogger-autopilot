@@ -20,6 +20,7 @@ from src.services.schema import inject_schema_if_missing
 from src.services.notifications import dispatch_notification
 from src.services.content_generator import generate_article
 from src.services.audit import record_audit_log
+from src.services.indexing import ping_websub_for_blog
 from src.core.rate_limiter import check_rate_limit
 from src.core.rbac import (
     get_accessible_blogs,
@@ -273,6 +274,24 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
                 kw.status = 'in_progress' if target_draft else 'used'
         db.commit()
 
+        # Google WebSub Instant Indexing Ping on Live Publish
+        websub_pinged = False
+        if not target_draft and blog and blog.url:
+            try:
+                ping_res = ping_websub_for_blog(blog_url=blog.url, post_url=blogger_url)
+                websub_pinged = bool(ping_res.get("success"))
+                if websub_pinged:
+                    record_audit_log(
+                        db=db,
+                        event_type="article.websub_pinged",
+                        user_id=user.id,
+                        entity_id=str(art.id),
+                        metadata={"feed_url": ping_res.get("feed_url"), "post_url": blogger_url},
+                        ip_address=request.client.host if request.client else None
+                    )
+            except Exception as idx_err:
+                print(f"[INDEXING] Warning: {idx_err}")
+
         # Dispatch notification
         try:
             dispatch_notification(
@@ -299,7 +318,8 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
                 "title": art_title,
                 "url": blogger_url,
                 "post_id": blogger_post_id,
-                "is_draft": target_draft
+                "is_draft": target_draft,
+                "websub_pinged": websub_pinged
             },
             ip_address=request.client.host if request.client else None
         )
@@ -310,7 +330,8 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
             'is_draft': target_draft,
             'status': new_status,
             'url': blogger_url,
-            'post_id': blogger_post_id
+            'post_id': blogger_post_id,
+            'websub_pinged': websub_pinged
         }
     except Exception as e:
         return {'success': False, 'error': str(e)}

@@ -505,6 +505,12 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
                     blogger_post_id = str(b_post.get('id'))
                     blogger_url = b_post.get('url')
                     initial_status = 'published' if pub_mode == 'published' else 'blogger_draft'
+                    if pub_mode == 'published' and getattr(blog, 'url', None):
+                        try:
+                            from src.services.indexing import ping_websub_for_blog
+                            ping_websub_for_blog(blog_url=blog.url, post_url=blogger_url)
+                        except Exception as idx_err:
+                            logger.warning(f"WebSub ping warning on autopilot: {idx_err}")
             except Exception as blog_err:
                 logger.warning(f"Could not sync with Blogger on generation: {blog_err}")
 

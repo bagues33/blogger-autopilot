@@ -122,15 +122,26 @@
 
 
 
-    // --- Phase 2: ROI & Productivity Analytics ---
+    // --- Phase 2 & Phase 4: ROI, Analytics & Client Export ---
     function openRoiModal() {
       openModal('roi-modal');
       loadRoiData();
     }
 
+    function getSelectedRoiBlogParam() {
+      const scopeEl = document.getElementById('roi-blog-scope');
+      const scope = scopeEl ? scopeEl.value : 'active';
+      if (scope === 'active' && typeof activeBlog !== 'undefined' && activeBlog && activeBlog.id) {
+        return activeBlog.id;
+      }
+      return '';
+    }
+
     async function loadRoiData() {
       try {
-        const res = await fetch('/api/analytics/roi');
+        const bId = getSelectedRoiBlogParam();
+        const url = bId ? `/api/analytics/roi?blog_id=${encodeURIComponent(bId)}` : '/api/analytics/roi';
+        const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
         if (data.success && data.metrics) {
@@ -146,13 +157,109 @@
           if (totalEl) totalEl.innerText = m.total_articles;
           if (subEl) subEl.innerText = `${m.published_count} live | ${m.draft_count} draft`;
           if (hoursEl) hoursEl.innerText = `${m.hours_saved} Jam`;
-          if (hoursSub) hoursSub.innerText = `~${(m.hours_saved / 8).toFixed(1)} hari kerja copywriter`;
+          if (hoursSub) hoursSub.innerText = `~${(m.hours_saved / 8).toFixed(1)} hari kerja`;
           if (costEl) costEl.innerText = m.cost_saved_formatted;
           if (rateEl) rateEl.innerText = `${m.success_rate_percent}%`;
-          if (wordsEl) wordsEl.innerText = `${Number(m.total_words).toLocaleString('id-ID')} kata dihasilkan`;
+          if (wordsEl) wordsEl.innerText = `${Number(m.total_words).toLocaleString('id-ID')} kata`;
+
+          renderWeeklyChart(m.weekly_production || []);
+          renderIntentBars(m.intent_distribution || {}, (m.keywords && m.keywords.total) || 0);
         }
       } catch (err) {
         console.error('Error loading ROI data:', err);
+      }
+    }
+
+    function renderWeeklyChart(buckets) {
+      const container = document.getElementById('roi-weekly-chart');
+      if (!container) return;
+      if (!buckets.length) {
+        container.innerHTML = '<div class="w-full text-center text-xs text-slate-400">Belum ada data produksi</div>';
+        return;
+      }
+      const maxVal = Math.max(1, ...buckets.map(b => b.count));
+      container.innerHTML = buckets.map(b => {
+        const pct = Math.max(8, Math.round((b.count / maxVal) * 100));
+        return `
+          <div class="flex-1 flex flex-col items-center justify-end h-full gap-1 group">
+            <span class="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300 opacity-80">${b.count}</span>
+            <div class="w-full max-w-[26px] rounded-t-md bg-brand-500/80 dark:bg-brand-500 transition-all duration-300 group-hover:bg-brand-600" style="height: ${pct}%;" title="${b.label}: ${b.count} artikel"></div>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 truncate">${b.label}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderIntentBars(dist, totalKw) {
+      const container = document.getElementById('roi-intent-bars');
+      const kwTotalEl = document.getElementById('roi-kw-total');
+      if (kwTotalEl) kwTotalEl.innerText = `${totalKw} Keyword`;
+      if (!container) return;
+
+      const items = [
+        { label: 'Informational', count: dist.Informational || 0, color: 'bg-sky-500' },
+        { label: 'Commercial', count: dist.Commercial || 0, color: 'bg-amber-500' },
+        { label: 'Transactional', count: dist.Transactional || 0, color: 'bg-emerald-500' }
+      ];
+      const denom = Math.max(1, totalKw);
+
+      container.innerHTML = items.map(item => {
+        const pct = Math.round((item.count / denom) * 100);
+        return `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-semibold text-slate-700 dark:text-slate-300">${item.label}</span>
+              <span class="font-mono text-slate-500 dark:text-slate-400">${item.count} (${pct}%)</span>
+            </div>
+            <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div class="${item.color} h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openPrintableRoiReport() {
+      const bId = getSelectedRoiBlogParam();
+      const agencyInput = document.getElementById('roi-agency-name');
+      const agencyName = agencyInput ? agencyInput.value.trim() : '';
+
+      const params = new URLSearchParams();
+      if (bId) params.set('blog_id', bId);
+      if (agencyName) params.set('agency_name', agencyName);
+
+      const queryStr = params.toString();
+      window.open('/api/analytics/report' + (queryStr ? '?' + queryStr : ''), '_blank');
+    }
+
+    async function downloadCsvReport() {
+      const bId = getSelectedRoiBlogParam();
+      const url = bId ? `/api/analytics/export-csv?blog_id=${encodeURIComponent(bId)}` : '/api/analytics/export-csv';
+      try {
+        const res = await fetch(url);
+        if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          if (typeof showToast === 'function') showToast(data.detail || 'Fitur ekspor CSV memerlukan paket Pro atau Agency.', 'warning');
+          if (typeof openUpgradeModal === 'function') {
+            closeModal('roi-modal');
+            openUpgradeModal();
+          }
+          return;
+        }
+        if (!res.ok) throw new Error('Gagal mengunduh laporan CSV');
+
+        const blob = await res.blob();
+        const dlUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = `laporan_konten_${bId || 'semua_blog'}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(dlUrl);
+        if (typeof showToast === 'function') showToast('Laporan CSV berhasil diunduh!', 'success');
+      } catch (err) {
+        if (typeof showToast === 'function') showToast(err.message, 'error');
       }
     }
 

@@ -195,3 +195,4 @@ def get_blog_effective_owner(blog: Blog, db: Session) -> Optional[User]:
     if not blog:
         return None
     return db.query(User).filter(User.id == blog.user_id).first()
+
