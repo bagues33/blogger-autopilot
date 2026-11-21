@@ -33,9 +33,10 @@ def get_scheduler_status(db: Optional[Session] = None) -> dict:
         db = SessionLocal()
         close_db = True
     try:
-        active_subs_count = db.query(Subscription).filter(
+        active_subs_count = db.query(Subscription).join(User).filter(
             Subscription.status == 'active',
-            Subscription.article_credits_used < Subscription.article_credits_limit
+            Subscription.article_credits_used < Subscription.article_credits_limit,
+            (Subscription.plan_tier.in_(['pro', 'agency'])) | (User.role == 'admin')
         ).count()
         autopilot_blogs_count = db.query(Blog).filter(
             (Blog.autopilot_enabled == True) | (Blog.is_active == 1)
@@ -75,10 +76,11 @@ def run_scheduler_cycle(max_per_cycle: int = 5, force: bool = False, dry_run: bo
     results = []
 
     try:
-        # Find active subscriptions with available quota
-        active_subs = db.query(Subscription).filter(
+        # Find active subscriptions with available quota for Pro / Agency / Admin
+        active_subs = db.query(Subscription).join(User).filter(
             Subscription.status == 'active',
-            Subscription.article_credits_used < Subscription.article_credits_limit
+            Subscription.article_credits_used < Subscription.article_credits_limit,
+            (Subscription.plan_tier.in_(['pro', 'agency'])) | (User.role == 'admin')
         ).all()
 
         logger.info(f"Found {len(active_subs)} active subscription(s) eligible for autopilot generation.")

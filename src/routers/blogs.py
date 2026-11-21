@@ -21,6 +21,7 @@ from src.core.dependencies import (
     get_session_user,
     get_current_user,
     get_optional_user,
+    check_feature_access,
     BASE_DIR,
     DEFAULT_CLIENT_SECRET,
     DEFAULT_TOKEN_FILE,
@@ -178,6 +179,11 @@ async def api_upload_blog_token(file: UploadFile = File(...), user: User = Depen
 
 @router.post('/api/blogs/autopilot-settings')
 def api_save_autopilot_settings(req: AutopilotSettingsReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if req.autopilot_enabled and not check_feature_access(user, 'autopilot'):
+        raise HTTPException(
+            status_code=403,
+            detail="Fitur Autopilot Scheduler mandiri memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        )
     blog = db.query(SaasBlog).filter(SaasBlog.id == req.blog_id, SaasBlog.user_id == user.id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog tidak ditemukan.")

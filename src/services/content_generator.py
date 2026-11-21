@@ -16,6 +16,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 
 from src.core.database import SessionLocal, BASE_DIR
+from src.core.dependencies import check_feature_access
 from src.models.models import User, Blog, Keyword, Article, Subscription
 from src.services.schema import inject_schema_if_missing
 from src.services.notifications import dispatch_notification
@@ -365,7 +366,8 @@ def generate_article(
                 )
 
         sub = user.subscription
-        is_byok = bool(
+        can_byok = check_feature_access(user, 'byok')
+        is_byok = can_byok and bool(
             getattr(user, 'custom_gemini_key', None) or
             getattr(user, 'custom_openai_key', None) or
             getattr(user, 'custom_groq_key', None)

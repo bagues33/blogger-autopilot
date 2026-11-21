@@ -73,6 +73,62 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
         )
     return current_user
 
+PLAN_FEATURES = {
+    'free': {
+        'max_blogs': 1,
+        'monthly_credits': 3,
+        'byok': False,
+        'autopilot': False,
+        'custom_kb': False,
+        'workspaces': False,
+        'export_backup': False,
+    },
+    'starter': {
+        'max_blogs': 3,
+        'monthly_credits': 50,
+        'byok': False,
+        'autopilot': False,
+        'custom_kb': False,
+        'workspaces': False,
+        'export_backup': False,
+    },
+    'pro': {
+        'max_blogs': 10,
+        'monthly_credits': 200,
+        'byok': True,
+        'autopilot': True,
+        'custom_kb': True,
+        'workspaces': False,
+        'export_backup': True,
+    },
+    'agency': {
+        'max_blogs': 50,
+        'monthly_credits': 600,
+        'byok': True,
+        'autopilot': True,
+        'custom_kb': True,
+        'workspaces': True,
+        'export_backup': True,
+    }
+}
+
+def check_feature_access(user: Optional[User], feature_name: str) -> bool:
+    """
+    Validates whether a tenant has access to an advanced/premium feature.
+    Superadmins always bypass all tier gating.
+    """
+    if not user:
+        return False
+    if getattr(user, 'role', None) == 'admin' or getattr(user, 'email', None) == 'admin@bagustech.id':
+        return True
+    
+    tier = 'free'
+    if getattr(user, 'subscription', None) and user.subscription.plan_tier:
+        tier = user.subscription.plan_tier.lower()
+        
+    tier_config = PLAN_FEATURES.get(tier, PLAN_FEATURES['free'])
+    return bool(tier_config.get(feature_name, False))
+
 def get_or_create_default_admin(db: Session) -> User:
     """
     Retrieves or lazily provisions the default admin tenant for initial bootstrapping/seeding.

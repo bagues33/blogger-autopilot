@@ -44,14 +44,27 @@
       const content = document.getElementById('kb-editor').value;
       const btn = document.getElementById('btn-save-kb');
       btn.innerText = 'Menyimpan...';
-      const res = await fetch('/api/kb/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-      });
-      if (res.ok) {
-        btn.innerText = 'Tersimpan ✓';
-        setTimeout(() => { btn.innerText = 'Simpan'; }, 2000);
+      try {
+        const res = await fetch('/api/kb/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          btn.innerText = 'Tersimpan ✓';
+          setTimeout(() => { btn.innerText = 'Simpan'; }, 2000);
+          showToast('Knowledge Base kustom berhasil disimpan.', 'success');
+        } else {
+          btn.innerText = 'Simpan';
+          showToast('Gagal: ' + (data.detail || data.error || 'Terjadi kesalahan'), 'error');
+          if (res.status === 403 && typeof openUpgradeModal === 'function') {
+            setTimeout(openUpgradeModal, 800);
+          }
+        }
+      } catch (err) {
+        btn.innerText = 'Simpan';
+        showToast('Error koneksi: ' + err.message, 'error');
       }
     }
 
@@ -75,7 +88,10 @@
           document.getElementById('kb-editor').value = data.content;
           showToast('Berhasil mengekstrak ' + data.total_files + ' file PDF (' + data.total_pages + ' total halaman). Materi sudah ditambahkan ke Knowledge Base.', 'success');
         } else {
-          showToast('Gagal memproses PDF: ' + (data.error || 'Terjadi kesalahan'), 'error');
+          showToast('Gagal memproses PDF: ' + (data.detail || data.error || 'Terjadi kesalahan'), 'error');
+          if (res.status === 403 && typeof openUpgradeModal === 'function') {
+            setTimeout(openUpgradeModal, 800);
+          }
         }
       } catch (err) {
         showToast('Terjadi kesalahan saat upload PDF: ' + err.message, 'error');
@@ -134,7 +150,11 @@
           const label = document.getElementById('active-blog-autopilot-label');
           if (label) label.innerText = enabled ? 'Autopilot: Aktif' : 'Autopilot: Nonaktif';
         } else {
-          showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+          showToast('Gagal: ' + (data.detail || data.error || 'Terjadi kesalahan sistem'), 'error');
+          if (res.status === 403 && typeof openUpgradeModal === 'function') {
+            closeAutopilotModal();
+            setTimeout(openUpgradeModal, 600);
+          }
         }
       } catch (e) {
         showToast('Error: ' + e.message, 'error');
@@ -306,7 +326,10 @@
           document.getElementById('byok-groq-key').value = '';
           loadByokSettings();
         } else {
-          showToast('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'), 'error');
+          showToast('Gagal menyimpan: ' + (data.detail || data.error || 'Terjadi kesalahan'), 'error');
+          if (res.status === 403 && typeof openUpgradeModal === 'function') {
+            setTimeout(openUpgradeModal, 600);
+          }
         }
       } catch (err) {
         showToast('Error koneksi: ' + err.message, 'error');

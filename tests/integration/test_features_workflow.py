@@ -6,8 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 def test_workspaces_and_rbac(tenant_factory):
-    client_owner, owner = tenant_factory(role="subscriber", name="Agency Owner")
-    client_editor, editor = tenant_factory(role="subscriber", name="Senior Editor")
+    client_owner, owner = tenant_factory(plan="agency", role="subscriber", name="Agency Owner")
+    client_editor, editor = tenant_factory(plan="free", role="subscriber", name="Senior Editor")
 
     # 1. Owner creates Workspace
     res_ws = client_owner.post("/api/workspaces", json={"name": "Media Nusantara Agency"})
@@ -70,7 +70,7 @@ def test_editorial_review_workflow(tenant_factory):
     assert res_st2.json()["status"] == "approved"
 
 def test_autopilot_db_settings_persistence(tenant_factory):
-    client, user = tenant_factory()
+    client, user = tenant_factory(plan="pro")
     blog_id = f"blog_ap_{uuid.uuid4().hex[:6]}"
 
     res_b = client.post("/api/blogs/add", json={"id": blog_id, "name": "Autopilot Sched Blog"})
@@ -95,7 +95,7 @@ def test_autopilot_db_settings_persistence(tenant_factory):
     assert ret["schedule"] == "twice_daily"
 
 def test_byok_and_audit_logs(tenant_factory):
-    client, user = tenant_factory()
+    client, user = tenant_factory(plan="pro")
 
     # Save custom BYOK Gemini API key
     res_byok = client.post("/api/settings/byok", json={
@@ -116,3 +116,62 @@ def test_byok_and_audit_logs(tenant_factory):
     logs = res_audit.json()
     assert "logs" in logs
     assert logs["count"] >= 1
+
+def test_feature_gating_free_and_starter_restrictions(tenant_factory):
+    # Free tier tenant
+    client_free, user_free = tenant_factory(plan="free", name="Free Tenant")
+
+    # 1. Free tenant tries to create workspace -> 403 Forbidden
+    res_ws = client_free.post("/api/workspaces", json={"name": "Forbidden Workspace"})
+    assert res_ws.status_code == 403
+    assert "upgrade" in res_ws.json()["detail"].lower() or "paket" in res_ws.json()["detail"].lower()
+
+    # 2. Free tenant tries to save BYOK -> 403 Forbidden
+    res_byok = client_free.post("/api/settings/byok", json={"custom_gemini_key": "AIzaSyFakeKey"})
+    assert res_byok.status_code == 403
+    assert "upgrade" in res_byok.json()["detail"].lower() or "pro" in res_byok.json()["detail"].lower()
+
+    # 3. Free tenant tries to save custom Knowledge Base -> 403 Forbidden
+    res_kb = client_free.post("/api/kb/save", json={"content": "Custom forbidden KB content"})
+    assert res_kb.status_code == 403
+    assert "upgrade" in res_kb.json()["detail"].lower() or "pro" in res_kb.json()["detail"].lower()
+
+    # 4. Free tenant tries to export data -> 403 Forbidden
+    res_exp = client_free.get("/api/tenant/export")
+    assert res_exp.status_code == 403
+
+    # 5. Free tenant tries to enable Autopilot scheduler -> 403 Forbidden
+    blog_id = f"blog_free_{uuid.uuid4().hex[:6]}"
+    client_free.post("/api/blogs/add", json={"id": blog_id, "name": "Free Blog"})
+    res_ap = client_free.post("/api/blogs/autopilot-settings", json={
+        "blog_id": blog_id,
+        "autopilot_enabled": True,
+        "publish_mode": "published",
+        "schedule": "daily"
+    })
+    assert res_ap.status_code == 403
+
+def test_byok_credit_bypass_blocked_for_free_tier(tenant_factory, db_session):
+    client_free, user_free = tenant_factory(plan="free", name="Bypass Attempt Tenant")
+    
+    # Exhaust free credits
+    sub = user_free.subscription
+    sub.article_credits_used = sub.article_credits_limit # 3/3 credits used
+    # Force custom keys on user directly in DB
+    user_free.custom_gemini_key = "AIzaSyInjectedKeyDirectlyIntoDatabase"
+    db_session.commit()
+
+    # Attempt to generate article via ContentGenerator service directly
+    from src.services.content_generator import generate_article
+    blog_id = f"blog_bp_{uuid.uuid4().hex[:6]}"
+    client_free.post("/api/blogs/add", json={"id": blog_id, "name": "Bypass Blog"})
+
+    result = generate_article(
+        tenant_id=user_free.id,
+        blog_id=blog_id,
+        db=db_session
+    )
+    # MUST be rejected with credit exhaustion error because Free tier cannot use BYOK!
+    assert result.success is False
+    assert "kuota kredit artikel tenant telah habis" in result.error.lower()
+

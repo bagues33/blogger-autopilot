@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
 from src.models.models import User, Workspace, WorkspaceMembership
-from src.core.dependencies import get_current_user
+from src.core.dependencies import get_current_user, check_feature_access
 
 router = APIRouter(prefix="/api/workspaces", tags=["Workspaces & RBAC"])
 
@@ -63,11 +63,16 @@ def api_get_workspaces(user: User = Depends(get_current_user), db: Session = Dep
 
 @router.post("")
 def api_create_workspace(req: WorkspaceCreateReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if not check_feature_access(user, 'workspaces'):
+        raise HTTPException(
+            status_code=403,
+            detail="Fitur Multi-Workspace dan Kolaborasi Tim memerlukan paket Agency & Media Network. Silakan upgrade paket Anda."
+        )
+
     clean_name = req.name.strip()
     if not clean_name:
         raise HTTPException(status_code=400, detail="Nama workspace tidak boleh kosong.")
 
-    # Check plan tier blog / workspace limits if applicable
     ws = Workspace(
         name=clean_name,
         owner_id=user.id
@@ -135,6 +140,12 @@ def api_add_workspace_member(workspace_id: str, req: MemberAddReq, user: User = 
 
     if ws.owner_id != user.id and user.role != 'admin':
         raise HTTPException(status_code=403, detail="Hanya pemilik workspace yang dapat mengundang anggota tim.")
+
+    if not check_feature_access(user, 'workspaces'):
+        raise HTTPException(
+            status_code=403,
+            detail="Undangan anggota tim memerlukan paket Agency & Media Network aktif. Silakan upgrade paket Anda."
+        )
 
     clean_email = req.email.strip().lower()
     target_user = db.query(User).filter(User.email == clean_email).first()

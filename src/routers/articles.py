@@ -21,7 +21,7 @@ from src.services.notifications import dispatch_notification
 from src.services.content_generator import generate_article
 from src.services.audit import record_audit_log
 from src.core.rate_limiter import check_rate_limit
-from src.core.dependencies import get_session_user, get_current_user, get_optional_user, BASE_DIR
+from src.core.dependencies import get_session_user, get_current_user, get_optional_user, check_feature_access, BASE_DIR
 
 router = APIRouter(tags=['Articles'])
 
@@ -314,8 +314,14 @@ def api_update_article_status(article_id: int, req: ArticleStatusReq, request: R
 def api_agent_generate_now(request: Request, background_tasks: BackgroundTasks, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     check_rate_limit(request, max_requests=10, window_seconds=60, endpoint_tag="generate")
     
-    # Check tenant quota
-    if user and user.subscription:
+    # Check tenant quota (BYOK only exempts Pro, Agency, or Admin)
+    can_byok = check_feature_access(user, 'byok')
+    is_byok = can_byok and bool(
+        getattr(user, 'custom_gemini_key', None) or
+        getattr(user, 'custom_openai_key', None) or
+        getattr(user, 'custom_groq_key', None)
+    )
+    if user and user.subscription and not is_byok:
         sub = user.subscription
         if sub.article_credits_used >= sub.article_credits_limit:
             return JSONResponse(

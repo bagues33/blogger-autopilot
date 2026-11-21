@@ -16,7 +16,7 @@ from src.core.database import get_saas_db
 from src.models.models import User, Subscription, Blog as SaasBlog, Article as SaasArticle, Keyword as SaasKeyword
 from src.core.security import hash_password
 import src.services.payment as midtrans_service
-from src.core.dependencies import get_session_user, get_current_user, get_current_admin
+from src.core.dependencies import get_session_user, get_current_user, get_current_admin, check_feature_access
 
 router = APIRouter(tags=['Admin'])
 
@@ -44,6 +44,11 @@ class AdminResetPasswordReq(BaseModel):
 
 @router.get('/api/tenant/export')
 def api_export_tenant_data(user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if not check_feature_access(user, 'export_backup'):
+        raise HTTPException(
+            status_code=403,
+            detail="Fitur Ekspor Backup Data 1-Klik memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        )
     
     blogs = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).all()
     blogs_data = [

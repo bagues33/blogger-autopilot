@@ -6,7 +6,7 @@ Handles prompt templates, SEO knowledge base saves, PDF ingestion, and tenant no
 import os
 import io
 from typing import Optional, List
-from fastapi import APIRouter, Request, Depends, UploadFile, File
+from fastapi import APIRouter, Request, Depends, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from pypdf import PdfReader
@@ -19,6 +19,7 @@ from src.core.dependencies import (
     get_session_user,
     get_current_user,
     get_optional_user,
+    check_feature_access,
     SEO_KB_PATH,
     SEO_PROMPT_PATH
 )
@@ -82,12 +83,22 @@ def api_get_kb(user: Optional[User] = Depends(get_optional_user), db: Session = 
 
 @router.post('/api/kb/save')
 def api_save_kb(req: KbSaveReq, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if not check_feature_access(user, 'custom_kb'):
+        raise HTTPException(
+            status_code=403,
+            detail="Fitur Custom Knowledge Base domain memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        )
     user.custom_kb = req.content
     db.commit()
     return {'success': True}
 
 @router.post('/api/kb/upload-pdf')
 async def api_upload_pdf(files: List[UploadFile] = File(...), user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if not check_feature_access(user, 'custom_kb'):
+        return {
+            'success': False,
+            'error': "Ingest dokumen PDF untuk Knowledge Base memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        }
     try:
         total_pages = 0
         added_texts = []
@@ -213,9 +224,11 @@ def mask_key(k: Optional[str]) -> Optional[str]:
 
 @router.get('/api/settings/byok')
 def api_get_byok(user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    allowed = check_feature_access(user, 'byok')
     return {
         'success': True,
-        'byok_active': bool(user.custom_gemini_key or user.custom_openai_key or user.custom_groq_key),
+        'allowed': allowed,
+        'byok_active': allowed and bool(user.custom_gemini_key or user.custom_openai_key or user.custom_groq_key),
         'has_gemini': bool(user.custom_gemini_key),
         'has_openai': bool(user.custom_openai_key),
         'has_groq': bool(user.custom_groq_key),
@@ -226,6 +239,11 @@ def api_get_byok(user: User = Depends(get_current_user), db: Session = Depends(g
 
 @router.post('/api/settings/byok')
 def api_save_byok(req: ByokSettingsReq, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
+    if not check_feature_access(user, 'byok'):
+        raise HTTPException(
+            status_code=403,
+            detail="Fitur BYOK (Bring Your Own Key) memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        )
     
     updated_providers = []
     if req.custom_gemini_key is not None:
