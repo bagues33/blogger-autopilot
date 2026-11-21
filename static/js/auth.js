@@ -70,13 +70,21 @@
           if (elStatSub) elStatSub.innerText = `${used} terpakai dari ${limit} limit`;
         }
 
-        // Show Admin Console button if user has admin privileges
+        // Show Admin Console button (Desktop & Mobile) if user has admin privileges
+        const isAdminUser = Boolean(data.user && (data.user.role === 'admin' || data.user.email === 'admin@bagustech.id'));
         const adminBtn = document.getElementById('btn-admin-console');
+        const mobileAdminBtn = document.getElementById('mobile-btn-admin-console');
         if (adminBtn) {
-          if (data.user && (data.user.role === 'admin' || data.user.email === 'admin@bagustech.id')) {
-            adminBtn.classList.remove('hidden');
+          if (isAdminUser) adminBtn.classList.remove('hidden');
+          else adminBtn.classList.add('hidden');
+        }
+        if (mobileAdminBtn) {
+          if (isAdminUser) {
+            mobileAdminBtn.classList.remove('hidden');
+            mobileAdminBtn.classList.add('flex');
           } else {
-            adminBtn.classList.add('hidden');
+            mobileAdminBtn.classList.add('hidden');
+            mobileAdminBtn.classList.remove('flex');
           }
         }
 

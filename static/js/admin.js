@@ -1,14 +1,40 @@
 // --- Blogger Auto-Pilot: Superadmin Command Center ---
-    // --- Superadmin Console Logic ---
     let adminTenantsCache = [];
+    let adminTierFilter = 'all';
+    let adminSearchQuery = '';
 
     function openAdminModal() {
       document.getElementById('admin-modal').classList.remove('hidden');
+      switchAdminTab('tenants');
       loadAdminData();
     }
 
     function closeAdminModal() {
       document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    function switchAdminTab(tab) {
+      const tabs = ['tenants', 'workspaces', 'audit'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`admin-tab-btn-${t}`);
+        const pane = document.getElementById(`admin-tab-${t}`);
+        if (btn) {
+          if (t === tab) {
+            btn.className = 'px-3.5 py-1.5 rounded-lg font-bold bg-purple-600 text-white shadow-sm transition';
+            btn.setAttribute('aria-selected', 'true');
+          } else {
+            btn.className = 'px-3.5 py-1.5 rounded-lg font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+            btn.setAttribute('aria-selected', 'false');
+          }
+        }
+        if (pane) {
+          if (t === tab) pane.classList.remove('hidden');
+          else pane.classList.add('hidden');
+        }
+      });
+
+      if (tab === 'workspaces') loadAdminWorkspaces();
+      if (tab === 'audit') loadAdminGlobalAudit();
     }
 
     async function loadAdminData() {
@@ -23,6 +49,17 @@
           document.getElementById('admin-articles-breakdown').innerText = `${m.published_articles || 0} Live / ${m.draft_articles || 0} Draf`;
           document.getElementById('admin-total-blogs').innerText = `${m.total_blogs || 0} Blog`;
           document.getElementById('admin-total-keywords').innerText = `${m.total_keywords || 0} Keywords`;
+
+          const wsEl = document.getElementById('admin-total-workspaces');
+          const wsCountBadge = document.getElementById('admin-ws-count');
+          if (wsEl) wsEl.innerText = `${m.total_workspaces || 0} Workspaces (${m.total_team_members || 0} Tim)`;
+          if (wsCountBadge) wsCountBadge.innerText = m.total_workspaces || 0;
+
+          const tbEl = document.getElementById('admin-tier-breakdown');
+          if (tbEl && m.tier_breakdown) {
+            const tb = m.tier_breakdown;
+            tbEl.innerText = `F:${tb.free || 0} · S:${tb.starter || 0} · P:${tb.pro || 0} · A:${tb.agency || 0}`;
+          }
         }
 
         const tRes = await fetch('/api/admin/tenants');
@@ -30,11 +67,51 @@
           const t = await tRes.json();
           adminTenantsCache = t.tenants || [];
           document.getElementById('admin-tenant-count').innerText = adminTenantsCache.length;
-          renderAdminTenants(adminTenantsCache);
+          applyAdminTenantFilters();
         }
       } catch (err) {
         console.error('Error loading admin data:', err);
       }
+    }
+
+    function setAdminTierFilter(tier) {
+      adminTierFilter = tier;
+      const pills = ['all', 'free', 'starter', 'pro', 'agency', 'suspended'];
+      pills.forEach(p => {
+        const el = document.getElementById(`admin-tier-${p}`);
+        if (!el) return;
+        if (p === tier) {
+          el.className = p === 'suspended'
+            ? 'px-2.5 py-1 rounded-lg font-bold bg-rose-600 text-white transition'
+            : 'px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white transition';
+        } else {
+          el.className = p === 'suspended'
+            ? 'px-2.5 py-1 rounded-lg font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition'
+            : 'px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition';
+        }
+      });
+      applyAdminTenantFilters();
+    }
+
+    function filterAdminTenants(query) {
+      adminSearchQuery = (query || '').toLowerCase().trim();
+      applyAdminTenantFilters();
+    }
+
+    function applyAdminTenantFilters() {
+      let filtered = adminTenantsCache.slice();
+      if (adminTierFilter === 'suspended') {
+        filtered = filtered.filter(t => !t.is_active);
+      } else if (adminTierFilter !== 'all') {
+        filtered = filtered.filter(t => (t.plan_tier || 'free').toLowerCase() === adminTierFilter);
+      }
+      if (adminSearchQuery) {
+        filtered = filtered.filter(t =>
+          t.email.toLowerCase().includes(adminSearchQuery) ||
+          (t.full_name && t.full_name.toLowerCase().includes(adminSearchQuery))
+        );
+      }
+      renderAdminTenants(filtered);
     }
 
     function renderAdminTenants(tenants) {
@@ -96,16 +173,72 @@
       }).join('');
     }
 
-    function filterAdminTenants(query) {
-      const q = query.toLowerCase().trim();
-      if (!q) {
-        renderAdminTenants(adminTenantsCache);
-        return;
+    async function loadAdminWorkspaces() {
+      const tbody = document.getElementById('admin-workspaces-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-500 text-xs">Memuat data workspaces...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/workspaces');
+        if (!res.ok) throw new Error('Gagal memuat workspaces');
+        const data = await res.json();
+        const items = data.workspaces || [];
+        const badge = document.getElementById('admin-ws-count');
+        if (badge) badge.innerText = items.length;
+
+        if (!items.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-400 text-xs">Belum ada workspace agensi yang terdaftar.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = items.map(w => `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
+            <td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">${w.name}</td>
+            <td class="py-2.5 px-3">
+              <div class="text-xs text-slate-800 dark:text-slate-200 font-semibold">${w.owner_name}</div>
+              <div class="text-[11px] text-slate-500 font-mono">${w.owner_email}</div>
+            </td>
+            <td class="py-2.5 px-3"><span class="text-xs font-bold uppercase px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">${w.owner_plan}</span></td>
+            <td class="py-2.5 px-3 text-center font-mono">${w.member_count}</td>
+            <td class="py-2.5 px-3 text-center font-mono">${w.assigned_blogs_count}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-500 text-xs">${err.message}</td></tr>`;
       }
-      const filtered = adminTenantsCache.filter(t =>
-        t.email.toLowerCase().includes(q) || (t.full_name && t.full_name.toLowerCase().includes(q))
-      );
-      renderAdminTenants(filtered);
+    }
+
+    async function loadAdminGlobalAudit() {
+      const tbody = document.getElementById('admin-global-audit-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500 text-xs">Memuat log audit global...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/audit-logs?limit=50');
+        if (!res.ok) throw new Error('Gagal memuat audit log global');
+        const data = await res.json();
+        const logs = data.logs || [];
+
+        if (!logs.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400 text-xs">Belum ada aktivitas yang tercatat.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = logs.map(l => {
+          const ts = l.created_at ? new Date(l.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
+          const isAdminEv = (l.event_type || '').startsWith('admin.');
+          const evClass = isAdminEv
+            ? 'bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'
+            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+          const metaStr = l.metadata && Object.keys(l.metadata).length ? JSON.stringify(l.metadata).slice(0, 90) : '-';
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
+              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">${ts}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md border font-mono text-[11px] font-semibold ${evClass}">${l.event_type}</span></td>
+              <td class="py-2 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">${l.actor_email}</td>
+              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[260px]" title="${metaStr.replace(/"/g, '&quot;')}">${metaStr}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">${err.message}</td></tr>`;
+      }
     }
 
     function adminChangePlan(userId, email, currentTier) {
@@ -134,7 +267,7 @@
               showToast(data.message, 'success');
               await loadAdminData();
             } else {
-              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+              showToast('Gagal: ' + (data.error || data.detail || 'Terjadi kesalahan sistem'), 'error');
             }
           } catch (err) {
             showToast('Error: ' + err.message, 'error');
@@ -170,7 +303,7 @@
               showToast(data.message, 'success');
               await loadAdminData();
             } else {
-              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+              showToast('Gagal: ' + (data.error || data.detail || 'Terjadi kesalahan sistem'), 'error');
             }
           } catch (err) {
             showToast('Error: ' + err.message, 'error');
@@ -231,7 +364,7 @@
               showToast(data.message, 'success');
               await loadAdminData();
             } else {
-              showToast('Gagal: ' + (data.error || 'Terjadi kesalahan sistem'), 'error');
+              showToast('Gagal: ' + (data.error || data.detail || 'Terjadi kesalahan sistem'), 'error');
             }
           } catch (err) {
             showToast('Error: ' + err.message, 'error');
@@ -250,7 +383,7 @@
           showToast(`Siklus Scheduler Selesai! Diproses: ${data.processed_count} artikel.`, 'success');
           await loadAdminData();
         } else {
-          showToast('Gagal scheduler: ' + (data.error || 'Error scheduler'), 'error');
+          showToast('Gagal scheduler: ' + (data.error || data.detail || 'Error scheduler'), 'error');
         }
       } catch (err) {
         showToast('Error: ' + err.message, 'error');
@@ -258,4 +391,3 @@
         if (btn) btn.disabled = false;
       }
     }
-

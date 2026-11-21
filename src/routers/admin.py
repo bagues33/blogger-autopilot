@@ -1,7 +1,7 @@
 """
 Admin Management Router for Blogger Auto-Pilot SaaS
 Handles platform metrics, tenant management, plan/credits adjustments, tenant data exports,
-and autopilot background scheduler administration.
+agency workspace monitoring, global audit trails, and autopilot scheduler administration.
 """
 
 import os
@@ -11,11 +11,23 @@ from typing import Optional
 from fastapi import APIRouter, Request, Response, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from src.core.database import get_saas_db
-from src.models.models import User, Subscription, Blog as SaasBlog, Article as SaasArticle, Keyword as SaasKeyword
+from src.models.models import (
+    User,
+    Subscription,
+    Blog as SaasBlog,
+    Article as SaasArticle,
+    Keyword as SaasKeyword,
+    Workspace,
+    WorkspaceMembership,
+    WorkspaceBlogAssignment,
+    AuditLog
+)
 from src.core.security import hash_password
 import src.services.payment as midtrans_service
+from src.services.audit import record_audit_log
 from src.core.dependencies import get_session_user, get_current_user, get_current_admin, check_feature_access
 
 router = APIRouter(tags=['Admin'])
@@ -49,7 +61,7 @@ def api_export_tenant_data(user: User = Depends(get_current_user), db: Session =
             status_code=403,
             detail="Fitur Ekspor Backup Data 1-Klik memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
         )
-    
+
     blogs = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).all()
     blogs_data = [
         {
@@ -132,24 +144,33 @@ def api_export_tenant_data(user: User = Depends(get_current_user), db: Session =
         }
     )
 
-# --- SaaS Autopilot Background Scheduler Endpoints ---
+# --- SaaS Autopilot Background Scheduler Endpoints (Admin Only) ---
 
 @router.get('/api/saas/scheduler/status')
-def api_scheduler_status(request: Request, db: Session = Depends(get_saas_db)):
-    active_count = db.query(Subscription).filter(
+def api_scheduler_status(admin: User = Depends(get_current_admin), db: Session = Depends(get_saas_db)):
+    active_count = db.query(Subscription).join(User, Subscription.user_id == User.id).filter(
+        User.is_active == True,
         Subscription.status == 'active',
+        Subscription.plan_tier.in_(['pro', 'agency']),
         Subscription.article_credits_used < Subscription.article_credits_limit
     ).count()
     return {
         'status': 'ready',
         'eligible_subscribers': active_count,
-        'message': f'{active_count} pelanggan aktif siap untuk siklus autopilot harian.'
+        'message': f'{active_count} pelanggan Pro/Agency aktif siap untuk siklus autopilot.'
     }
 
 @router.post('/api/saas/scheduler/run-cycle')
-def api_scheduler_run_cycle(admin: User = Depends(get_current_admin)):
+def api_scheduler_run_cycle(request: Request, admin: User = Depends(get_current_admin), db: Session = Depends(get_saas_db)):
     from autopilot_scheduler import run_scheduler_cycle
     result = run_scheduler_cycle()
+    record_audit_log(
+        db=db,
+        event_type="admin.scheduler_triggered",
+        user_id=admin.id,
+        metadata={"processed_count": result.get("processed_count", 0)},
+        ip_address=request.client.host if request and request.client else None
+    )
     return result
 
 # --- Superadmin Management Console Endpoints ---
@@ -159,14 +180,25 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
     admin = require_admin(request, db)
 
     total_users = db.query(User).count()
-    subs = db.query(Subscription).all()
+    suspended_users = db.query(User).filter(User.is_active == False).count()
+
+    # Count only active subscriptions on active non-admin accounts for accurate MRR
+    active_subs = db.query(Subscription, User).join(User, Subscription.user_id == User.id).filter(
+        Subscription.status == 'active',
+        User.is_active == True
+    ).all()
+
     tier_counts = {'free': 0, 'starter': 0, 'pro': 0, 'agency': 0}
-    for s in subs:
-        t = s.plan_tier if s.plan_tier in tier_counts else 'free'
+    paying_tier_counts = {'starter': 0, 'pro': 0, 'agency': 0}
+
+    for sub, u in active_subs:
+        t = sub.plan_tier if sub.plan_tier in tier_counts else 'free'
         tier_counts[t] += 1
+        if t in paying_tier_counts and u.role != 'admin':
+            paying_tier_counts[t] += 1
 
     mrr = sum(
-        tier_counts[t] * midtrans_service.PLAN_TIERS.get(t, {}).get('price', 0)
+        paying_tier_counts[t] * midtrans_service.PLAN_TIERS.get(t, {}).get('price', 0)
         for t in ['starter', 'pro', 'agency']
     )
 
@@ -175,6 +207,8 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
     total_keywords = db.query(SaasKeyword).count()
     published_articles = db.query(SaasArticle).filter(SaasArticle.status == 'published').count()
     draft_articles = db.query(SaasArticle).filter(SaasArticle.status.in_(['draft', 'blogger_draft'])).count()
+    total_workspaces = db.query(Workspace).count()
+    total_team_members = db.query(WorkspaceMembership).count()
 
     recent_users = db.query(User).order_by(User.created_at.desc()).limit(8).all()
     recent_list = [
@@ -191,7 +225,8 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
 
     return {
         'total_tenants': total_users,
-        'active_paying': tier_counts['starter'] + tier_counts['pro'] + tier_counts['agency'],
+        'suspended_tenants': suspended_users,
+        'active_paying': sum(paying_tier_counts.values()),
         'tier_breakdown': tier_counts,
         'mrr_idr': mrr,
         'total_blogs': total_blogs,
@@ -199,6 +234,8 @@ def api_admin_metrics(request: Request, db: Session = Depends(get_saas_db)):
         'published_articles': published_articles,
         'draft_articles': draft_articles,
         'total_keywords': total_keywords,
+        'total_workspaces': total_workspaces,
+        'total_team_members': total_team_members,
         'recent_tenants': recent_list
     }
 
@@ -226,6 +263,59 @@ def api_admin_tenants(request: Request, db: Session = Depends(get_saas_db)):
 
     return {'tenants': tenant_list, 'count': len(tenant_list)}
 
+@router.get('/api/admin/workspaces')
+def api_admin_workspaces(request: Request, db: Session = Depends(get_saas_db)):
+    admin = require_admin(request, db)
+
+    workspaces = db.query(Workspace).order_by(desc(Workspace.created_at)).all()
+    items = []
+    for w in workspaces:
+        owner = w.owner
+        m_ids = [m.id for m in w.memberships]
+        assigned_count = db.query(WorkspaceBlogAssignment).filter(
+            WorkspaceBlogAssignment.membership_id.in_(m_ids)
+        ).count() if m_ids else 0
+
+        items.append({
+            'id': w.id,
+            'name': w.name,
+            'owner_email': owner.email if owner else '-',
+            'owner_name': (owner.full_name or owner.email.split('@')[0]) if owner else '-',
+            'owner_plan': owner.subscription.plan_tier if (owner and owner.subscription) else 'free',
+            'member_count': len(w.memberships) + 1,
+            'assigned_blogs_count': assigned_count,
+            'created_at': w.created_at.isoformat() if w.created_at else None
+        })
+
+    return {'success': True, 'workspaces': items, 'count': len(items)}
+
+@router.get('/api/admin/audit-logs')
+def api_admin_global_audit_logs(request: Request, limit: int = 50, db: Session = Depends(get_saas_db)):
+    admin = require_admin(request, db)
+    safe_limit = max(1, min(limit, 200))
+
+    logs = db.query(AuditLog).order_by(desc(AuditLog.created_at)).limit(safe_limit).all()
+    items = []
+    for l in logs:
+        actor_email = l.user.email if l.user else 'system'
+        meta = {}
+        if l.metadata_json:
+            try:
+                meta = json.loads(l.metadata_json)
+            except Exception:
+                meta = {'raw': l.metadata_json}
+        items.append({
+            'id': l.id,
+            'event_type': l.event_type,
+            'actor_email': actor_email,
+            'entity_id': l.entity_id,
+            'metadata': meta,
+            'ip_address': l.ip_address,
+            'created_at': l.created_at.isoformat() if l.created_at else None
+        })
+
+    return {'success': True, 'logs': items, 'count': len(items)}
+
 @router.post('/api/admin/tenants/{user_id}/plan')
 def api_admin_set_tenant_plan(user_id: str, req: AdminSetPlanReq, request: Request, db: Session = Depends(get_saas_db)):
     admin = require_admin(request, db)
@@ -238,6 +328,7 @@ def api_admin_set_tenant_plan(user_id: str, req: AdminSetPlanReq, request: Reque
     tier_info = midtrans_service.PLAN_TIERS.get(clean_tier, midtrans_service.PLAN_TIERS['free'])
 
     sub = target_user.subscription
+    old_tier = sub.plan_tier if sub else 'free'
     if not sub:
         sub = Subscription(user_id=target_user.id)
         db.add(sub)
@@ -249,6 +340,20 @@ def api_admin_set_tenant_plan(user_id: str, req: AdminSetPlanReq, request: Reque
     sub.current_period_start = datetime.now(timezone.utc)
     sub.current_period_end = datetime.now(timezone.utc) + timedelta(days=30)
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="admin.plan_changed",
+        user_id=admin.id,
+        entity_id=target_user.id,
+        metadata={
+            "target_email": target_user.email,
+            "old_tier": old_tier,
+            "new_tier": clean_tier,
+            "credits_limit": sub.article_credits_limit
+        },
+        ip_address=request.client.host if request and request.client else None
+    )
 
     return {
         'success': True,
@@ -273,6 +378,19 @@ def api_admin_add_tenant_credits(user_id: str, req: AdminAddCreditsReq, request:
     sub.article_credits_limit += req.amount
     db.commit()
 
+    record_audit_log(
+        db=db,
+        event_type="admin.credits_added",
+        user_id=admin.id,
+        entity_id=target_user.id,
+        metadata={
+            "target_email": target_user.email,
+            "amount_added": req.amount,
+            "new_limit": sub.article_credits_limit
+        },
+        ip_address=request.client.host if request and request.client else None
+    )
+
     return {
         'success': True,
         'message': f"Berhasil menambahkan {req.amount} kredit untuk {target_user.email}. Limit baru: {sub.article_credits_limit} kredit.",
@@ -294,6 +412,16 @@ def api_admin_toggle_tenant_status(user_id: str, request: Request, db: Session =
     db.commit()
 
     status_str = "diaktifkan" if target_user.is_active else "dinonaktifkan (suspend)"
+
+    record_audit_log(
+        db=db,
+        event_type="admin.status_toggled",
+        user_id=admin.id,
+        entity_id=target_user.id,
+        metadata={"target_email": target_user.email, "is_active": target_user.is_active},
+        ip_address=request.client.host if request and request.client else None
+    )
+
     return {
         'success': True,
         'message': f"Akun {target_user.email} berhasil {status_str}.",
@@ -314,6 +442,15 @@ def api_admin_reset_user_password(user_id: str, req: AdminResetPasswordReq, requ
 
     target_user.hashed_password = hash_password(clean_pw)
     db.commit()
+
+    record_audit_log(
+        db=db,
+        event_type="admin.password_reset",
+        user_id=admin.id,
+        entity_id=target_user.id,
+        metadata={"target_email": target_user.email},
+        ip_address=request.client.host if request and request.client else None
+    )
 
     return {
         'success': True,

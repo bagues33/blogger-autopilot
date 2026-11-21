@@ -1,17 +1,20 @@
 """
-Integration tests for Superadmin Master Console & RBAC Guard.
+Integration tests for Superadmin Master Console, Security Locks, Workspaces Monitor,
+Accurate MRR Calculation, Global Audit Trail, and RBAC Guard.
 """
 import pytest
 from fastapi.testclient import TestClient
 
 def test_admin_metrics_and_tenants(admin_client: TestClient):
-    # 1. Superadmin can fetch metrics
+    # 1. Superadmin can fetch metrics including workspaces count
     res_metrics = admin_client.get("/api/admin/metrics")
     assert res_metrics.status_code == 200
     metrics = res_metrics.json()
     assert "total_tenants" in metrics
     assert "mrr_idr" in metrics
     assert "tier_breakdown" in metrics
+    assert "total_workspaces" in metrics
+    assert "total_team_members" in metrics
 
     # 2. Superadmin can list tenants
     res_tenants = admin_client.get("/api/admin/tenants")
@@ -20,13 +23,67 @@ def test_admin_metrics_and_tenants(admin_client: TestClient):
     assert "tenants" in tenants
     assert tenants["count"] >= 1
 
-def test_non_admin_forbidden(tenant_factory):
+    # 3. Superadmin can access scheduler status, workspaces monitor & global audit trail
+    res_sched = admin_client.get("/api/saas/scheduler/status")
+    assert res_sched.status_code == 200
+    assert res_sched.json()["status"] == "ready"
+
+    res_ws = admin_client.get("/api/admin/workspaces")
+    assert res_ws.status_code == 200
+    assert res_ws.json()["success"] is True
+
+    res_audit = admin_client.get("/api/admin/audit-logs")
+    assert res_audit.status_code == 200
+    assert res_audit.json()["success"] is True
+
+def test_non_admin_forbidden(client: TestClient, tenant_factory):
+    # Unauthenticated guest MUST be rejected from scheduler status
+    res_guest_sched = client.get("/api/saas/scheduler/status")
+    assert res_guest_sched.status_code == 401
+
     client_sub, user_sub = tenant_factory(role="subscriber")
 
     # Regular subscriber attempting to access admin endpoints MUST receive 403 Forbidden
-    res_metrics = client_sub.get("/api/admin/metrics")
-    assert res_metrics.status_code == 403
-    assert "administrator" in res_metrics.json()["detail"].lower()
+    for path in [
+        "/api/admin/metrics",
+        "/api/admin/tenants",
+        "/api/admin/workspaces",
+        "/api/admin/audit-logs",
+        "/api/saas/scheduler/status"
+    ]:
+        res = client_sub.get(path)
+        assert res.status_code == 403, f"Expected 403 on {path}, got {res.status_code}"
 
-    res_tenants = client_sub.get("/api/admin/tenants")
-    assert res_tenants.status_code == 403
+def test_admin_mutations_audit_logs_and_mrr_exclusion(admin_client: TestClient, tenant_factory):
+    client_sub, user_sub = tenant_factory(plan="free", role="subscriber", name="MRR Test Tenant")
+
+    mrr_before = admin_client.get("/api/admin/metrics").json()["mrr_idr"]
+
+    # 1. Admin upgrades tenant to Pro (+349,000 MRR)
+    res_plan = admin_client.post(f"/api/admin/tenants/{user_sub.id}/plan", json={"plan_tier": "pro"})
+    assert res_plan.status_code == 200
+    mrr_after_pro = admin_client.get("/api/admin/metrics").json()["mrr_idr"]
+    assert mrr_after_pro == mrr_before + 349000
+
+    # 2. Admin adds credits + resets password
+    res_cred = admin_client.post(f"/api/admin/tenants/{user_sub.id}/credits", json={"amount": 25})
+    assert res_cred.status_code == 200
+    res_pw = admin_client.post(f"/api/admin/tenants/{user_sub.id}/reset-password", json={"new_password": "NewSecure2026!"})
+    assert res_pw.status_code == 200
+
+    # 3. Admin suspends tenant -> MUST be excluded from active MRR!
+    res_susp = admin_client.post(f"/api/admin/tenants/{user_sub.id}/toggle-status")
+    assert res_susp.status_code == 200
+    assert res_susp.json()["is_active"] is False
+
+    mrr_after_suspend = admin_client.get("/api/admin/metrics").json()["mrr_idr"]
+    assert mrr_after_suspend == mrr_before
+
+    # 4. Verify all 4 admin actions appear in Global Audit Trail
+    res_audit = admin_client.get("/api/admin/audit-logs?limit=20")
+    assert res_audit.status_code == 200
+    events = {l["event_type"] for l in res_audit.json()["logs"]}
+    assert "admin.plan_changed" in events
+    assert "admin.credits_added" in events
+    assert "admin.password_reset" in events
+    assert "admin.status_toggled" in events
