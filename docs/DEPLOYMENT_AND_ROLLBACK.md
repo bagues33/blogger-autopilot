@@ -16,7 +16,9 @@ Salin `.env.production.example` menjadi `.env` di server produksi dan pastikan s
 | `DATABASE_URL` | URI PostgreSQL / Supabase (`postgresql://...`) |
 | `JWT_SECRET_KEY` | Minimal 32 karakter acak (`openssl rand -hex 32`) |
 | `ENCRYPTION_SECRET_KEY` | Minimal 32 karakter acak (`openssl rand -hex 32`) |
-| `CRON_SECRET_KEY` | Token acak untuk endpoint `/api/cron/trigger-cycle` |
+| `CRON_SECRET_KEY` | Token acak minimal 24 karakter untuk `/api/cron/trigger-cycle` (fail-fast jika lemah di produksi) |
+| `TRUSTED_PROXY_IPS` | IP reverse proxy tepercaya (default `127.0.0.1,::1` untuk Nginx lokal) |
+| `RESEND_API_KEY` / `SMTP_HOST` | Transporter email transaksional untuk pengiriman token Reset Kata Sandi mandiri (`EMAIL_FROM` opsional) |
 | `MIDTRANS_IS_PRODUCTION` | `true` beserta `MIDTRANS_SERVER_KEY` & `MIDTRANS_CLIENT_KEY` live |
 | `GEMINI_API_KEY` / `GROQ_API_KEY` | Minimal 1 kunci LLM aktif (disarankan keduanya untuk fallback) |
 | `CLOUDINARY_URL` | Kunci Cloudinary untuk CDN gambar publik HTTPS permanen |
@@ -47,8 +49,10 @@ pg_dump "$DATABASE_URL" > "backup_pre_deploy_$(date +%Y%m%d_%H%M%S).sql"
 ### C. Jalankan Layanan (Docker Compose atau Systemd)
 
 **Opsi Docker Compose:**
+> Pastikan file `.env` dan `client_secret.json` sudah ada di direktori root sebelum menjalankan Docker Compose agar volume mount tidak membuat direktori kosong.
 ```bash
 docker compose up -d --build
+docker compose exec web alembic upgrade head
 curl -fsS http://127.0.0.1:8090/health
 ```
 

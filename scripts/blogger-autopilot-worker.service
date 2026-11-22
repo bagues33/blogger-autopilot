@@ -7,6 +7,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/blogger-autopilot
+EnvironmentFile=-/var/www/blogger-autopilot/.env
 Environment="PATH=/var/www/blogger-autopilot/.venv/bin"
 Environment="ENVIRONMENT=production"
 Environment="SCHEDULER_INTERVAL_SECONDS=3600"

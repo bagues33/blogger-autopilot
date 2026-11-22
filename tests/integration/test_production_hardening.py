@@ -420,18 +420,24 @@ def test_pdf_upload_403_for_free_tier_and_trusted_proxy_xff(tenant_factory):
     )
     assert r_pdf.status_code == 403
 
-    # 2. Untrusted client cannot spoof X-Forwarded-For, trusted loopback proxy can
+    # 2. Untrusted client cannot spoof X-Forwarded-For; trusted proxy picks X-Real-IP or rightmost untrusted hop
     untrusted_req = SimpleNamespace(
         client=SimpleNamespace(host="203.0.113.55"),
-        headers={"X-Forwarded-For": "1.2.3.4"}
+        headers={"X-Forwarded-For": "1.2.3.4", "X-Real-IP": "1.2.3.4"}
     )
     assert get_client_ip(untrusted_req) == "203.0.113.55"
 
-    trusted_req = SimpleNamespace(
+    trusted_xff_spoofed = SimpleNamespace(
         client=SimpleNamespace(host="127.0.0.1"),
-        headers={"X-Forwarded-For": "198.51.100.10, 127.0.0.1"}
+        headers={"X-Forwarded-For": "1.2.3.4, 198.51.100.10, 127.0.0.1"}
     )
-    assert get_client_ip(trusted_req) == "198.51.100.10"
+    assert get_client_ip(trusted_xff_spoofed) == "198.51.100.10"
+
+    trusted_xreal = SimpleNamespace(
+        client=SimpleNamespace(host="127.0.0.1"),
+        headers={"X-Forwarded-For": "1.2.3.4, 198.51.100.10", "X-Real-IP": "198.51.100.25"}
+    )
+    assert get_client_ip(trusted_xreal) == "198.51.100.25"
 
 
 

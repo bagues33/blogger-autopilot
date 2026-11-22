@@ -85,9 +85,21 @@ def _get_trusted_proxies() -> set:
 
 def get_client_ip(request: Request) -> str:
     peer_ip = request.client.host if request.client else "unknown"
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded and peer_ip in _get_trusted_proxies():
-        return forwarded.split(",")[0].strip()
+    trusted = _get_trusted_proxies()
+    if peer_ip in trusted:
+        # Prefer X-Real-IP set directly by trusted edge proxy (e.g. Nginx $remote_addr)
+        real_ip = request.headers.get("X-Real-IP")
+        if real_ip and real_ip.strip():
+            return real_ip.strip()
+        # Fallback to rightmost non-trusted hop in X-Forwarded-For (prevents leftmost spoofing)
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            hops = [h.strip() for h in forwarded.split(",") if h.strip()]
+            for hop in reversed(hops):
+                if hop not in trusted:
+                    return hop
+            if hops:
+                return hops[-1]
     return peer_ip
 
 def check_rate_limit(request: Request, max_requests: int = 15, window_seconds: int = 60, endpoint_tag: str = "auth"):
