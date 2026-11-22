@@ -574,18 +574,18 @@
       <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div id="field-fullname" class="hidden">
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nama Lengkap</label>
-          <input type="text" id="auth-name" placeholder="Nama Anda" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          <input type="text" id="auth-name" placeholder="Nama Anda" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Email</label>
-          <input type="email" id="auth-email" required placeholder="nama@domain.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          <input type="email" id="auth-email" required placeholder="nama@domain.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
         </div>
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Kata Sandi</label>
             <button type="button" id="landing-forgot-link" onclick="toggleLandingForgot(true)" class="text-[11px] font-semibold text-brand-600 dark:text-brand-400 hover:underline">Lupa Kata Sandi?</button>
           </div>
-          <input type="password" id="auth-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          <input type="password" id="auth-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
         </div>
         <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20">
           Masuk
@@ -597,7 +597,7 @@
           <p class="text-xs text-slate-600 dark:text-slate-400">Masukkan email terdaftar untuk menerima token reset kata sandi (berlaku 15 menit, 1x pakai).</p>
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Email Akun</label>
-            <input type="email" id="landing-forgot-email" required placeholder="nama@domain.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <input type="email" id="landing-forgot-email" required placeholder="nama@domain.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
           </div>
           <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition">
             Kirim Token Reset
@@ -606,11 +606,11 @@
         <form onsubmit="handleLandingResetConfirm(event)" class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Token Reset</label>
-            <input type="text" id="landing-reset-token" required placeholder="Tempel token reset di sini" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <input type="text" id="landing-reset-token" required placeholder="Tempel token reset di sini" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Kata Sandi Baru</label>
-            <input type="password" id="landing-reset-password" required minlength="8" placeholder="Minimal 8 karakter" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <input type="password" id="landing-reset-password" required minlength="8" placeholder="Minimal 8 karakter" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
           </div>
           <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">
             Simpan Kata Sandi Baru

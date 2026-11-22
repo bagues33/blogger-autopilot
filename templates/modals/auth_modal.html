@@ -26,14 +26,14 @@
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Alamat Email</label>
-            <input type="email" id="login-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+            <input type="email" id="login-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Kata Sandi</label>
               <button type="button" onclick="toggleForgotPasswordView(true)" class="text-[11px] font-semibold text-brand-600 dark:text-brand-400 hover:underline">Lupa Kata Sandi?</button>
             </div>
-            <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
           <button type="submit" id="btn-submit-login" class="w-full py-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-md shadow-brand-500/20 active:scale-95">
             <span>Masuk ke Dashboard</span>
@@ -46,14 +46,14 @@
             <p class="text-xs text-slate-600 dark:text-slate-400">Masukkan email akun Anda untuk menerima token reset kata sandi (berlaku 15 menit).</p>
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email Akun</label>
-              <input type="email" id="forgot-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+              <input type="email" id="forgot-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
             </div>
             <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition">Kirim Token Reset</button>
           </form>
           <form id="form-reset-confirm" onsubmit="handleResetPasswordConfirm(event)" class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <p class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Sudah Punya Token Reset?</p>
-            <input type="text" id="reset-token-input" required placeholder="Tempel token reset di sini" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
-            <input type="password" id="reset-new-password" minlength="8" required placeholder="Kata sandi baru (minimal 8 karakter)" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <input type="text" id="reset-token-input" required placeholder="Tempel token reset di sini" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-base sm:text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <input type="password" id="reset-new-password" minlength="8" required placeholder="Kata sandi baru (minimal 8 karakter)" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-base sm:text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
             <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">Simpan Kata Sandi Baru</button>
           </form>
           <button type="button" onclick="toggleForgotPasswordView(false)" class="w-full text-center text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-semibold">&larr; Kembali ke Login</button>
@@ -63,15 +63,15 @@
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Nama Lengkap</label>
-            <input type="text" id="register-name" placeholder="Budi Santoso" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+            <input type="text" id="register-name" placeholder="Budi Santoso" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Alamat Email</label>
-            <input type="email" id="register-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+            <input type="email" id="register-email" required placeholder="nama@email.com" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kata Sandi (Minimal 6 Karakter)</label>
-            <input type="password" id="register-password" minlength="6" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+            <input type="password" id="register-password" minlength="6" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#070b14] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-base sm:text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
           </div>
           <p class="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
             🎁 <b>Bonus Gratis Langsung:</b> 3 kredit artikel AI SEO otomatis diberikan saat pendaftaran selesai!

@@ -2,12 +2,33 @@
 # Copy to /etc/nginx/sites-available/blogger-autopilot and enable with Certbot SSL:
 #   sudo certbot --nginx -d app.namadomainanda.com
 
+# Edge rate-limiting zones shared across all backend Uvicorn workers
+limit_req_zone $binary_remote_addr zone=bap_auth:10m rate=15r/m;
+limit_req_zone $binary_remote_addr zone=bap_api:10m rate=60r/m;
+limit_req_status 429;
+
 server {
     listen 80;
     server_name app.namadomainanda.com;
 
-    # Redirect all HTTP traffic to HTTPS (Certbot manages SSL blocks below)
+    client_max_body_size 30M;
+
+    # Strict edge rate limit on login, register, and password reset endpoints
+    location ^~ /api/saas/auth/ {
+        limit_req zone=bap_auth burst=10 nodelay;
+        proxy_pass http://127.0.0.1:8090;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 15s;
+    }
+
+    # General API & Dashboard proxy (Certbot manages HTTPS/SSL blocks automatically)
     location / {
+        limit_req zone=bap_api burst=30 nodelay;
         proxy_pass http://127.0.0.1:8090;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -16,7 +37,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_read_timeout 120s;
         proxy_connect_timeout 30s;
-        client_max_body_size 30M;
     }
 
     # Block direct web access to hidden dotfiles
