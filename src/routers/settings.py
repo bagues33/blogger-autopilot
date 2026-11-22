@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from pypdf import PdfReader
 
 from src.core.database import get_saas_db
-from src.models.models import NotificationSetting
+from src.models.models import User, NotificationSetting
 from src.services.notifications import send_telegram_message, send_webhook_event, validate_safe_webhook_url
 from src.services.audit import record_audit_log
 from src.core.dependencies import (

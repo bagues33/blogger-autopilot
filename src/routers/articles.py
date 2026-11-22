@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
-from src.models.models import Blog as SaasBlog, Article as SaasArticle, Keyword as SaasKeyword
+from src.models.models import User, Blog as SaasBlog, Article as SaasArticle, Keyword as SaasKeyword
 from src.services.blogger import create_post, update_post
 from src.services.images import process_and_upload_image
 from src.services.schema import inject_schema_if_missing

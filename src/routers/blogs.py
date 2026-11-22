@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from src.core.database import get_saas_db
-from src.models.models import Blog as SaasBlog, Article as SaasArticle
+from src.models.models import User, Blog as SaasBlog, Article as SaasArticle
 from src.services.payment import PLAN_TIERS
 from src.core.rate_limiter import check_rate_limit
 from src.core.crypto import encrypt_token_data
