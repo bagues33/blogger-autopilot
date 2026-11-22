@@ -291,16 +291,16 @@
           const dt = l.created_at ? new Date(l.created_at).toLocaleString('id-ID', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}) : '-';
           return `
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-              <td class="py-2.5 px-4 font-mono text-xs text-slate-500">${dt}</td>
+              <td class="py-2.5 px-4 font-mono text-xs text-slate-500">${escapeHtml(dt)}</td>
               <td class="py-2.5 px-4 font-semibold text-slate-900 dark:text-white">
-                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono">${l.event_type}</span>
+                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono">${escapeHtml(l.event_type)}</span>
               </td>
-              <td class="py-2.5 px-4 font-mono text-xs text-slate-600 dark:text-slate-400">${l.entity_id || '-'}</td>
-              <td class="py-2.5 px-4 text-slate-500 font-mono text-xs">${l.ip_address || '-'}</td>
+              <td class="py-2.5 px-4 font-mono text-xs text-slate-600 dark:text-slate-400">${escapeHtml(l.entity_id || '-')}</td>
+              <td class="py-2.5 px-4 text-slate-500 font-mono text-xs">${escapeHtml(l.ip_address || '-')}</td>
             </tr>
           `;
         }).join('');
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">Error: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">Error: ${escapeHtml(err.message)}</td></tr>`;
       }
     }

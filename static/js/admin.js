@@ -135,38 +135,47 @@
           ? '<span class="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>'
           : '<span class="inline-flex items-center gap-1 text-xs text-rose-700 dark:text-rose-400 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Suspend</span>';
 
+        const safeName = escapeHtml(t.full_name);
+        const safeEmail = escapeHtml(t.email);
+        const safeRole = escapeHtml(t.role);
+        const safeTier = escapeHtml(t.plan_tier);
+        const jsId = escapeJsArg(t.id);
+        const jsEmail = escapeJsArg(t.email);
+        const jsTier = escapeJsArg(t.plan_tier);
+        const jsRole = escapeJsArg(t.role);
+
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
             <td class="py-2.5 px-4">
-              <div class="font-bold text-slate-900 dark:text-white text-xs truncate max-w-[180px]">${t.full_name}</div>
-              <div class="text-xs text-slate-500 dark:text-slate-400 font-mono truncate max-w-[180px]">${t.email}</div>
+              <div class="font-bold text-slate-900 dark:text-white text-xs truncate max-w-[180px]">${safeName}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 font-mono truncate max-w-[180px]">${safeEmail}</div>
             </td>
             <td class="py-2.5 px-3">
-              <span class="text-xs font-mono uppercase px-1.5 py-0.5 rounded ${t.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-700/50' : 'text-slate-500 dark:text-slate-400'}">${t.role}</span>
+              <span class="text-xs font-mono uppercase px-1.5 py-0.5 rounded ${t.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold border border-purple-200 dark:border-purple-700/50' : 'text-slate-500 dark:text-slate-400'}">${safeRole}</span>
             </td>
             <td class="py-2.5 px-3">
-              <span class="text-xs font-bold uppercase border px-2 py-0.5 rounded-full ${tierBadge}">${t.plan_tier}</span>
+              <span class="text-xs font-bold uppercase border px-2 py-0.5 rounded-full ${tierBadge}">${safeTier}</span>
             </td>
             <td class="py-2.5 px-3 font-mono text-xs text-slate-700 dark:text-slate-300">
-              ${t.credits_used} / ${t.credits_limit}
+              ${Number(t.credits_used) || 0} / ${Number(t.credits_limit) || 0}
             </td>
-            <td class="py-2.5 px-3 font-mono text-xs text-slate-500 dark:text-slate-400">${t.blogs_count}</td>
+            <td class="py-2.5 px-3 font-mono text-xs text-slate-500 dark:text-slate-400">${Number(t.blogs_count) || 0}</td>
             <td class="py-2.5 px-3">${statusBadge}</td>
             <td class="py-2.5 px-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
-                <button onclick="adminChangePlan('${t.id}', '${t.email}', '${t.plan_tier}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition" title="Ubah Paket">
+                <button onclick="adminChangePlan('${jsId}', '${jsEmail}', '${jsTier}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition" title="Ubah Paket">
                   Paket
                 </button>
-                <button onclick="adminAddCredits('${t.id}', '${t.email}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 text-brand-700 dark:text-brand-300 text-xs font-semibold rounded-lg border border-brand-200 dark:border-brand-500/30 transition" title="Tambah Kredit">
+                <button onclick="adminAddCredits('${jsId}', '${jsEmail}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-500/15 dark:hover:bg-brand-500/25 text-brand-700 dark:text-brand-300 text-xs font-semibold rounded-lg border border-brand-200 dark:border-brand-500/30 transition" title="Tambah Kredit">
                   +Kredit
                 </button>
-                <button onclick="adminResetPassword('${t.id}', '${t.email}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
+                <button onclick="adminResetPassword('${jsId}', '${jsEmail}')" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-lg border border-amber-200 dark:border-amber-500/30 transition" title="Reset Kata Sandi">
                   Reset Pwd
                 </button>
-                <button onclick="adminToggleRole('${t.id}', '${t.email}', '${t.role}')" class="px-2 py-1 ${t.role === 'admin' ? 'bg-purple-100 hover:bg-purple-200 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-500/40' : 'bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'} text-xs font-semibold rounded-lg border transition" title="${t.role === 'admin' ? 'Cabut hak Superadmin' : 'Promosikan jadi Superadmin'}">
+                <button onclick="adminToggleRole('${jsId}', '${jsEmail}', '${jsRole}')" class="px-2 py-1 ${t.role === 'admin' ? 'bg-purple-100 hover:bg-purple-200 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-500/40' : 'bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'} text-xs font-semibold rounded-lg border transition" title="${t.role === 'admin' ? 'Cabut hak Superadmin' : 'Promosikan jadi Superadmin'}">
                   ${t.role === 'admin' ? 'Cabut Admin' : '👑 Admin'}
                 </button>
-                <button onclick="adminToggleStatus('${t.id}', '${t.email}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-xs font-semibold rounded-lg border transition">
+                <button onclick="adminToggleStatus('${jsId}', '${jsEmail}')" class="px-2 py-1 ${t.is_active ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30' : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'} text-xs font-semibold rounded-lg border transition">
                   ${t.is_active ? 'Suspend' : 'Aktifkan'}
                 </button>
               </div>
@@ -194,18 +203,18 @@
         }
         tbody.innerHTML = items.map(w => `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
-            <td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">${w.name}</td>
+            <td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">${escapeHtml(w.name)}</td>
             <td class="py-2.5 px-3">
-              <div class="text-xs text-slate-800 dark:text-slate-200 font-semibold">${w.owner_name}</div>
-              <div class="text-[11px] text-slate-500 font-mono">${w.owner_email}</div>
+              <div class="text-xs text-slate-800 dark:text-slate-200 font-semibold">${escapeHtml(w.owner_name)}</div>
+              <div class="text-[11px] text-slate-500 font-mono">${escapeHtml(w.owner_email)}</div>
             </td>
-            <td class="py-2.5 px-3"><span class="text-xs font-bold uppercase px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">${w.owner_plan}</span></td>
-            <td class="py-2.5 px-3 text-center font-mono">${w.member_count}</td>
-            <td class="py-2.5 px-3 text-center font-mono">${w.assigned_blogs_count}</td>
+            <td class="py-2.5 px-3"><span class="text-xs font-bold uppercase px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">${escapeHtml(w.owner_plan)}</span></td>
+            <td class="py-2.5 px-3 text-center font-mono">${Number(w.member_count) || 0}</td>
+            <td class="py-2.5 px-3 text-center font-mono">${Number(w.assigned_blogs_count) || 0}</td>
           </tr>
         `).join('');
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-500 text-xs">${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-rose-500 text-xs">${escapeHtml(err.message)}</td></tr>`;
       }
     }
 
@@ -230,17 +239,18 @@
             ? 'bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30'
             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
           const metaStr = l.metadata && Object.keys(l.metadata).length ? JSON.stringify(l.metadata).slice(0, 90) : '-';
+          const safeMeta = escapeHtml(metaStr);
           return `
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
-              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">${ts}</td>
-              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md border font-mono text-[11px] font-semibold ${evClass}">${l.event_type}</span></td>
-              <td class="py-2 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">${l.actor_email}</td>
-              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[260px]" title="${metaStr.replace(/"/g, '&quot;')}">${metaStr}</td>
+              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">${escapeHtml(ts)}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-md border font-mono text-[11px] font-semibold ${evClass}">${escapeHtml(l.event_type)}</span></td>
+              <td class="py-2 px-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">${escapeHtml(l.actor_email)}</td>
+              <td class="py-2 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[260px]" title="${safeMeta}">${safeMeta}</td>
             </tr>
           `;
         }).join('');
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-rose-500 text-xs">${escapeHtml(err.message)}</td></tr>`;
       }
     }
 

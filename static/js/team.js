@@ -185,7 +185,7 @@
       } else if (m.assigned_blogs && m.assigned_blogs.length > 0) {
         blogTags = m.assigned_blogs.map(b => `
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-            🏷️ ${b.name}
+            🏷️ ${escapeHtml(b.name)}
           </span>
         `).join(' ');
       } else {
@@ -194,30 +194,36 @@
 
       const assignedIds = new Set((m.assigned_blogs || []).map(b => b.id));
       const canManageMember = isCurrentUserOwner && !m.is_owner;
+      const safeMemberName = escapeHtml(m.full_name || m.email.split('@')[0]);
+      const safeMemberLabel = escapeHtml(m.full_name || m.email);
+      const safeMemberEmail = escapeHtml(m.email);
+      const safeUserId = escapeHtml(m.user_id);
+      const jsUserId = escapeJsArg(m.user_id);
+      const jsMemberLabel = escapeJsArg(m.full_name || m.email);
 
       const actionsHtml = canManageMember ? `
-        <button onclick="toggleEditMemberBlogs('${m.user_id}')" class="px-2.5 py-1 text-xs text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 rounded-lg transition font-medium border border-brand-200 dark:border-brand-500/30 active:scale-95" title="Ubah pembagian akses blog">
+        <button onclick="toggleEditMemberBlogs('${jsUserId}')" class="px-2.5 py-1 text-xs text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 rounded-lg transition font-medium border border-brand-200 dark:border-brand-500/30 active:scale-95" title="Ubah pembagian akses blog">
           ✏️ Edit Blog
         </button>
-        <button onclick="removeTeamMember('${m.user_id}', '${(m.full_name || m.email).replace(/'/g, "\\'")}')" class="px-2.5 py-1 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition font-medium border border-rose-200 dark:border-rose-500/20 active:scale-95" title="Cabut akses anggota">
+        <button onclick="removeTeamMember('${jsUserId}', '${jsMemberLabel}')" class="px-2.5 py-1 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition font-medium border border-rose-200 dark:border-rose-500/20 active:scale-95" title="Cabut akses anggota">
           Cabut Akses
         </button>
       ` : '';
 
       const editPanelHtml = canManageMember ? `
-        <div id="edit-blogs-panel-${m.user_id}" class="hidden w-full mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
-          <p class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pilih Blog yang Diizinkan untuk ${m.full_name || m.email}:</p>
+        <div id="edit-blogs-panel-${safeUserId}" class="hidden w-full mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+          <p class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pilih Blog yang Diizinkan untuk ${safeMemberLabel}:</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto">
             ${availableBlogs.map(b => `
               <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
-                <input type="checkbox" name="edit-blog-${m.user_id}" value="${b.id}" ${assignedIds.has(b.id) ? 'checked' : ''} class="rounded text-brand-600 focus:ring-brand-500">
-                <span class="truncate font-medium">${b.name}</span>
+                <input type="checkbox" name="edit-blog-${safeUserId}" value="${escapeHtml(b.id)}" ${assignedIds.has(b.id) ? 'checked' : ''} class="rounded text-brand-600 focus:ring-brand-500">
+                <span class="truncate font-medium">${escapeHtml(b.name)}</span>
               </label>
             `).join('')}
           </div>
           <div class="flex justify-end gap-2">
-            <button onclick="toggleEditMemberBlogs('${m.user_id}')" class="px-3 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Batal</button>
-            <button onclick="saveEditMemberBlogs('${m.user_id}')" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95">Simpan Akses</button>
+            <button onclick="toggleEditMemberBlogs('${jsUserId}')" class="px-3 py-1 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Batal</button>
+            <button onclick="saveEditMemberBlogs('${jsUserId}')" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold transition shadow-sm active:scale-95">Simpan Akses</button>
           </div>
         </div>
       ` : '';
@@ -227,14 +233,14 @@
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white text-sm shrink-0">
-                ${(m.full_name || m.email || 'U')[0].toUpperCase()}
+                ${escapeHtml((m.full_name || m.email || 'U')[0].toUpperCase())}
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-bold text-sm text-slate-900 dark:text-white">${m.full_name || m.email.split('@')[0]}</span>
+                  <span class="font-bold text-sm text-slate-900 dark:text-white">${safeMemberName}</span>
                   ${roleBadge}
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">${m.email}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">${safeMemberEmail}</p>
                 <div class="flex items-center gap-1.5 flex-wrap pt-1.5">
                   ${blogTags}
                 </div>
@@ -289,9 +295,9 @@
 
     cont.innerHTML = availableBlogs.map(b => `
       <label class="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
-        <input type="checkbox" name="invite-blog-id" value="${b.id}" checked class="rounded border-slate-300 dark:border-slate-700 text-brand-600 focus:ring-brand-500">
-        <span class="font-semibold">${b.name}</span>
-        <span class="text-slate-400 text-[11px] font-mono">(${b.url || b.id})</span>
+        <input type="checkbox" name="invite-blog-id" value="${escapeHtml(b.id)}" checked class="rounded border-slate-300 dark:border-slate-700 text-brand-600 focus:ring-brand-500">
+        <span class="font-semibold">${escapeHtml(b.name)}</span>
+        <span class="text-slate-400 text-[11px] font-mono">(${escapeHtml(b.url || b.id)})</span>
       </label>
     `).join('');
   }

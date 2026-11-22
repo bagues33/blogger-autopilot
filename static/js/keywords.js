@@ -21,21 +21,27 @@
         `;
         return;
       }
-      list.innerHTML = keywords.map(k => `
+      list.innerHTML = keywords.map(k => {
+        const safeKw = escapeHtml(k.keyword);
+        const safeIntent = escapeHtml(k.search_intent || 'Informational');
+        const safePriority = escapeHtml(k.priority || 'Medium');
+        const safeStatus = escapeHtml(k.status);
+        return `
         <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/80 dark:bg-[#070b14]/50 flex items-center justify-between text-xs gap-2 hover:border-slate-300 dark:hover:border-slate-700 transition">
           <div class="flex-1 min-w-0">
-            <span class="font-semibold text-slate-900 dark:text-slate-200 block truncate" title="${k.keyword}">${k.keyword}</span>
+            <span class="font-semibold text-slate-900 dark:text-slate-200 block truncate" title="${safeKw}">${safeKw}</span>
             <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Intent: ${k.search_intent || 'Informational'}</span>
-              <span class="text-xs px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/60">${k.priority || 'Medium'}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Intent: ${safeIntent}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/60">${safePriority}</span>
             </div>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <span class="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-mono font-medium border border-slate-200 dark:border-slate-700/50">${k.status}</span>
-            <button onclick="deleteKeyword(${k.id})" title="Hapus Keyword" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-sm font-bold">&times;</button>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-mono font-medium border border-slate-200 dark:border-slate-700/50">${safeStatus}</span>
+            <button onclick="deleteKeyword(${Number(k.id)})" title="Hapus Keyword" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-sm font-bold">&times;</button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
 

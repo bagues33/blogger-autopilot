@@ -161,14 +161,14 @@
           `;
         }
 
-        const authorBadge = a.author_name ? `<span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">✍️ ${a.author_name}</span>` : '';
+        const authorBadge = a.author_name ? `<span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">✍️ ${escapeHtml(a.author_name)}</span>` : '';
 
         const publishButtons = canPublish ? `
-          <button onclick="quickPublish(${a.id}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
+          <button onclick="quickPublish(${Number(a.id)}, true, this)" title="Kirim/Update sebagai Draft online di Blogger" class="px-2.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-amber-100 rounded-lg text-xs font-semibold transition active:scale-95 flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             <span>Draft</span>
           </button>
-          <button onclick="quickPublish(${a.id}, false, this)" title="${isPublished ? 'Perbarui Postingan yang sudah tayang di Blogger' : 'Publikasikan Live ke Blogger'}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1">
+          <button onclick="quickPublish(${Number(a.id)}, false, this)" title="${isPublished ? 'Perbarui Postingan yang sudah tayang di Blogger' : 'Publikasikan Live ke Blogger'}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm shadow-emerald-600/20 active:scale-95 flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             <span>${isPublished ? 'Update Live' : 'Publish Live'}</span>
           </button>
@@ -176,6 +176,12 @@
           <span class="text-[11px] text-slate-400 italic px-1" title="Hanya Editor dan Owner yang berwenang menerbitkan live">Review Gate Aktif</span>
         `;
         
+        const safeTitle = escapeHtml(a.title);
+        const safeKw = escapeHtml(a.target_keyword || '-');
+        const safeMeta = escapeHtml(a.meta_description || 'Belum ada meta deskripsi');
+        const safeBloggerUrl = a.blogger_url ? safeUrl(a.blogger_url) : '';
+        const jsTitle = escapeJsArg(a.title || '');
+
         return `
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/80 dark:bg-[#070b14]/70 hover:border-slate-300 dark:hover:border-slate-700/80 transition duration-150 flex flex-col justify-between gap-3 shadow-sm">
             <div class="space-y-2">
@@ -184,17 +190,17 @@
                   ${badge}
                   ${authorBadge}
                 </div>
-                <span class="text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-slate-900/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">KW: ${a.target_keyword || '-'}</span>
+                <span class="text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-slate-900/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">KW: ${safeKw}</span>
               </div>
-              <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm md:text-base leading-snug hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${a.id})">${a.title}</h3>
-              <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">${a.meta_description || 'Belum ada meta deskripsi'}</p>
-              ${a.blogger_url ? `<a href="${a.blogger_url}" target="_blank" class="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-500 dark:hover:text-brand-300 font-medium inline-flex items-center gap-1 hover:underline pt-1">Buka Post Live di Blogger &rarr;</a>` : ''}
+              <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm md:text-base leading-snug hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer transition" onclick="viewArticle(${Number(a.id)})">${safeTitle}</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">${safeMeta}</p>
+              ${safeBloggerUrl && safeBloggerUrl !== '#' ? `<a href="${safeBloggerUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-500 dark:hover:text-brand-300 font-medium inline-flex items-center gap-1 hover:underline pt-1">Buka Post Live di Blogger &rarr;</a>` : ''}
             </div>
             <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/50 flex-wrap">
-              <button onclick="deleteArticle(${a.id}, '${(a.title || '').replace(/'/g, "\\'")}')" title="Hapus artikel dari database" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-red-500/10 transition text-sm font-bold shrink-0">&times;</button>
+              <button onclick="deleteArticle(${Number(a.id)}, '${jsTitle}')" title="Hapus artikel dari database" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-red-500/10 transition text-sm font-bold shrink-0">&times;</button>
               <div class="flex items-center gap-2 flex-wrap">
                 ${workflowBtn}
-                <button onclick="viewArticle(${a.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
+                <button onclick="viewArticle(${Number(a.id)})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold transition active:scale-95">Preview / Edit</button>
                 ${publishButtons}
               </div>
             </div>
@@ -276,7 +282,7 @@
 
     function syncModalContent() {
       const raw = document.getElementById('modal-article-content').value;
-      document.getElementById('modal-render-container').innerHTML = raw;
+      document.getElementById('modal-render-container').innerHTML = sanitizeHtmlForPreview(raw);
       updateWordCount();
     }
 

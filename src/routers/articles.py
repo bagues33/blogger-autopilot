@@ -17,6 +17,7 @@ from src.models.models import Blog as SaasBlog, Article as SaasArticle, Keyword 
 from src.services.blogger import create_post, update_post
 from src.services.images import process_and_upload_image
 from src.services.schema import inject_schema_if_missing
+from src.core.sanitizer import sanitize_article_html
 from src.services.notifications import dispatch_notification
 from src.services.content_generator import generate_article
 from src.services.audit import record_audit_log
@@ -127,16 +128,19 @@ def api_save_article(req: ArticleSaveReq, request: Request, user: User = Depends
 
     blog_owner = get_blog_effective_owner(blog, db) or user
 
+    # Sanitize user/editor HTML against Stored XSS before storing or publishing
+    clean_html = sanitize_article_html(req.content_html or "")
+
     # Auto-inject Google E-E-A-T Schema JSON-LD if missing
     try:
         final_content = inject_schema_if_missing(
-            html_content=req.content_html,
+            html_content=clean_html,
             title=req.title,
             meta_description=req.meta_description,
             author_name=user.full_name or "Tim Editorial SEO"
         )
     except Exception:
-        final_content = req.content_html
+        final_content = clean_html
 
     if req.id:
         art = db.query(SaasArticle).filter(SaasArticle.id == req.id).first()

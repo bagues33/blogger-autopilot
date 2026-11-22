@@ -1,4 +1,71 @@
-// --- Blogger Auto-Pilot: Theme, Toasts, and Modal Helpers ---
+// --- Blogger Auto-Pilot: Theme, Security Helpers, Toasts, and Modal Helpers ---
+
+    // Shared HTML / Attribute / Preview XSS Defense Helpers
+    function escapeHtml(val) {
+      if (val === null || val === undefined) return '';
+      return String(val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeJsArg(val) {
+      if (val === null || val === undefined) return '';
+      return escapeHtml(
+        String(val)
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, "\\'")
+          .replace(/\r/g, '')
+          .replace(/\n/g, ' ')
+      );
+    }
+
+    function safeUrl(url) {
+      const cleaned = String(url || '').trim();
+      if (!cleaned) return '#';
+      if (/^(https?:\/\/|\/|#)/i.test(cleaned)) return escapeHtml(cleaned);
+      return '#';
+    }
+
+    function sanitizeHtmlForPreview(rawHtml) {
+      if (!rawHtml) return '';
+      try {
+        const doc = new DOMParser().parseFromString(String(rawHtml), 'text/html');
+        const blocked = doc.querySelectorAll(
+          'script, iframe, object, embed, applet, form, input, textarea, button, select, meta, link, base, svg, math, style, noscript, template, frame, frameset'
+        );
+        blocked.forEach(el => el.remove());
+
+        const allEls = doc.body ? doc.body.querySelectorAll('*') : [];
+        allEls.forEach(el => {
+          Array.from(el.attributes).forEach(attr => {
+            const name = attr.name.toLowerCase();
+            const val = (attr.value || '').trim();
+            if (name.startsWith('on') || name === 'srcdoc' || name === 'formaction' || name === 'xlink:href') {
+              el.removeAttribute(attr.name);
+              return;
+            }
+            if (['href', 'src', 'action', 'poster', 'cite', 'data'].includes(name)) {
+              const compact = val.replace(/[\u0000-\u0020\u007f]+/g, '');
+              const isSafeDataImg = /^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(compact);
+              if (compact && !isSafeDataImg && !/^(https?:\/\/|mailto:|\/|#)/i.test(compact)) {
+                el.removeAttribute(attr.name);
+              }
+              return;
+            }
+            if (name === 'style' && /(javascript\s*:|vbscript\s*:|expression\s*\(|url\s*\(\s*['"]?\s*(javascript|vbscript|data:text))/i.test(val)) {
+              el.removeAttribute(attr.name);
+            }
+          });
+        });
+        return doc.body ? doc.body.innerHTML : '';
+      } catch (e) {
+        return escapeHtml(rawHtml);
+      }
+    }
+
     // --- Antislop UI/UX Enhancements: Theme Switcher & Toast Suite ---
     function initTheme() {
       try {
@@ -67,7 +134,7 @@
       toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-lg text-xs font-medium transition-all duration-300 transform translate-y-2 opacity-0 ${style}`;
       toast.innerHTML = `
         <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs shrink-0" aria-hidden="true">${icon}</span>
-        <div class="flex-1 min-w-0 pr-1 leading-snug break-words">${cleanMessage}</div>
+        <div class="flex-1 min-w-0 pr-1 leading-snug break-words">${escapeHtml(cleanMessage)}</div>
         <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white transition font-bold text-sm shrink-0" aria-label="Tutup notifikasi">&times;</button>
       `;
       container.appendChild(toast);

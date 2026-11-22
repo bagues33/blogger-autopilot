@@ -660,7 +660,14 @@
         info: 'bg-slate-900 text-white dark:bg-slate-800'
       };
       el.className = `p-3.5 rounded-xl text-xs font-medium shadow-xl pointer-events-auto transition transform translate-y-2 opacity-0 flex items-center justify-between gap-3 ${colors[type] || colors.info}`;
-      el.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white font-bold">&times;</button>`;
+      const msgSpan = document.createElement('span');
+      msgSpan.textContent = message;
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'text-white/80 hover:text-white font-bold';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.onclick = () => el.remove();
+      el.appendChild(msgSpan);
+      el.appendChild(closeBtn);
       container.appendChild(el);
       requestAnimationFrame(() => {
         el.classList.remove('translate-y-2', 'opacity-0');

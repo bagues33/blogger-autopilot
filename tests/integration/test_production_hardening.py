@@ -440,4 +440,62 @@ def test_pdf_upload_403_for_free_tier_and_trusted_proxy_xff(tenant_factory):
     assert get_client_ip(trusted_xreal) == "198.51.100.25"
 
 
+def test_html_sanitizer_and_csp_block_stored_xss(client: TestClient, tenant_factory, db_session):
+    import uuid
+    from src.core.sanitizer import sanitize_article_html
+    from src.models.models import Blog, Article
+
+    # 1. CSP header is present on responses
+    r_health = client.get("/health")
+    csp = r_health.headers.get("content-security-policy", "")
+    assert "object-src 'none'" in csp
+    assert "frame-ancestors 'none'" in csp
+
+    # 2. Direct unit verification of sanitizer against XSS + valid JSON-LD preservation
+    evil_html = (
+        '<h2>Judul Aman</h2>'
+        '<script>alert("xss")</script>'
+        '<img src="https://cdn.example.com/pic.webp" onerror="fetch(\'/api/admin\')" alt="ok">'
+        '<a href="javascript:alert(1)">Klik</a>'
+        '<a href="https://blogger.com">Valid Link</a>'
+        '<iframe src="https://evil.test"></iframe>'
+        '<svg onload="alert(2)"></svg>'
+        '<p style="background:url(javascript:alert(3))">Paragraf</p>'
+        '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Aman"}</script>'
+    )
+    cleaned = sanitize_article_html(evil_html)
+    assert "<script>alert" not in cleaned
+    assert "onerror" not in cleaned.lower()
+    assert "javascript:" not in cleaned.lower()
+    assert "<iframe" not in cleaned.lower()
+    assert "<svg" not in cleaned.lower()
+    assert "<h2>Judul Aman</h2>" in cleaned
+    assert 'https://cdn.example.com/pic.webp' in cleaned
+    assert 'href="https://blogger.com"' in cleaned
+    assert 'application/ld+json' in cleaned
+
+    # 3. End-to-end persistence check via POST /api/articles/save
+    client_u, user = tenant_factory(plan="free", name="XSS Tester")
+    b_id = f"xss-blog-{uuid.uuid4().hex[:8]}"
+    db_session.add(Blog(id=b_id, user_id=user.id, name="Blog Aman", is_active=1))
+    db_session.commit()
+
+    r_save = client_u.post("/api/articles/save", json={
+        "blog_id": b_id,
+        "title": "Test Sanitizer",
+        "target_keyword": "keamanan",
+        "meta_description": "desc",
+        "content_html": evil_html,
+        "labels": "SEO"
+    })
+    assert r_save.status_code == 200
+    saved_art = db_session.query(Article).filter(Article.blog_id == b_id).first()
+    assert saved_art is not None
+    assert "<script>alert" not in saved_art.content_html
+    assert "onerror" not in saved_art.content_html.lower()
+    assert "javascript:" not in saved_art.content_html.lower()
+    assert "<iframe" not in saved_art.content_html.lower()
+
+
+
 

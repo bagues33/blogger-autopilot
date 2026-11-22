@@ -470,11 +470,12 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
             custom_keys=custom_keys
         )
 
-        # 6. Sanitize Metadata & Inject Schema
+        # 6. Sanitize Metadata & HTML Content (Anti-XSS / Prompt Injection Defense) & Inject Schema
         raw_title = raw_article.get('title', f"{kw.keyword.title()}: Panduan Lengkap")
         raw_meta = raw_article.get('meta_description', f"Panduan lengkap mengenai {kw.keyword}.")
         title, meta_desc = sanitize_article_metadata(raw_title, raw_meta)
-        content_html = raw_article.get('content_html', '')
+        from src.core.sanitizer import sanitize_article_html
+        content_html = sanitize_article_html(raw_article.get('content_html', ''))
         labels = raw_article.get('labels', 'Teknologi, SEO, Tutorial')
 
         try:

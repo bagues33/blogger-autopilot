@@ -92,6 +92,17 @@ async def add_security_headers(request: Request, call_next):
     response.headers.setdefault("X-Frame-Options", "DENY")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://app.midtrans.com https://app.sandbox.midtrans.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' https: data: blob:; "
+        "connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com; "
+        "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com; "
+        "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    )
     if os.environ.get('ENVIRONMENT', '').strip().lower() == 'production':
         response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     return response
