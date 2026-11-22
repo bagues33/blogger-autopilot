@@ -213,7 +213,7 @@ def api_publish_article(article_id: int, request: Request, is_draft: Optional[bo
             )
 
     art_title = art.title
-    art_content = art.content_html
+    art_content = sanitize_article_html(art.content_html or "")
     art_labels = art.labels
     art_keyword = art.target_keyword
     art_blog_id = art.blog_id

@@ -99,7 +99,7 @@ async def add_security_headers(request: Request, call_next):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' https: data: blob:; "
-        "connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com; "
+        "connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com; "
         "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com; "
         "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     )
