@@ -55,12 +55,14 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 
-# Production fail-fast validation for cryptographic secrets
+# Production fail-fast validation for cryptographic secrets & cron key
 if os.environ.get('ENVIRONMENT', '').strip().lower() == 'production':
     from src.core.security import get_jwt_secret
     from src.core.crypto import get_encryption_key
+    from src.routers.cron import get_cron_secret
     get_jwt_secret()
     get_encryption_key()
+    get_cron_secret()
 
 # CORS policy: strict allowlist from env in production, localhost allowed in dev
 _raw_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '').strip()

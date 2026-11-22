@@ -95,10 +95,10 @@ def api_save_kb(req: KbSaveReq, user: User = Depends(get_current_user), db: Sess
 @router.post('/api/kb/upload-pdf')
 async def api_upload_pdf(files: List[UploadFile] = File(...), user: User = Depends(get_current_user), db: Session = Depends(get_saas_db)):
     if not check_feature_access(user, 'custom_kb'):
-        return {
-            'success': False,
-            'error': "Ingest dokumen PDF untuk Knowledge Base memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
-        }
+        raise HTTPException(
+            status_code=403,
+            detail="Ingest dokumen PDF untuk Knowledge Base memerlukan paket Pro Publisher atau Agency Network. Silakan upgrade paket Anda."
+        )
     try:
         total_pages = 0
         added_texts = []

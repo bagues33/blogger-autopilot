@@ -119,6 +119,13 @@ def api_add_blog(req: BlogAddReq, request: Request, user: User = Depends(get_cur
     target_id = req.id.strip()
 
     existing = db.query(SaasBlog).filter(SaasBlog.id == target_id, SaasBlog.user_id == user.id).first()
+    if not existing:
+        other_owner_blog = db.query(SaasBlog).filter(SaasBlog.id == target_id).first()
+        if other_owner_blog:
+            raise HTTPException(
+                status_code=409,
+                detail="ID Blog ini sudah terhubung dengan akun lain."
+            )
     current_count = db.query(SaasBlog).filter(SaasBlog.user_id == user.id).count()
     if not existing and current_count >= max_blogs:
         raise HTTPException(

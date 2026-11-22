@@ -5,6 +5,7 @@ Provides secured HTTP webhook endpoints for external scheduler services
 """
 
 import os
+import hmac
 import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
@@ -18,8 +19,23 @@ from autopilot_scheduler import run_scheduler_cycle, get_scheduler_status
 logger = logging.getLogger("CronRouter")
 router = APIRouter(tags=["Autopilot & Cron"])
 
+_DEV_CRON_FALLBACK = "blogger-autopilot-cron-secret-2026"
+_PLACEHOLDER_MARKERS = ("ganti_dengan", "dev-secret", "change_me", "placeholder", "your_secret")
+
+def _is_weak_cron_secret(secret: str) -> bool:
+    if not secret or len(secret) < 24:
+        return True
+    low = secret.lower()
+    return any(m in low for m in _PLACEHOLDER_MARKERS) or secret == _DEV_CRON_FALLBACK
+
 def get_cron_secret() -> str:
-    return os.environ.get("CRON_SECRET_KEY", "blogger-autopilot-cron-secret-2026").strip()
+    raw = os.environ.get("CRON_SECRET_KEY", "").strip()
+    is_prod = os.environ.get("ENVIRONMENT", "").strip().lower() == "production"
+    if is_prod and _is_weak_cron_secret(raw):
+        raise RuntimeError(
+            "CRITICAL SECURITY ERROR: CRON_SECRET_KEY wajib diisi dengan token acak minimal 24 karakter saat ENVIRONMENT=production!"
+        )
+    return raw or _DEV_CRON_FALLBACK
 
 def verify_cron_access(
     request: Request,
@@ -32,21 +48,23 @@ def verify_cron_access(
     Verifies that the request carries a valid Cron Secret Token
     or originates from an authenticated superadmin session.
     """
-    secret = get_cron_secret()
+    try:
+        secret = get_cron_secret()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
 
     # 1. Check Query parameter ?key=
-    if key and key.strip() == secret:
+    if key and hmac.compare_digest(key.strip(), secret):
         return True
 
     # 2. Check X-Cron-Key header
-    if x_cron_key and x_cron_key.strip() == secret:
+    if x_cron_key and hmac.compare_digest(x_cron_key.strip(), secret):
         return True
 
     # 3. Check Authorization: Bearer <key>
     if authorization and authorization.startswith("Bearer "):
         bearer_token = authorization.split(" ", 1)[1].strip()
-        if bearer_token == secret:
-            return True
+        if hmac.compare_digest(bearer_token, secret):
             return True
 
     # 4. Check if originating from an authenticated Admin user session

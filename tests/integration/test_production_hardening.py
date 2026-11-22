@@ -263,9 +263,14 @@ def test_legal_pages_and_self_service_password_reset(client: TestClient, tenant_
 
 
 def test_encrypted_token_upload_and_no_server_path_leak(tenant_factory, db_session):
+    import uuid
     from src.models.models import Blog
 
     client_pro, user_pro = tenant_factory(plan="pro", name="Token Flow Owner")
+    sfx = uuid.uuid4().hex[:8]
+    b1_id = f"enc-blog-1-{sfx}"
+    b2_id = f"enc-blog-2-{sfx}"
+    steal_id = f"steal-blog-{sfx}"
 
     # 1. Valid OAuth JSON upload returns encrypted_token (never a raw file path)
     oauth_payload = b'{"token": "ya29.fake", "refresh_token": "1//fake", "client_id": "cid"}'
@@ -281,7 +286,7 @@ def test_encrypted_token_upload_and_no_server_path_leak(tenant_factory, db_sessi
 
     # 2. Save blog #1 with encrypted_token
     r_add1 = client_pro.post("/api/blogs/add", json={
-        "id": "enc-blog-1",
+        "id": b1_id,
         "name": "Encrypted Blog 1",
         "url": "https://enc1.blogspot.com",
         "encrypted_token": up_data["encrypted_token"]
@@ -292,31 +297,38 @@ def test_encrypted_token_upload_and_no_server_path_leak(tenant_factory, db_sessi
     r_list = client_pro.get("/api/blogs")
     assert r_list.status_code == 200
     blogs_resp = r_list.json()
-    b1 = next(b for b in blogs_resp if b["id"] == "enc-blog-1")
+    b1 = next(b for b in blogs_resp if b["id"] == b1_id)
     assert b1["has_token"] is True
     assert "token_file" not in b1
 
     # 4. Save blog #2 reusing own blog #1's encrypted_token safely server-side
     r_add2 = client_pro.post("/api/blogs/add", json={
-        "id": "enc-blog-2",
+        "id": b2_id,
         "name": "Encrypted Blog 2",
         "url": "https://enc2.blogspot.com",
-        "reuse_token_from_blog_id": "enc-blog-1"
+        "reuse_token_from_blog_id": b1_id
     })
     assert r_add2.status_code == 200
-    saved_b2 = db_session.query(Blog).filter(Blog.id == "enc-blog-2", Blog.user_id == user_pro.id).first()
+    saved_b2 = db_session.query(Blog).filter(Blog.id == b2_id, Blog.user_id == user_pro.id).first()
     assert saved_b2 is not None
     assert saved_b2.encrypted_token == up_data["encrypted_token"]
 
     # 5. Another tenant CANNOT reuse user_pro's blog token via reuse_token_from_blog_id
+    #    and trying to overwrite b1_id returns clean 409 Conflict instead of 500 IntegrityError
     client_other, user_other = tenant_factory(plan="free", name="Other Tenant")
+    r_conflict = client_other.post("/api/blogs/add", json={
+        "id": b1_id,
+        "name": "Hijack Existing Blog ID"
+    })
+    assert r_conflict.status_code == 409
+
     r_steal = client_other.post("/api/blogs/add", json={
-        "id": "steal-blog",
+        "id": steal_id,
         "name": "Steal Blog",
-        "reuse_token_from_blog_id": "enc-blog-1"
+        "reuse_token_from_blog_id": b1_id
     })
     assert r_steal.status_code == 200
-    stolen = db_session.query(Blog).filter(Blog.id == "steal-blog", Blog.user_id == user_other.id).first()
+    stolen = db_session.query(Blog).filter(Blog.id == steal_id, Blog.user_id == user_other.id).first()
     assert stolen is not None
     assert stolen.encrypted_token is None
 
@@ -342,5 +354,84 @@ def test_admin_mrr_excludes_expired_subscriptions(tenant_factory, db_session):
     r_after = client_admin.get("/api/admin/metrics")
     assert r_after.status_code == 200
     assert r_after.json()["mrr_idr"] == base_mrr
+
+
+def test_cron_secret_fail_fast_in_production(monkeypatch):
+    from src.routers.cron import get_cron_secret
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.delenv("CRON_SECRET_KEY", raising=False)
+    with pytest.raises(RuntimeError):
+        get_cron_secret()
+
+    monkeypatch.setenv("CRON_SECRET_KEY", "blogger-autopilot-cron-secret-2026")
+    with pytest.raises(RuntimeError):
+        get_cron_secret()
+
+    monkeypatch.setenv("CRON_SECRET_KEY", "prod_super_secure_cron_key_9f8e7d6c5b4a3210")
+    assert get_cron_secret() == "prod_super_secure_cron_key_9f8e7d6c5b4a3210"
+
+
+def test_password_reset_token_single_use_and_email_delivery(client: TestClient, tenant_factory):
+    from src.services.mailer import InMemoryEmailAdapter, get_email_adapter, set_email_adapter
+
+    limiter.requests.clear()
+    original_adapter = get_email_adapter()
+    mem_mailer = InMemoryEmailAdapter()
+    set_email_adapter(mem_mailer)
+    try:
+        _, user = tenant_factory(plan="free", name="Single Use Reset")
+        r_forgot = client.post("/api/saas/auth/forgot-password", json={"email": user.email})
+        assert r_forgot.status_code == 200
+        tok = r_forgot.json().get("dev_reset_token")
+        assert tok
+
+        # Verify transactional email adapter was invoked with reset token
+        assert len(mem_mailer.sent_emails) == 1
+        assert mem_mailer.sent_emails[0]["to"] == user.email
+        assert tok in mem_mailer.sent_emails[0]["text_body"]
+
+        # First use succeeds
+        r_use1 = client.post("/api/saas/auth/reset-password-confirm", json={
+            "token": tok,
+            "new_password": "FirstResetPassword99!"
+        })
+        assert r_use1.status_code == 200
+
+        # Replay of the exact same token MUST be rejected with 400!
+        r_use2 = client.post("/api/saas/auth/reset-password-confirm", json={
+            "token": tok,
+            "new_password": "HijackReplayPassword99!"
+        })
+        assert r_use2.status_code == 400
+    finally:
+        set_email_adapter(original_adapter)
+
+
+def test_pdf_upload_403_for_free_tier_and_trusted_proxy_xff(tenant_factory):
+    from types import SimpleNamespace
+    from src.core.rate_limiter import get_client_ip
+
+    # 1. Free user uploading PDF must receive HTTP 403 (triggers frontend upgrade modal)
+    client_free, _ = tenant_factory(plan="free", name="Free PDF User")
+    r_pdf = client_free.post(
+        "/api/kb/upload-pdf",
+        files={"files": ("test.pdf", b"%PDF-1.4 fake", "application/pdf")}
+    )
+    assert r_pdf.status_code == 403
+
+    # 2. Untrusted client cannot spoof X-Forwarded-For, trusted loopback proxy can
+    untrusted_req = SimpleNamespace(
+        client=SimpleNamespace(host="203.0.113.55"),
+        headers={"X-Forwarded-For": "1.2.3.4"}
+    )
+    assert get_client_ip(untrusted_req) == "203.0.113.55"
+
+    trusted_req = SimpleNamespace(
+        client=SimpleNamespace(host="127.0.0.1"),
+        headers={"X-Forwarded-For": "198.51.100.10, 127.0.0.1"}
+    )
+    assert get_client_ip(trusted_req) == "198.51.100.10"
+
 
 

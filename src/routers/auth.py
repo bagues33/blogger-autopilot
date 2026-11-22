@@ -4,6 +4,8 @@ Handles tenant registration, login/logout, JWT sessions, and Google OAuth creden
 """
 
 import os
+import hmac
+import hashlib
 import json
 import uuid
 from typing import Optional
@@ -193,6 +195,10 @@ def api_saas_me(request: Request, db: Session = Depends(get_saas_db)):
 
 # --- Self-Service Password Reset ---
 
+def _password_fingerprint(hashed_pw: Optional[str]) -> str:
+    """Short fingerprint of the user's current password hash to guarantee single-use reset tokens."""
+    return hashlib.sha256((hashed_pw or "no-password-set").encode("utf-8")).hexdigest()[:16]
+
 @router.post('/api/saas/auth/forgot-password')
 def api_saas_forgot_password(req: ForgotPasswordReq, request: Request, db: Session = Depends(get_saas_db)):
     check_rate_limit(request, max_requests=5, window_seconds=300, endpoint_tag="forgot_password")
@@ -204,10 +210,24 @@ def api_saas_forgot_password(req: ForgotPasswordReq, request: Request, db: Sessi
 
     if user:
         reset_token = create_access_token(
-            {'sub': user.id, 'email': user.email, 'purpose': 'password_reset'},
+            {
+                'sub': user.id,
+                'email': user.email,
+                'purpose': 'password_reset',
+                'pw_fp': _password_fingerprint(user.hashed_password)
+            },
             expires_delta=timedelta(minutes=15)
         )
-        # Notify via Telegram if user configured Telegram alerts
+        # 1. Dispatch via transactional email (Resend / SMTP) if configured
+        email_dispatched = False
+        try:
+            from src.services.mailer import send_password_reset_email
+            mail_res = send_password_reset_email(to_email=user.email, reset_token=reset_token)
+            email_dispatched = bool(mail_res.get('success'))
+        except Exception:
+            pass
+
+        # 2. Also notify via Telegram if user configured Telegram alerts
         try:
             ns = db.query(NotificationSetting).filter(NotificationSetting.user_id == user.id, NotificationSetting.is_active == True).first()
             if ns and ns.telegram_bot_token and ns.telegram_chat_id:
@@ -215,7 +235,7 @@ def api_saas_forgot_password(req: ForgotPasswordReq, request: Request, db: Sessi
                 send_telegram_message(
                     ns.telegram_bot_token,
                     ns.telegram_chat_id,
-                    f"🔐 <b>Permintaan Reset Kata Sandi</b>\n\nGunakan token berikut (berlaku 15 menit) untuk mengatur ulang kata sandi akun <code>{user.email}</code>:\n\n<code>{reset_token}</code>"
+                    f"🔐 <b>Permintaan Reset Kata Sandi</b>\n\nGunakan token berikut (berlaku 15 menit, 1x pakai) untuk mengatur ulang kata sandi akun <code>{user.email}</code>:\n\n<code>{reset_token}</code>"
                 )
         except Exception:
             pass
@@ -225,7 +245,7 @@ def api_saas_forgot_password(req: ForgotPasswordReq, request: Request, db: Sessi
             event_type="auth.password_reset_requested",
             user_id=user.id,
             entity_id=user.id,
-            metadata={"email": user.email},
+            metadata={"email": user.email, "email_dispatched": email_dispatched},
             ip_address=request.client.host if request and request.client else None
         )
         if not is_prod:
@@ -234,7 +254,7 @@ def api_saas_forgot_password(req: ForgotPasswordReq, request: Request, db: Sessi
     # Always return neutral response to prevent email enumeration
     resp = {
         'success': True,
-        'message': "Jika email terdaftar di sistem, instruksi & token reset kata sandi (berlaku 15 menit) telah dikirimkan. Hubungi CS jika Anda belum menghubungkan kanal notifikasi."
+        'message': "Jika email terdaftar di sistem, instruksi & token reset kata sandi (berlaku 15 menit, 1x pakai) telah dikirimkan ke email / notifikasi Anda."
     }
     if dev_token and not is_prod:
         resp['dev_reset_token'] = dev_token
@@ -248,12 +268,17 @@ def api_saas_reset_password_confirm(req: ResetPasswordConfirmReq, request: Reque
         raise HTTPException(status_code=400, detail="Kata sandi baru minimal 8 karakter.")
 
     payload = decode_access_token(req.token.strip())
-    if not payload or payload.get('purpose') != 'password_reset' or not payload.get('sub'):
+    if not payload or payload.get('purpose') != 'password_reset' or not payload.get('sub') or not payload.get('pw_fp'):
         raise HTTPException(status_code=400, detail="Token reset kata sandi tidak valid atau sudah kedaluwarsa.")
 
     user = db.query(User).filter(User.id == payload['sub'], User.is_active == True).first()
     if not user:
         raise HTTPException(status_code=404, detail="Akun pengguna tidak ditemukan atau tidak aktif.")
+
+    # Single-use check: reject token if password has already been changed since issuance
+    expected_fp = _password_fingerprint(user.hashed_password)
+    if not hmac.compare_digest(str(payload.get('pw_fp', '')), expected_fp):
+        raise HTTPException(status_code=400, detail="Token reset kata sandi sudah pernah digunakan atau tidak lagi berlaku.")
 
     user.hashed_password = hash_password(req.new_password.strip())
     db.commit()

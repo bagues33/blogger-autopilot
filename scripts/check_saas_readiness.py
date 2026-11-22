@@ -138,23 +138,52 @@ def run_diagnostics():
     gemini_key = os.environ.get('GEMINI_API_KEY')
     groq_key = os.environ.get('GROQ_API_KEY')
     openai_key = os.environ.get('OPENAI_API_KEY')
+    has_any_llm = bool(gemini_key or groq_key or openai_key)
 
     print(f"{check_mark(bool(gemini_key))} Google Gemini API Key    : {'Terkonfigurasi' if gemini_key else 'Belum diisi'}")
     print(f"{check_mark(bool(groq_key))} Groq Cloud API Key        : {'Terkonfigurasi' if groq_key else 'Belum diisi'}")
     print(f"{check_mark(bool(openai_key))} OpenAI API Key            : {'Terkonfigurasi' if openai_key else 'Belum diisi'}")
 
-    # 6. Public Image CDN
-    print_section("6. Public Image CDN Pipeline (Cloudinary)")
+    # 6. Public Image CDN, Cron Secret & Transactional Email
+    print_section("6. Public Image CDN, Cron Security & Email Transaksional")
     c_url = os.environ.get('CLOUDINARY_URL')
     print(f"{check_mark(bool(c_url))} Cloudinary Public CDN     : {'Aktif (HTTPS CDN)' if c_url else 'Fallback Lokal (/uploads/ WebP)'}")
 
+    from src.routers.cron import _is_weak_cron_secret
+    from src.services.mailer import is_email_configured
+    cron_raw = os.environ.get('CRON_SECRET_KEY', '').strip()
+    cron_ok = not _is_weak_cron_secret(cron_raw)
+    email_ok = is_email_configured()
+    print(f"{check_mark(cron_ok)} CRON_SECRET_KEY           : {'Kuat (>=24 karakter)' if cron_ok else 'Masih default/lemah (WAJIB diisi di produksi)'}")
+    print(f"{check_mark(email_ok)} Transactional Email       : {'Aktif (Resend / SMTP)' if email_ok else 'Belum diisi (Reset password produksi perlu Resend/SMTP)'}")
+
+    is_prod_env = os.environ.get('ENVIRONMENT', '').strip().lower() == 'production'
+    prod_warnings = []
+    if not has_any_llm:
+        prod_warnings.append("Belum ada API Key LLM (GEMINI_API_KEY / GROQ_API_KEY / OPENAI_API_KEY).")
+    if is_sqlite:
+        prod_warnings.append("Database masih memakai SQLite lokal (gunakan PostgreSQL/Supabase untuk produksi).")
+    if not cron_ok:
+        prod_warnings.append("CRON_SECRET_KEY masih kosong/lemah.")
+    if not email_ok:
+        prod_warnings.append("Transporter email (RESEND_API_KEY / SMTP_HOST) belum dikonfigurasi.")
+
     # Summary
     print_section("KESIMPULAN AUDIT SAAS")
-    if all_critical_ok:
-        print("🎉 STATUS: SIAP PRODUKSI! Seluruh pondasi inti Multi-Tenant SaaS, Supabase Models,")
-        print("   AES Enkripsi, dan Midtrans Indonesian Payment Gateway berjalan dengan sempurna.")
+    if all_critical_ok and (not is_prod_env or not prod_warnings):
+        if prod_warnings:
+            print("⚠️  STATUS: PONDASI LOKAL/DEV SIAP, NAMUN BELUM LENGKAP UNTUK GO-LIVE PRODUKSI:")
+            for w in prod_warnings:
+                print(f"   - {w}")
+        else:
+            print("🎉 STATUS: SIAP PRODUKSI! Seluruh pondasi inti Multi-Tenant SaaS, PostgreSQL,")
+            print("   AES Enkripsi, CRON Secret, Email Transaksional, dan Midtrans terverifikasi.")
     else:
-        print("⚠️  STATUS: Ada beberapa konfigurasi yang perlu disesuaikan sebelum rilis.")
+        print("❌ STATUS: BELUM SIAP RILIS PRODUKSI. Perbaiki item berikut sebelum go-live:")
+        for w in prod_warnings:
+            print(f"   - {w}")
+        if is_prod_env:
+            sys.exit(1)
 
 if __name__ == '__main__':
     run_diagnostics()

@@ -4,6 +4,7 @@ Protects authentication endpoints against brute-force and DDoS attacks.
 Zero external dependencies.
 """
 
+import os
 import time
 from typing import Dict, List, Tuple
 from fastapi import Request, HTTPException
@@ -78,11 +79,16 @@ def check_concurrency(key: str, max_concurrent: int = 2):
 def release_concurrency(key: str):
     concurrency_limiter.release(key)
 
+def _get_trusted_proxies() -> set:
+    raw = os.environ.get("TRUSTED_PROXY_IPS", "127.0.0.1,::1")
+    return {ip.strip() for ip in raw.split(",") if ip.strip()}
+
 def get_client_ip(request: Request) -> str:
+    peer_ip = request.client.host if request.client else "unknown"
     forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
+    if forwarded and peer_ip in _get_trusted_proxies():
         return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    return peer_ip
 
 def check_rate_limit(request: Request, max_requests: int = 15, window_seconds: int = 60, endpoint_tag: str = "auth"):
     """

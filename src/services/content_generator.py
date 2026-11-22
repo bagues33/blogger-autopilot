@@ -538,10 +538,25 @@ Wajib sertakan Hook Direct Answer 40-50 kata pertama, minimal 1 tabel komparasi,
         db.add(article)
 
         if sub and not is_byok:
-            sub.article_credits_used += 1
+            # Atomic conditional credit deduction to prevent concurrent race conditions
+            updated_rows = db.query(Subscription).filter(
+                Subscription.id == sub.id,
+                Subscription.article_credits_used < Subscription.article_credits_limit
+            ).update(
+                {Subscription.article_credits_used: Subscription.article_credits_used + 1},
+                synchronize_session=False
+            )
+            if updated_rows == 0:
+                db.rollback()
+                return GenerationResult(
+                    success=False,
+                    error=f"Kuota kredit artikel tenant telah habis ({sub.article_credits_used}/{sub.article_credits_limit})."
+                )
 
         db.commit()
         db.refresh(article)
+        if sub:
+            db.refresh(sub)
 
         # Audit Logging
         record_audit_log(

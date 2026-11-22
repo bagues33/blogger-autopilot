@@ -1,0 +1,43 @@
+# Secrets, local config, and credentials (NEVER bake into Docker image)
+.env
+.env.*
+!.env.example
+!.env.production.example
+client_secret*.json
+token*.json
+tokens/
+config.json
+*.pem
+*.key
+
+# Local databases & backups
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite*
+backup_*.sql
+
+# Virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# VCS, IDE, Agent, and non-runtime directories
+.git/
+.github/
+.agents/
+.vscode/
+.idea/
+tests/
+docs/
+uploads/
+settings/
+*.log
+.DS_Store
+

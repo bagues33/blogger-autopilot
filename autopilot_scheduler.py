@@ -8,12 +8,21 @@ import os
 import sys
 import time
 import logging
+import tempfile
+import threading
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
 from typing import Optional
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from src.core.database import SessionLocal
 from src.models.models import User, Subscription, Blog, Article, Keyword
 from src.services.content_generator import generate_article
+
+_SCHEDULER_THREAD_LOCK = threading.Lock()
+_SCHEDULER_LOCK_PATH = os.path.join(tempfile.gettempdir(), "blogger_autopilot_scheduler.lock")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -70,6 +79,38 @@ def run_scheduler_cycle(max_per_cycle: int = 5, force: bool = False, dry_run: bo
         dry_run: If True, simulates selection without invoking LLM or mutating database.
     """
     mode_str = "DRY-RUN SIMULATION" if dry_run else ("FORCE RUN" if force else "STANDARD RUN")
+    if not dry_run:
+        if not _SCHEDULER_THREAD_LOCK.acquire(blocking=False):
+            logger.warning("Scheduler cycle already running in-process; skipping overlapping trigger.")
+            return {
+                'success': True,
+                'skipped_overlap': True,
+                'processed_count': 0,
+                'results': [],
+                'message': 'Siklus autopilot lain sedang berjalan, trigger ganda dilewati.'
+            }
+        lock_fp = None
+        if fcntl is not None:
+            try:
+                lock_fp = open(_SCHEDULER_LOCK_PATH, "w")
+                fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                _SCHEDULER_THREAD_LOCK.release()
+                if lock_fp:
+                    lock_fp.close()
+                logger.warning("Scheduler cycle already holds OS lock; skipping overlapping trigger.")
+                return {
+                    'success': True,
+                    'skipped_overlap': True,
+                    'processed_count': 0,
+                    'results': [],
+                    'message': 'Siklus autopilot lain sedang aktif di worker lain, trigger ganda dilewati.'
+                }
+            except Exception:
+                lock_fp = None
+    else:
+        lock_fp = None
+
     logger.info(f"Starting Autopilot Scheduler cycle ({mode_str}, max_per_cycle={max_per_cycle})...")
     db: Session = SessionLocal()
     processed_count = 0
@@ -220,6 +261,21 @@ def run_scheduler_cycle(max_per_cycle: int = 5, force: bool = False, dry_run: bo
         }
     finally:
         db.close()
+        if not dry_run:
+            if lock_fp is not None:
+                try:
+                    if fcntl is not None:
+                        fcntl.flock(lock_fp.fileno(), fcntl.LOCK_UN)
+                except Exception:
+                    pass
+                try:
+                    lock_fp.close()
+                except Exception:
+                    pass
+            try:
+                _SCHEDULER_THREAD_LOCK.release()
+            except RuntimeError:
+                pass
 
 def start_scheduler_loop(interval_seconds: int = SCHEDULER_INTERVAL_SECONDS):
     logger.info(f"Autopilot Scheduler Daemon started (Cycle Interval: {interval_seconds}s)")
